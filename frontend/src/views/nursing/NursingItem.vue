@@ -102,18 +102,18 @@ import { ref, reactive, onMounted } from 'vue'
 import { getNursingItemList, addNursingItem, updateNursingItem, deleteNursingItem } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-// 查询参数
+/** 查询条件。 */
 const query = reactive({
   name: '',
   status: '启用',
 })
 
-// 分页参数
+/** 分页信息。 */
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-// 护理项目列表
+/** 护理项目列表。 */
 const list = ref([
   {
     id: 1,
@@ -127,10 +127,10 @@ const list = ref([
   },
 ])
 
-// 表单引用
+/** 表单引用。 */
 const formRef = ref(null)
 
-// 表单验证规则
+/** 表单校验规则。 */
 const rules = {
   code: [{ required: true, message: '请输入编号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
@@ -140,7 +140,11 @@ const rules = {
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 }
 
-// 获取护理项目列表
+/**
+ * 查询护理项目列表。
+ *
+ * @returns 无返回值
+ */
 const fetchList = async () => {
   const res = await getNursingItemList({
     name: query.name,
@@ -152,7 +156,7 @@ const fetchList = async () => {
   total.value = res.total || 0
 }
 
-// 编辑弹窗
+/** 编辑弹窗状态。 */
 const editDialog = reactive({
   visible: false,
   title: '添加/编辑护理项目',
@@ -168,7 +172,12 @@ const editDialog = reactive({
   },
 })
 
-// 打开编辑弹窗
+/**
+ * 打开编辑弹窗。
+ *
+ * @param row 护理项目行数据
+ * @returns 无返回值
+ */
 const openEditDialog = (row) => {
   if (row) {
     editDialog.title = '编辑护理项目'
@@ -189,16 +198,18 @@ const openEditDialog = (row) => {
   editDialog.visible = true
 }
 
-// 保存护理项目
+/**
+ * 保存护理项目。
+ *
+ * @returns 无返回值
+ */
 const saveItem = async () => {
   if (!formRef.value) return
   try {
     await formRef.value.validate()
     if (editDialog.form.id) {
-      // 修改，后端根据status判断是否需要移除护理级别项目
       await updateNursingItem(editDialog.form)
     } else {
-      // 新增
       await addNursingItem(editDialog.form)
     }
     editDialog.visible = false
@@ -210,24 +221,39 @@ const saveItem = async () => {
   }
 }
 
-// 删除护理项目（逻辑删除）
+/**
+ * 删除护理项目。
+ *
+ * @param row 护理项目行数据
+ * @returns 无返回值
+ */
 const removeItem = (row) => {
   ElMessageBox.confirm('确定要删除该护理项目吗？', '提示', {
     type: 'warning',
   }).then(async () => {
-    // 直接调用删除接口，后端会处理所有相关操作
     await deleteNursingItem(row.id)
     fetchList()
   })
 }
 
-// 多选相关
+/** 当前选中的护理项目。 */
 const multipleSelection = ref([])
 
+/**
+ * 更新多选结果。
+ *
+ * @param val 选中行
+ * @returns 无返回值
+ */
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
 
+/**
+ * 批量删除护理项目。
+ *
+ * @returns 无返回值
+ */
 const deleteSelectedItems = () => {
   if (multipleSelection.value.length === 0) {
     ElMessage.warning('请先选择要删除的项目')
@@ -251,9 +277,14 @@ const deleteSelectedItems = () => {
     })
     .catch(() => {
       ElMessage.info('已取消删除')
-    })
+  })
 }
 
+/**
+ * 页面初始化时加载护理项目列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchList()
 })

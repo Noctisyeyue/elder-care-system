@@ -64,26 +64,30 @@ import { getNursingLevelList, addNursingLevel, updateNursingLevel } from '@/api/
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-// 查询参数
+/** 查询条件。 */
 const query = reactive({
   status: '启用',
 })
 
-// 护理级别列表
+/** 护理级别列表。 */
 const levelList = ref([])
 
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-// 获取护理级别列表
+/**
+ * 查询护理级别列表。
+ *
+ * @returns 无返回值
+ */
 const fetchLevelList = async () => {
   const res = await getNursingLevelList({ status: query.status, pageNum: page.value, pageSize: pageSize.value })
   levelList.value = res.records || []
   total.value = res.total || 0
 }
 
-// 编辑弹窗
+/** 编辑弹窗状态。 */
 const editDialog = reactive({
   visible: false,
   title: '添加/编辑(同一个模态框)',
@@ -94,7 +98,12 @@ const editDialog = reactive({
   },
 })
 
-// 打开编辑弹窗
+/**
+ * 打开编辑弹窗。
+ *
+ * @param row 护理级别行数据
+ * @returns 无返回值
+ */
 const openEditDialog = (row) => {
   if (row) {
     editDialog.title = '编辑护理级别'
@@ -110,7 +119,11 @@ const openEditDialog = (row) => {
   editDialog.visible = true
 }
 
-// 保存护理级别
+/**
+ * 保存护理级别。
+ *
+ * @returns 无返回值
+ */
 const saveLevel = async () => {
   if (!editDialog.form.level) {
     ElMessage.error('请输入护理级别名称')
@@ -135,29 +148,52 @@ const saveLevel = async () => {
 
 const router = useRouter()
 
+/**
+ * 跳转到护理项目配置页。
+ *
+ * @param level 护理级别行数据
+ * @returns 无返回值
+ */
 const goToItemConfig = (level) => {
   router.push({name: 'NursingItemSetting'})
-  if(localStorage.getItem('NursingItemSettingLevelId')){
+  if (localStorage.getItem('NursingItemSettingLevelId')) {
     localStorage.removeItem('NursingItemSettingLevelId')
   }
-  if(localStorage.getItem('NursingItemSettingLevelName')){
+  if (localStorage.getItem('NursingItemSettingLevelName')) {
     localStorage.removeItem('NursingItemSettingLevelName')
   }
   localStorage.setItem('NursingItemSettingLevelId', level.id)
   localStorage.setItem('NursingItemSettingLevelName', level.level)
 }
 
+/**
+ * 处理页码变化。
+ *
+ * @param val 页码
+ * @returns 无返回值
+ */
 const handlePageChange = (val) => {
   page.value = val
   fetchLevelList()
 }
 
+/**
+ * 处理每页数量变化。
+ *
+ * @param size 每页数量
+ * @returns 无返回值
+ */
 const handleSizeChange = (size) => {
   pageSize.value = size
   page.value = 1
   fetchLevelList()
 }
 
+/**
+ * 页面初始化时加载护理级别列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchLevelList()
 })
