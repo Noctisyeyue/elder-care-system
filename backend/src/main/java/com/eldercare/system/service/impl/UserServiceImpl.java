@@ -11,7 +11,6 @@ import com.eldercare.system.config.JwtProperties;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.util.PasswordUtil;
-import com.eldercare.system.util.PasswordUtil;
 import com.eldercare.system.util.ImgUploadUtil;
 import com.eldercare.system.dto.user.*;
 import com.eldercare.system.vo.user.*;
