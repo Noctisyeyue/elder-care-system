@@ -145,7 +145,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox,ElImageViewer } from 'element-plus'
-import { get, post, put } from '@/utils/request'
+import { getFoodList, addFood, updateFood, uploadDishImage } from '@/api/diet'
 import { Search } from '@element-plus/icons-vue'
 
 // 图片预览相关状态
@@ -208,7 +208,7 @@ const fetchFoodList = async () => {
       pageNum: currentPage.value,
       pageSize: pageSize.value,
     }
-    const res = await get('/diet/foodList', params)
+    const res = await getFoodList(params)
     // 假设返回 { list: [...], total: 100 }
     foodList.value = res.list || []
     total.value = res.total || 0
@@ -293,7 +293,7 @@ const saveFood = () => {
     try {
       if (editForm.dishId) {
         // 编辑
-        await put('/diet/updateFood', {
+        await updateFood({
           dishId: editForm.dishId,
           name: editForm.name,
           category: editForm.category,
@@ -304,7 +304,7 @@ const saveFood = () => {
         ElMessage.success('修改成功')
       } else {
         // 新增
-        await post('/diet/addFood', {
+        await addFood({
           name: editForm.name,
           category: editForm.category,
           status: editForm.status,
@@ -320,11 +320,7 @@ const saveFood = () => {
         formData.append('file', imgFile); // 添加文件
         formData.append('name', editForm.name); // 添加额外参数
 
-        await post('/diet/img/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }).then((response) => {
+        await uploadDishImage(formData).then((response) => {
           ElMessage.success('图片上传成功');
 
         });

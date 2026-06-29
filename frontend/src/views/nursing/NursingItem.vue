@@ -99,7 +99,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { get, post, put, del } from '@/utils/request'
+import { getNursingItemList, addNursingItem, updateNursingItem, deleteNursingItem } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 // 查询参数
@@ -142,7 +142,7 @@ const rules = {
 
 // 获取护理项目列表
 const fetchList = async () => {
-  const res = await get('/nursing/item/list', {
+  const res = await getNursingItemList({
     name: query.name,
     status: query.status,
     pageNum: currentPage.value,
@@ -196,10 +196,10 @@ const saveItem = async () => {
     await formRef.value.validate()
     if (editDialog.form.id) {
       // 修改，后端根据status判断是否需要移除护理级别项目
-      await put('/nursing/item/update', editDialog.form)
+      await updateNursingItem(editDialog.form)
     } else {
       // 新增
-      await post('/nursing/item/add', editDialog.form)
+      await addNursingItem(editDialog.form)
     }
     editDialog.visible = false
     fetchList()
@@ -216,7 +216,7 @@ const removeItem = (row) => {
     type: 'warning',
   }).then(async () => {
     // 直接调用删除接口，后端会处理所有相关操作
-    await del(`/nursing/item/delete/${row.id}`)
+    await deleteNursingItem(row.id)
     fetchList()
   })
 }
@@ -244,7 +244,7 @@ const deleteSelectedItems = () => {
   )
     .then(async () => {
       for (const row of multipleSelection.value) {
-        await del(`/nursing/item/delete/${row.id}`)
+        await deleteNursingItem(row.id)
       }
       ElMessage.success('批量删除成功！')
       fetchList()

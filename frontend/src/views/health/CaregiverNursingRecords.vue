@@ -93,7 +93,7 @@
           <el-table-column prop="nursingTime" label="护理时间" min-width="180" />
           <el-table-column label="操作" min-width="100">
             <template #default="scope">
-              <el-button type="danger" size="small" @click="removeNursingRecord(scope.row)"
+              <el-button type="danger" size="small" @click="handleRemoveNursingRecord(scope.row)"
                 >移除</el-button
               >
             </template>
@@ -117,7 +117,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { get, post } from '@/utils/request'
+import { getCustomerList, getMyCustomers } from '@/api/customer'
+import { getNursingRecordList, removeNursingRecord } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 // 查询参数
@@ -161,7 +162,7 @@ const nursingLoading = ref(false)
 const fetchCustomerList = async () => {
   customerLoading.value = true
   try {
-    const res = await get('/customer/myCustomers', {
+    const res = await getMyCustomers({
       customerName: queryName.value,
       pageNum: page.value,
       pageSize: pageSize.value,
@@ -191,7 +192,7 @@ const fetchNursingRecords = async () => {
   if (!currentCustomer.value) return
   nursingLoading.value = true
   try {
-    const res = await get('/nursing/record/list', {
+    const res = await getNursingRecordList({
       customerId: currentCustomer.value.id,
       pageNum: nursingPage.value,
       pageSize: nursingPageSize.value,
@@ -210,11 +211,11 @@ const handleNursingPageChange = (val) => {
 }
 
 // 移除护理记录
-const removeNursingRecord = (record) => {
+const handleRemoveNursingRecord = (record) => {
   ElMessageBox.confirm('确定要移除该护理记录吗？', '警告', {
     type: 'warning',
   }).then(async () => {
-    await post('/nursing/record/remove', {
+    await removeNursingRecord({
       nursingRecordId: record.id,
     })
     ElMessage.success('移除成功')

@@ -70,7 +70,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { get, post } from '@/utils/request'
+import { getNursingItemList, getNursingLevelItems, saveNursingLevelItems } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
@@ -105,13 +105,13 @@ const updateConfiguredProjectsPage = () => {
 
 const fetchAllProjects = async () => {
   const params = { status: '启用', pageNum: 1, pageSize: 9999, name: searchName.value || '' }
-  const res = await get('/nursing/item/list', params)
+  const res = await getNursingItemList(params)
   // 过滤掉已配置的
   allProjects.value = res.records?.filter(item => !allConfiguredProjects.value.find(p => p.id === item.id)) || []
   updateProjectsPage()
 }
 const fetchConfiguredProjects = async () => {
-  const res = await get('/nursing/level/item/list', { levelId, pageNum: 1, pageSize: 9999 })
+  const res = await getNursingLevelItems(levelId)
   allConfiguredProjects.value = res.records || []
   updateConfiguredProjectsPage()
 }
@@ -155,7 +155,7 @@ const handleSizeChange = (size) => {
 }
 const handleSave = async () => {
   const itemIds = allConfiguredProjects.value.map(p => p.id)
-  await post('/nursing/level/item/save', { levelId, itemIds })
+  await saveNursingLevelItems(levelId, itemIds)
   isChanged.value = false
   ElMessage.success('保存成功！')
 }

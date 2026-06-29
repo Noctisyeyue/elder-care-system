@@ -87,3 +87,18 @@ export function updateUser(form: UserForm) {
 export function deleteUsers(userNames: string[]) {
   return post('/user/del', { userNames })
 }
+
+/** 上传用户头像 */
+export function uploadAvatar(formData: FormData) {
+  return post('/user/avatar/upload', formData)
+}
+
+/** 获取用户头像 */
+export function getUserAvatar() {
+  return get('/user/avatar/get')
+}
+
+/** 获取用户邮箱 */
+export function getUserEmail() {
+  return get('/user/email/get')
+}

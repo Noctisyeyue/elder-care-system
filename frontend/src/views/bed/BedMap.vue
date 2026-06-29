@@ -101,7 +101,7 @@ import freeBedSvg from '@/assets/free_bed.svg'
 import outBedSvg from '@/assets/out_bed.svg'
 import totalBedSvg from '@/assets/total_bed.svg'
 import usedBedSvg from '@/assets/used_bed.svg'
-import { get } from '@/utils/request'
+import { getBedMap, getFloorList } from '@/api/bed'
 // 楼层列表
 const floorList = ref([])
 const selectedFloor = ref('')
@@ -175,7 +175,7 @@ function getBedIcon(status) {
 //   }>;
 // }
 function fetchRoomList() {
-  get('/bed/map', {
+  getBedMap({
     floor: selectedFloor.value,
   }).then((res) => {
     roomList.value = res || []
@@ -208,7 +208,7 @@ function updateBedStats() {
 }
 
 function fetchFloorList() {
-  get('/bed/floorList').then((res) => {
+  getFloorList().then((res) => {
     floorList.value = res || []
     if (floorList.value.length > 0) {
       selectedFloor.value = floorList.value[0]

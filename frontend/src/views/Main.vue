@@ -357,10 +357,9 @@ import {
 } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { get, streamPost } from '@/utils/request'
+import { getUserAvatar, getUserEmail, uploadAvatar } from '@/api/user'
 import { renderContent } from '@/utils/contentRenderer'
 import { ElMessage, ElImageViewer } from 'element-plus'
-import { post } from '@/utils/request'
 import dayjs from 'dayjs'
 // 图片预览相关状态
 const imagePreviewVisible = ref(false)
@@ -758,7 +757,7 @@ const handleFileChange = (e) => {
       const formData = new FormData()
       formData.append('file', file) // 假设后端接口接收的字段名为 'file'
 
-      post('/user/avatar/upload', formData, {
+      uploadAvatar(formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -815,11 +814,11 @@ onMounted(() => {
     listenerScroll() // 绑定事件
   }
   // 向后端请求头像
-  get('/user/avatar/get').then((response) => {
+  getUserAvatar().then((response) => {
     avatarUrl.value = response
   })
   // 向后端请求邮箱
-  get('/user/email/get').then((response) => {
+  getUserEmail().then((response) => {
     email.value = response
   })
 })

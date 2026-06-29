@@ -189,7 +189,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getDietCustomerList, getDietAvailableDishes, saveDishes, saveCustomerSetMeal, getDailySetMealList } from '@/api/diet'
 import MealSelector from '@/components/MealSelector.vue'
 
 // 状态定义
@@ -252,7 +252,7 @@ const handleCurrentChange = (val) => {
 
 const fetchCustomerDiets = async () => {
   try {
-    const data = await get('/diet/customerList', {
+    const data = await getDietCustomerList({
       pork: isMuslimRadio.value,
       date: selectedDate.value,
       customerName: searchQuery.value,
@@ -268,7 +268,7 @@ const fetchCustomerDiets = async () => {
 
 const fetchAvailableMeals = async () => {
   try {
-    const data = await get('/diet/availableDishes')
+    const data = await getDietAvailableDishes()
     availableMeals.value = data
   } catch (error) {
     ElMessage.error('获取可用膳食数据失败')
@@ -304,7 +304,7 @@ const saveDietConfig = async () => {
   }
 
   try {
-    await post('/diet/saveDishes', {
+    await saveDishes({
       customerId: selectedCustomer.value.id,
       date: selectedDate.value,
       breakfast: selectedCustomer.value.breakfast,
@@ -388,7 +388,7 @@ async function confirmBatchPackage() {
   }
   const customerIds = multipleSelection.value.map(item => item.customerId)
   try {
-    await post('/diet/saveCustomerSetMeal', {
+    await saveCustomerSetMeal({
       setMealId: selectedPackageId.value,
       customerIds,
       date: batchPackageDate.value,
@@ -414,7 +414,7 @@ async function confirmSinglePackage() {
     return
   }
   try {
-    await post('/diet/saveCustomerSetMeal', {
+    await saveCustomerSetMeal({
       setMealId: selectedPackageId.value,
       customerIds: [selectedCustomer.value.customerId],
       date: selectedDate.value,
@@ -430,7 +430,7 @@ async function confirmSinglePackage() {
 // 获取每日套餐
 const fetchDailySetMeals = async (date) => {
   try {
-    const data = await get('/diet/setMeal/dailyList', { date })
+    const data = await getDailySetMealList(date)
     dailySetMeals.value = data || []
     console.log(dailySetMeals.value)
   } catch (error) {

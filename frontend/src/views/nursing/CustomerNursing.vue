@@ -189,7 +189,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { get, post } from '@/utils/request'
+import { getCustomerList } from '@/api/customer'
+import { getNursingLevelList, getNursingLevelItems, getCustomerNursingItems, addCustomerNursingLevel, removeCustomerNursingLevel } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import codePng from '@/assets/code.png'
@@ -293,7 +294,7 @@ const handlePayConfirm = () => {
 
 // 查询客户列表
 const fetchCustomerList = async () => {
-  const res = await get('/customer/list', {
+  const res = await getCustomerList({
     name: queryName.value,
     pageNum: page.value,
     pageSize: pageSize.value,
@@ -310,7 +311,7 @@ const handlePageChange = (val) => {
 
 // 查询启用的护理级别（带分页）
 const fetchNursingLevels = async () => {
-  const res = await get('/nursing/level/list', {
+  const res = await getNursingLevelList({
     status: '启用',
     pageNum: levelPage.value,
     pageSize: levelPageSize.value,
@@ -323,11 +324,7 @@ const fetchNursingLevels = async () => {
 // 查询护理级别下的项目（带分页）
 const fetchNursingItems = async (levelId = nursingForm.levelId) => {
   if (!levelId) return
-  const res = await get('/nursing/level/item/list', {
-    levelId,
-    pageNum: itemPage.value,
-    pageSize: itemPageSize.value,
-  })
+  const res = await getNursingLevelItems(levelId)
   nursingForm.items = (res.records || []).map((item) => ({
     ...item,
     buyDate: getToday(),
@@ -347,7 +344,7 @@ const openSetNursingDialog = async (customer) => {
   itemPage.value = 1 // 弹窗打开时重置护理项目分页
   await fetchNursingLevels()
   if (customer.levelId) {
-    const res = await get('/nursing/customer/items', { customerId: customer.id })
+    const res = await getCustomerNursingItems(customer.id)
     currentNursingItems.value = res
   }
 }
@@ -363,7 +360,7 @@ const submitNursingSetting = async () => {
     return
   }
 
-  await post('/nursing/customer/add', {
+  await addCustomerNursingLevel({
     customerId: currentCustomer.value.id,
     levelId: nursingForm.levelId,
     items: nursingForm.items
@@ -386,7 +383,7 @@ const removeNursingLevel = (customer) => {
   ElMessageBox.confirm('移除后将删除该客户所有当前级别的护理项目，是否继续？', '警告', {
     type: 'warning',
   }).then(async () => {
-    await post('/nursing/customer/remove', { customerId: customer.id, levelId: customer.levelId })
+    await removeCustomerNursingLevel(customer.id, customer.levelId)
     ElMessage.success('移除成功')
     fetchCustomerList()
   })

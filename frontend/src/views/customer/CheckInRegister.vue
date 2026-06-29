@@ -369,7 +369,7 @@ const queryCustomers = async () => {
       pageNum: currentPage.value,
       pageSize: pageSize.value,
     }
-    const res = await get('/customer/list', params)
+    const res = await getCustomerList(params)
     customerList.value = res.records || []
     total.value = res.total || 0
   } catch (error) {

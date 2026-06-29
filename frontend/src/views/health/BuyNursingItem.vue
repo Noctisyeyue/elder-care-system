@@ -129,7 +129,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getCustomerList, getMyCustomers } from '@/api/customer'
+import { getNursingCustomerLevelItems, checkIsPurchased, buyNursingItem } from '@/api/health'
 import codePng from '@/assets/code.png'
 
 const router = useRouter()
@@ -188,7 +189,7 @@ const searchNursingItems = async () => {
     pageNum: pagination.currentPage,
     pageSize: pagination.pageSize,
   }
-  const res = await get('/nursing/customerLevel/item/list', params)
+  const res = await getNursingCustomerLevelItems(params)
   nursingItemList.value = res.records || []
   pagination.total = res.total || 0
 }
@@ -216,7 +217,7 @@ const addSelectedItem = async (row) => {
 
   try {
     // 检查当前客户是否已有该护理项目
-    const res = await get('/customer/isPurchased', {
+    const res = await checkIsPurchased({
       customerId: customerId.value,
       itemId: row.id,
     })
@@ -302,7 +303,7 @@ const saveBuyItems = async () => {
       buyDate: item.buyDate,
       expireDate: item.expireDate,
     }))
-    await post('/customer/buyItem', payload)
+    await buyNursingItem(payload)
     ElMessage.success('购买护理项目成功')
     router.push({ path: '/service/concern' }) // 返回服务关注页面
   } catch (error) {

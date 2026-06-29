@@ -166,7 +166,9 @@
 
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue';
-import { get } from '@/utils/request'
+import { getUserCount, getUserAvatar, getUserEmail, getRoleNum } from '@/api/user'
+import { getCustomerCount, getCustomerMonthCount, getCustomerYearCount, getCheckOutList, getOutingList } from '@/api/customer'
+import { getFreeBedCount, getBedCount } from '@/api/bed'
 import { ElMessage } from 'element-plus'
 import { useRouter} from 'vue-router'
 import {
@@ -239,22 +241,22 @@ const fetchInfo = async () => {
 }
 
 const fetchUserNumInfo = async () => {
-    const response = await get('/user/count')
+    const response = await getUserCount()
     userNum.value = response
 }
 
 const fetchCustomerNumInfo = async () => {
-    const response = await get('/customer/count')
+    const response = await getCustomerCount()
     customerNum.value = response
 }
 
 const fetchFreeBedNumInfo = async () => {
-    const response = await get('/bed/freeBedCount')
+    const response = await getFreeBedCount()
     freeBedNum.value = response
 }
 
 const fetchBedNumInfo = async () => {
-    const response = await get('/bed/bedCount')
+    const response = await getBedCount()
     bedNum.value = response
 }
 
@@ -262,14 +264,14 @@ const fetchNewCustomerNumInfo = async () => {
     const currentDate = new Date()
     const month = (currentDate.getMonth()+1)<10?("0" + (currentDate.getMonth()+1)):(currentDate.getMonth()+1)
     const date = currentDate.getFullYear() + "-" + month
-    const response = await get('/customer/monthCount', {date: date})
+    const response = await getCustomerMonthCount(date)
     newCustomerNum.value = response
 }
 
 const fetchYearCustomerNumInfo = async () => {
     const currentDate = new Date()
     const year = currentDate.getFullYear()
-    const response = await get('/customer/yearCount', {year: year})
+    const response = await getCustomerYearCount(year)
     var result = []
     const monthes = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     for (var i = 0; i < 12; i++) {
@@ -279,13 +281,13 @@ const fetchYearCustomerNumInfo = async () => {
 }
 
 const fetchUserRoleNumInfo = async () => { 
-    const response = await get('/user/roleNum')
+    const response = await getRoleNum()
     userRoleNum.value = response
 }
 
 // 获取退住申请列表
 const fetchCheckoutApplications = async () => {
-    const response = await get('/customer/checkout/list', {
+    const response = await getCheckOutList({
         pageNum: checkOutSearchForm.pageNum,
         pageSize: checkOutSearchForm.pageSize,
         customerName: checkOutSearchForm.customerName, // 用于模糊查询
@@ -296,7 +298,7 @@ const fetchCheckoutApplications = async () => {
 
 // 获取外出申请列表
 const fetchOutingApplications = async () => {
-    const response = await get('/customer/outing/list', {
+    const response = await getOutingList({
         pageNum: outingSearchForm.pageNum,
         pageSize: outingSearchForm.pageSize,
         customerName: outingSearchForm.customerName,

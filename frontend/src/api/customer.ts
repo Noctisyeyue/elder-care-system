@@ -163,3 +163,18 @@ export function approveCheckOut(id: number | string, params: Record<string, unkn
 export function releaseCustomerBed(customerId: number | string, bedNumber: string) {
   return del(`/customer/${customerId}/bed/${bedNumber}`)
 }
+
+/** 客户总数统计 */
+export function getCustomerCount() {
+  return get('/customer/count')
+}
+
+/** 按月统计入住客户数 */
+export function getCustomerMonthCount(date: string) {
+  return get('/customer/monthCount', { date })
+}
+
+/** 按年统计客户数 */
+export function getCustomerYearCount(year: string) {
+  return get('/customer/yearCount', { year })
+}

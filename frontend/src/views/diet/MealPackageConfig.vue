@@ -194,7 +194,7 @@ import { ref, onMounted } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import MealSelector from '@/components/MealSelector.vue'
-import { get, post } from '@/utils/request'
+import { getAvailableDishes, getSetMealList, saveSetMealDishes, updateSetMeal, removeSetMeal } from '@/api/diet'
 
 const searchQuery = ref('')
 const isMuslim = ref(null)
@@ -247,7 +247,7 @@ const handleAdd = async () => {
     return
   }
   try {
-    await post('/diet/setMeal/update', {
+    await updateSetMeal({
       pork: addForm.value.isMuslim,
       setMealName: addForm.value.name,
       status: '0',
@@ -270,9 +270,9 @@ const handleConfig = async (pkg) => {
   configDialogVisible.value = true
   // pork: 1 表示清真，0 表示普通
   const pork = (pkg.pork === '清真' || pkg.isMuslim === '清真') ? 1 : 0
-  const breakfastRes = await get('/diet/availableDishes', { time: '0', pork })
-  const lunchRes = await get('/diet/availableDishes', { time: '1', pork })
-  const dinnerRes = await get('/diet/availableDishes', { time: '2', pork })
+  const breakfastRes = await getAvailableDishes('0', pork)
+  const lunchRes = await getAvailableDishes('1', pork)
+  const dinnerRes = await getAvailableDishes('2', pork)
   availableMeals.value = {
     breakfast: (breakfastRes || []).map(item => ({ ...item, id: item.dishId })),
     lunch: (lunchRes || []).map(item => ({ ...item, id: item.dishId })),
@@ -287,7 +287,7 @@ const fetchPackageList = async () => {
       pageNum: currentPage.value,
       pageSize: pageSize.value,
     }
-    const res = await get('/diet/setMeal/list', params)
+    const res = await getSetMealList(params)
     packageList.value = (res.records || []).map(item => ({
       ...item,
       isMuslim: item.pork === '清真'? '1' : '0',
@@ -314,7 +314,7 @@ const savePackageConfig = async () => {
     return
   }
   try {
-    await post('/diet/saveSetMealDishes', {
+    await saveSetMealDishes({
       setMealId: setMealId,
       breakfastIds: breakfast.map(item => item.dishId || item.id),
       lunchIds: lunch.map(item => item.dishId || item.id),
@@ -347,7 +347,7 @@ const handleEditSave = async () => {
     return
   }
   try {
-    await post('/diet/setMeal/update', {
+    await updateSetMeal({
       setMealId: editForm.value.setMealId,
       pork: editForm.value.isMuslim,
       setMealName: editForm.value.name,
@@ -367,7 +367,7 @@ const handleDelete = (row) => {
     type: 'warning',
   }).then(async () => {
     try {
-      await post('/diet/setMeal/remove', row.setMealId )
+      await removeSetMeal(row.setMealId )
       ElMessage.success('删除成功')
       fetchPackageList()
     } catch (e) {

@@ -103,7 +103,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { get, post } from '@/utils/request'
+import { getCustomerList, getMyCustomers } from '@/api/customer'
+import { getPurchasedItems, addNursingRecord } from '@/api/health'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
@@ -145,7 +146,7 @@ const updateNursingItemsPage = () => {
 const fetchNursingItems = async () => {
   loading.value = true
   try {
-    const res = await get('/customer/purchasedItems', {
+    const res = await getPurchasedItems({
       customerId,
       pageNum: 1,
       pageSize: 9999,
@@ -194,7 +195,7 @@ const submitNursingRecord = async () => {
     ElMessage.warning('请填写完整信息')
     return
   }
-  await post('/nursing/record/add', {
+  await addNursingRecord({
     customerId,
     itemId: nursingForm.itemId,
     name: nursingForm.itemName,

@@ -80,7 +80,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { get, post } from '@/utils/request'
+import { getCustomersNoCaregiver, setCaregiverCustomers, getCaregiverCustomers } from '@/api/health'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -105,7 +105,7 @@ const isChanged = ref(false)
 
 // 获取全部无管家客户（带查询条件）
 const fetchNoCaregiverCustomers = async () => {
-  const res = await get('/customer/noCaregiver', {
+  const res = await getCustomersNoCaregiver({
     customerName: customerSearchName.value,
     pageNum: 1,
     pageSize: 9999,
@@ -117,7 +117,7 @@ const fetchNoCaregiverCustomers = async () => {
 
 // 获取全部我的客户
 const fetchMyCustomers = async () => {
-  const res = await get('/caregiver/customers', {
+  const res = await getCaregiverCustomers({
     caregiverId,
     pageNum: 1,
     pageSize: 9999,
@@ -193,7 +193,7 @@ const removeCustomer = (customer) => {
 // 保存操作：将myCustomers的id列表提交到后端
 const handleSave = async () => {
   const customerIds = allMyCustomers.value.map((c) => c.id)
-  await post('/caregiver/setCustomers', { caregiverId, customerIds })
+  await setCaregiverCustomers({ caregiverId, customerIds })
   isChanged.value = false
   ElMessage.success('保存成功！')
 }

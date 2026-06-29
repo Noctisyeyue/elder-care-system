@@ -43,7 +43,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { get } from '@/utils/request'
+import { getCaregiverList } from '@/api/health'
 import { Search } from '@element-plus/icons-vue'
 const searchName = ref('')
 const caregivers = ref([
@@ -55,7 +55,7 @@ const pageSize = ref(10)
 const router = useRouter()
 
 const fetchCaregivers = async () => {
-  const res = await get('/caregiver/list', {
+  const res = await getCaregiverList({
     userName: searchName.value,
     pageNum: pageNum.value,
     pageSize: pageSize.value,

@@ -206,7 +206,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, put, post } from '@/utils/request' // 引入 API 请求方法
+import { getBedList, updateBedUsageEndDate, getFreeRooms, getFreeBeds, swapBeds } from '@/api/bed'
 import { Search } from '@element-plus/icons-vue'
 // 查询表单数据
 const searchForm = reactive({
@@ -313,7 +313,7 @@ const fetchBedList = async () => {
       pageNum: pagination.currentPage,
       pageSize: pagination.pageSize,
     }
-    const response = await get('/bed/list', params) // API 路径
+    const response = await getBedList(params) // API 路径
     bedList.value = response.list || []
     pagination.total = response.total || 0
   } catch (error) {
@@ -367,7 +367,7 @@ const saveEdit = () => {
       .then(async () => {
         try {
           // 假设后端修改接口需要床位 ID 和新的结束时间
-          await put(`/bed/update/${editForm.id}`, { usageEndDate: editForm.usageEndDate }) // 自定义 API 路径
+          await updateBedUsageEndDate(editForm.id, editForm.usageEndDate) // 自定义 API 路径
           fetchBedList()
           ElMessage.success('修改成功！')
           editDialogVisible.value = false
@@ -399,7 +399,7 @@ const handleChangeBed = async (row) => {
 
   try {
     // 获取有空闲床位的房间号选项
-    const response = await get('/bed/freeRooms') // 自定义 API 路径，获取有空闲床位的房间
+    const response = await getFreeRooms() // 自定义 API 路径，获取有空闲床位的房间
     roomOptions.value = response // 假设后端直接返回房间号列表
   } catch (error) {
     console.error('获取有空闲床位的房间号失败:', error)
@@ -412,7 +412,7 @@ const handleChangeBed = async (row) => {
 // 获取可用床位
 const getAvailableBeds = async (roomNumber) => {
   try {
-    const response = await get(`/bed/freeBeds/${roomNumber}`)
+    const response = await getFreeBeds(roomNumber)
     availableBeds.value = response // 假设后端直接返回可用床位列表
   } catch (error) {
     console.error('获取可用床位失败:', error)
@@ -446,7 +446,7 @@ const saveChangeBed = () => {
             newBedStartDate: new Date().toISOString().slice(0, 10),
             newBedEndDate: changeBedForm.currentBedUsageEndDate,
           }
-          await post('/bed/swap', swapData)
+          await swapBeds(swapData)
 
           fetchBedList()
           ElMessage.success('床位调换成功！')

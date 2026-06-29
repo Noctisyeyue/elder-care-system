@@ -157,7 +157,7 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getDietMonthList, getSetMealList, saveDietCalendar } from '@/api/diet'
 
 const selectedDate = ref(new Date())
 const dialogVisible = ref(false)
@@ -200,7 +200,7 @@ watch(selectedDate, (newDate, oldDate) => {
 const fetchMealsForMonth = async (date) => {
   const year = date.getFullYear()
   const month = date.getMonth() + 1
-  const data = await get('/diet/monthList', { year, month })
+  const data = await getDietMonthList(year, month)
   // data: [{date, setMeals: [...]}, ...]
   dailyMeals.value = data.reduce((acc, day) => {
     acc[day.date] = day
@@ -211,8 +211,8 @@ const fetchMealsForMonth = async (date) => {
 const fetchAllPackages = async () => {
   // 获取所有套餐，分清真和非清真
   const [muslimRes, nonMuslimRes] = await Promise.all([
-    get('/diet/setMeal/list', { pork: '1' }),
-    get('/diet/setMeal/list', { pork: '0' })
+    getSetMealList({ pork: '1' }),
+    getSetMealList({ pork: '0' })
   ])
   muslimPackages.value = (muslimRes.records || [])
   nonMuslimPackages.value = (nonMuslimRes.records || [])
@@ -245,7 +245,7 @@ const saveMealConfig = async () => {
       huiSetMealId: mealForm.value.muslimPackageId,
       notHuiSetMealId: mealForm.value.nonMuslimPackageId,
     }
-    await post('/diet/saveDietCalendar', dataToSend)
+    await saveDietCalendar(dataToSend)
     ElMessage.success('保存成功')
     dialogVisible.value = false
     fetchMealsForMonth(selectedDate.value)

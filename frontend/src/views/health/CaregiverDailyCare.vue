@@ -54,7 +54,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { get } from '@/utils/request'
+import { getMyCustomers } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -79,7 +79,7 @@ const loading = ref(false)
 const fetchCustomers = async () => {
   loading.value = true
   try {
-    const res = await get('/customer/myCustomers', searchForm)
+    const res = await getMyCustomers(searchForm)
     customerList.value = res.list || []
     total.value = res.total || 0
   } finally {

@@ -115,7 +115,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post, del } from '@/utils/request'
+import { getCustomerList, getMyCustomers } from '@/api/customer'
+import { getPurchasedItems, renewNursingItem } from '@/api/health'
 import { Search } from '@element-plus/icons-vue'
 const router = useRouter()
 
@@ -176,7 +177,7 @@ const searchCustomers = async () => {
     pageSize: customerPagination.pageSize,
     customerType: 'nursing-care',
   }
-  const res = await get('/customer/list', params)
+  const res = await getCustomerList(params)
   customerList.value = res.records || []
   customerPagination.total = res.total || 0
   selectedCustomer.value = {}
@@ -208,7 +209,7 @@ const searchPurchasedNursingItems = async (customerId) => {
       pageNum: itemPagination.currentPage,
       pageSize: itemPagination.pageSize,
     }
-    const res = await get('/customer/purchasedItems', params)
+    const res = await getPurchasedItems(params)
     purchasedNursingItems.value = res.list || []
     itemPagination.total = res.total || 0
   } catch (error) {
@@ -253,7 +254,7 @@ const confirmRenewal = async () => {
       purchasingTimes: renewalForm.newQuantity,
       expireDate: renewalForm.expireDate,
     }
-    await post('/nursing/renew', payload)
+    await renewNursingItem(payload)
     ElMessage.success('续费成功')
     renewalDialogVisible.value = false
     searchPurchasedNursingItems(selectedCustomer.value.id)

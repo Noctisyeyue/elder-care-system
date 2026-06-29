@@ -105,7 +105,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
-import { get } from '@/utils/request';
+import { getCaregiverHomeStats } from '@/api/health'
 import { ElCard, ElRow, ElCol, ElIcon } from 'element-plus';
 import { CaretTop, Check, Close, Upload, Delete, CaretBottom, Minus, SemiSelect } from '@element-plus/icons-vue';
 import * as echarts from 'echarts';
@@ -513,7 +513,7 @@ const fetchData = async () => {
     // };
 
     // 2. 请求后端API，若有数据则覆盖
-    const res = await get('/caregiver/homeStats');
+    const res = await getCaregiverHomeStats();
     if (res && typeof res === 'object') {
       if (typeof res.dailyCareCount === 'number') dailyCareCount.value = res.dailyCareCount;
       if (typeof res.compareCareCount === 'number') compareCareCount.value = res.compareCareCount;

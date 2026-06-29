@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { get, post, put } from '@/utils/request'
+import { getNursingLevelList, addNursingLevel, updateNursingLevel } from '@/api/nursing'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -78,7 +78,7 @@ const total = ref(0)
 
 // 获取护理级别列表
 const fetchLevelList = async () => {
-  const res = await get('/nursing/level/list', { status: query.status, pageNum: page.value, pageSize: pageSize.value })
+  const res = await getNursingLevelList({ status: query.status, pageNum: page.value, pageSize: pageSize.value })
   levelList.value = res.records || []
   total.value = res.total || 0
 }
@@ -118,13 +118,13 @@ const saveLevel = async () => {
   }
   if (editDialog.form.id) {
     // 修改
-    await put('/nursing/level/update', {
+    await updateNursingLevel({
       id: editDialog.form.id,
       status: editDialog.form.status,
     })
   } else {
     // 新增
-    await post('/nursing/level/add', {
+    await addNursingLevel({
       level: editDialog.form.level,
       status: editDialog.form.status,
     })
