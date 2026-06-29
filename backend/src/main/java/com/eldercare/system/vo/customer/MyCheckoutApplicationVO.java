@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerresult;
+package com.eldercare.system.vo.customer;
 
 import lombok.Data;
 
+/**
+ * 我的退住申请视图
+ */
 @Data
-public class MyCheckoutApplicationItem {
+public class MyCheckoutApplicationVO {
     /* id: number,                    // 申请ID
       customerName: string,          // 客户姓名
       checkOutType: string,          // 退住类型（如："正常退住"）

@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerparams;
+package com.eldercare.system.dto.customer;
 
 import lombok.Data;
 
+/**
+ * 外出申请请求
+ */
 @Data
-public class OutingParam {
+public class OutingRequest {
     /*"customerId": 1,
   "customerName": "李福星",
   "outingReason": "去医院复查，需要做CT检查",  //外出事由，必填

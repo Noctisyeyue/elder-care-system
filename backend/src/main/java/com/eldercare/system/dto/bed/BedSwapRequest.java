@@ -3,6 +3,9 @@ package com.eldercare.system.dto.bed;
 import lombok.Data;
 
 @Data
+/**
+ * BedSwapRequest 请求
+ */
 public class BedSwapRequest {
     /*
     oldBedId: number;        // 旧床位记录的ID

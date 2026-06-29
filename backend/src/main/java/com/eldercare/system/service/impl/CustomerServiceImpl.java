@@ -13,8 +13,8 @@ import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.customer.customerparams.*;
-import com.eldercare.system.po.customer.customerresult.*;
+import com.eldercare.system.dto.customer.*;
+import com.eldercare.system.vo.customer.*;
 import com.eldercare.system.util.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,13 +84,13 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 客户分页列表响应
      */
     @Override
-    public ApiResult<CustomerListResult> list(CustomerListRequest request) {
+    public ApiResult<CustomerListVO> list(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
         if(Objects.equals(request.getCustomerType(), "self-care"))
             request.setCustomerType("0");
         if(Objects.equals(request.getCustomerType(), "nursing-care"))
             request.setCustomerType("1");
-        List<CustomerItem> items = customerMapper.listCustomerItems(
+        List<CustomerVO> items = customerMapper.listCustomerItems(
                 request.getCustomerName(),
                 request.getCustomerType(),
                 pageStart,
@@ -100,10 +100,10 @@ public class CustomerServiceImpl implements CustomerService{
                 request.getCustomerName(),
                 request.getCustomerType()
         );
-        CustomerListResult response = new CustomerListResult();
+        CustomerListVO response = new CustomerListVO();
         response.setRecords(items);
         response.setTotal(total);
-        ApiResult<CustomerListResult> result = new ApiResult<>();
+        ApiResult<CustomerListVO> result = new ApiResult<>();
         result.setData(response);
         if(!items.isEmpty()){
             result.setCode(200);
@@ -122,7 +122,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 登记处理结果
      */
     @Override
-    public ApiResult register(CustomerRegisterParam param) {
+    public ApiResult register(CustomerRegisterRequest param) {
         //创建一个返回值
         ApiResult result = new ApiResult<>();
         //创建一个Customer对象
@@ -215,7 +215,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 更新处理结果
      */
     @Override
-    public ApiResult update(Long id, CustomerRegisterParam param) {
+    public ApiResult update(Long id, CustomerRegisterRequest param) {
         // 创建返回结果对象
         ApiResult result = new ApiResult<>();
         // 1. 根据ID查询现有客户信息
@@ -384,10 +384,10 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 退住申请分页列表响应
      */
     @Override
-    public ApiResult<CustomerCheckOutListResult> checkoutList(CustomerListRequest request) {
+    public ApiResult<CustomerCheckOutListVO> checkoutList(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
 
-        List<CustomerCheckOutItem> items = customerMapper.listCustomerCheckOutItems(
+        List<CustomerCheckOutVO> items = customerMapper.listCustomerCheckOutItems(
                 request.getCustomerName(),
                 pageStart,
                 request.getPageSize()
@@ -397,11 +397,11 @@ public class CustomerServiceImpl implements CustomerService{
                 request.getCustomerName()
         );
 
-        CustomerCheckOutListResult response = new CustomerCheckOutListResult();
+        CustomerCheckOutListVO response = new CustomerCheckOutListVO();
         response.setRecords(items);
         response.setTotal(total);
 
-        ApiResult<CustomerCheckOutListResult> result = new ApiResult<>();
+        ApiResult<CustomerCheckOutListVO> result = new ApiResult<>();
         result.setData(response);
 
         if(!items.isEmpty()){
@@ -518,10 +518,10 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 外出申请分页列表响应
      */
     @Override
-    public ApiResult<CustomerOutingListResult> outingList(CustomerListRequest request) {
+    public ApiResult<CustomerOutingListVO> outingList(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
 
-        List<CustomerOutingItem> items = customerMapper.listCustomerOutingItems(
+        List<CustomerOutingVO> items = customerMapper.listCustomerOutingItems(
                 request.getCustomerName(),
                 pageStart,
                 request.getPageSize()
@@ -531,11 +531,11 @@ public class CustomerServiceImpl implements CustomerService{
                 request.getCustomerName()
         );
 
-        CustomerOutingListResult response = new CustomerOutingListResult();
+        CustomerOutingListVO response = new CustomerOutingListVO();
         response.setRecords(items);
         response.setTotal(total);
 
-        ApiResult<CustomerOutingListResult> result = new ApiResult<>();
+        ApiResult<CustomerOutingListVO> result = new ApiResult<>();
         result.setData(response);
 
         if (!items.isEmpty()) {
@@ -641,10 +641,10 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 未分配健康管家的客户分页列表响应
      */
     @Override
-    public ApiResult<CustomerNoCaregiverListResult> listnoCaregiver(CustomerListRequest request) {
-        ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
+    public ApiResult<CustomerNoCaregiverListVO> listnoCaregiver(CustomerListRequest request) {
+        ApiResult<CustomerNoCaregiverListVO> result = new ApiResult<>();
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
-        List<CustomerNoCaregiverItem> items = customerMapper.listNoCaregiverItems(
+        List<CustomerNoCaregiverVO> items = customerMapper.listNoCaregiverItems(
                 request.getCustomerName(),
                 pageStart,
                 request.getPageSize()
@@ -652,8 +652,8 @@ public class CustomerServiceImpl implements CustomerService{
         if(items.isEmpty()){
             result.setCode(200);
             result.setMessage("数据为空");
-            List<CustomerNoCaregiverItem> list = new ArrayList<>();
-            CustomerNoCaregiverListResult response = new CustomerNoCaregiverListResult();
+            List<CustomerNoCaregiverVO> list = new ArrayList<>();
+            CustomerNoCaregiverListVO response = new CustomerNoCaregiverListVO();
             response.setList(list);
             response.setTotal(0L);
             result.setData(response);
@@ -663,7 +663,7 @@ public class CustomerServiceImpl implements CustomerService{
                 request.getCustomerName(),
                 request.getCustomerType());
 
-        CustomerNoCaregiverListResult response = new CustomerNoCaregiverListResult();
+        CustomerNoCaregiverListVO response = new CustomerNoCaregiverListVO();
         response.setList(items);
         response.setTotal(total);
         result.setData(response);
@@ -791,8 +791,8 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 当前健康管家的服务客户分页列表响应
      */
     @Override
-    public ApiResult<CustomerNoCaregiverListResult> listMyCustomers(CustomerListRequest request, String token) {
-        ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
+    public ApiResult<CustomerNoCaregiverListVO> listMyCustomers(CustomerListRequest request, String token) {
+        ApiResult<CustomerNoCaregiverListVO> result = new ApiResult<>();
         //从token中获取当前健康管家的 id
         //根据Token获取用户名，根据用户名找到用户ID
         String username = "";
@@ -832,7 +832,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 外出申请处理结果
      */
     @Override
-    public ApiResult outingApply(OutingParam param, String token) {
+    public ApiResult outingApply(OutingRequest param, String token) {
         //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为“已提交”
         ApiResult result = new ApiResult();
         OutingRecord outingRecord = new OutingRecord();
@@ -891,8 +891,8 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 外出申请分页列表响应
      */
     @Override
-    public ApiResult<MyApplicationsResults> listmyApplications(CustomerListRequest request, String token) {
-        ApiResult<MyApplicationsResults> result = new ApiResult<>();
+    public ApiResult<MyApplicationListVO> listmyApplications(CustomerListRequest request, String token) {
+        ApiResult<MyApplicationListVO> result = new ApiResult<>();
         //获取token中的用户Id
         String username ;
         //获取token中的用户名
@@ -921,9 +921,9 @@ public class CustomerServiceImpl implements CustomerService{
 
         //根据user_id获取用户申请列表
         try {
-            List<MyApplicationItem> records = outingRecordMapper.selectMyApplications(userId, pageStart, request.getPageSize(), customerName);
+            List<MyApplicationVO> records = outingRecordMapper.selectMyApplications(userId, pageStart, request.getPageSize(), customerName);
             int total = outingRecordMapper.countMyApplications(userId, customerName);
-            result.setData(new MyApplicationsResults(records, total));
+            result.setData(new MyApplicationListVO(records, total));
             result.setCode(200);
             result.setMessage("查询成功");
         }
@@ -994,7 +994,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 退住申请处理结果
      */
     @Override
-    public ApiResult checkApply(CheckoutParam param, String token) {
+    public ApiResult checkApply(CheckoutRequest param, String token) {
         ApiResult result = new ApiResult();
         //获取token中的用户Id
         String username ;
@@ -1076,8 +1076,8 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 退住申请分页列表响应
      */
     @Override
-    public ApiResult<MyCheckoutApplicationsResults> listmyCheckoutApplications(CustomerListRequest request, String token) {
-        ApiResult<MyCheckoutApplicationsResults> result = new ApiResult<>();
+    public ApiResult<MyCheckoutApplicationListVO> listmyCheckoutApplications(CustomerListRequest request, String token) {
+        ApiResult<MyCheckoutApplicationListVO> result = new ApiResult<>();
         //获取token中的用户Id
         String username ;
         //获取token中的用户名
@@ -1106,9 +1106,9 @@ public class CustomerServiceImpl implements CustomerService{
 
         //根据user_id获取用户申请列表
         try {
-            List<MyCheckoutApplicationItem> records = checkoutRecordMapper.selectMyCheckoutApplications(userId, pageStart, request.getPageSize(), customerName);
+            List<MyCheckoutApplicationVO> records = checkoutRecordMapper.selectMyCheckoutApplications(userId, pageStart, request.getPageSize(), customerName);
             int total = checkoutRecordMapper.countMyCheckoutApplications(userId, customerName);
-            result.setData(new MyCheckoutApplicationsResults(records, total));
+            result.setData(new MyCheckoutApplicationListVO(records, total));
             result.setCode(200);
             result.setMessage("查询成功");
         }

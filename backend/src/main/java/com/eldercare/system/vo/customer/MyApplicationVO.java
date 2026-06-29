@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerresult;
+package com.eldercare.system.vo.customer;
 
 import lombok.Data;
 
+/**
+ * 我的（外出）申请视图
+ */
 @Data
-public class MyApplicationItem {
+public class MyApplicationVO {
     /*"id": 1,
       "customerName": "李福星",
       "outingReason": "家属接回家过周末",

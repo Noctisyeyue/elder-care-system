@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerresult;
+package com.eldercare.system.vo.customer;
 
 import lombok.Data;
 
+/**
+ * 客户信息视图
+ */
 @Data
-public class CustomerItem {
+public class CustomerVO {
     private Long id;
     private String customerName;
     private Integer age;

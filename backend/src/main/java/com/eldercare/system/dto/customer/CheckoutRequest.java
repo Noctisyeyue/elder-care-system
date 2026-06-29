@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerparams;
+package com.eldercare.system.dto.customer;
 
 import lombok.Data;
 
+/**
+ * 退住申请请求
+ */
 @Data
-public class CheckoutParam {
+public class CheckoutRequest {
     /*customerId	number		客户的唯一标识ID
     customerName	 string		客户姓名
     checkOutDate	 string		退住日期，格式: 'YYYY-MM-DD'

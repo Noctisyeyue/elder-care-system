@@ -3,8 +3,8 @@ package com.eldercare.system.controller;
 import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.customer.customerparams.*;
-import com.eldercare.system.po.customer.customerresult.*;
+import com.eldercare.system.dto.customer.*;
+import com.eldercare.system.vo.customer.*;
 import com.eldercare.system.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,19 +24,19 @@ public class CustomerController {
 
     @Operation(summary = "获取客户列表")
     @GetMapping("/list")
-    public ApiResult<CustomerListResult> list(CustomerListRequest request) {
+    public ApiResult<CustomerListVO> list(CustomerListRequest request) {
         return customerService.list(request);
     }
 
     @Operation(summary = "注册新客户")
     @PostMapping("/register")
-    public ApiResult register(@RequestBody CustomerRegisterParam param) {
+    public ApiResult register(@RequestBody CustomerRegisterRequest param) {
         return customerService.register(param);
     }
 
     @Operation(summary = "更新客户信息")
     @PutMapping("/update/{id}")
-    public ApiResult update(@PathVariable Long id, @RequestBody CustomerRegisterParam param) {
+    public ApiResult update(@PathVariable Long id, @RequestBody CustomerRegisterRequest param) {
         return customerService.update(id, param);
     }
 
@@ -54,7 +54,7 @@ public class CustomerController {
 
     @Operation(summary = "获取退住客户列表")
     @GetMapping("/checkout/list")
-    public ApiResult<CustomerCheckOutListResult> checkoutList(CustomerListRequest  request) {
+    public ApiResult<CustomerCheckOutListVO> checkoutList(CustomerListRequest  request) {
         return customerService.checkoutList(request);
     }
 
@@ -66,7 +66,7 @@ public class CustomerController {
 
     @Operation(summary = "获取外出客户列表")
     @GetMapping("/outing/list")
-    public ApiResult<CustomerOutingListResult> outingList(CustomerListRequest  request) {
+    public ApiResult<CustomerOutingListVO> outingList(CustomerListRequest  request) {
         return customerService.outingList(request);
     }
 
@@ -78,7 +78,7 @@ public class CustomerController {
 
     @Operation(summary = "获取未分配健康管家的客户列表")
     @GetMapping("/noCaregiver")
-    public ApiResult<CustomerNoCaregiverListResult> noCaregiver(CustomerListRequest request) {
+    public ApiResult<CustomerNoCaregiverListVO> noCaregiver(CustomerListRequest request) {
         return customerService.listnoCaregiver(request);
     }
 
@@ -102,25 +102,25 @@ public class CustomerController {
 
     @Operation(summary = "按健康管家筛选客户")
     @GetMapping("/myCustomers")
-    public ApiResult<CustomerNoCaregiverListResult> myCustomers(CustomerListRequest request,@RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult<CustomerNoCaregiverListVO> myCustomers(CustomerListRequest request,@RequestHeader(value = "Authorization", required = false) String token) {
         return customerService.listMyCustomers(request,token);
     }
 
     @Operation(summary = "健康管家为客户提出外出申请请求")
     @PostMapping("/outing/apply")
-    public ApiResult applyOuting(@RequestBody OutingParam param, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult applyOuting(@RequestBody OutingRequest param, @RequestHeader(value = "Authorization", required = false) String token) {
         return customerService.outingApply(param,token);
     }
 
     @Operation(summary = "健康管家查询自己服务的客户外出申请列表")
     @GetMapping("/outing/myApplications")
-    public ApiResult<MyApplicationsResults> myApplications(CustomerListRequest request, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult<MyApplicationListVO> myApplications(CustomerListRequest request, @RequestHeader(value = "Authorization", required = false) String token) {
         return customerService.listmyApplications(request,token);
     }
 
     @Operation(summary = "健康管家查询自己服务的客户退住申请列表")
     @GetMapping("/checkout/myApplications")
-    public ApiResult<MyCheckoutApplicationsResults> myCheckoutApplications(CustomerListRequest request, @RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult<MyCheckoutApplicationListVO> myCheckoutApplications(CustomerListRequest request, @RequestHeader(value = "Authorization", required = false) String token) {
         return customerService.listmyCheckoutApplications(request,token);
     }
 
@@ -138,7 +138,7 @@ public class CustomerController {
 
     @Operation(summary = "健康管家为客户提出退住申请请求")
     @PostMapping("/checkout/apply")
-    public ApiResult checkoutApply(@RequestBody CheckoutParam param,@RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult checkoutApply(@RequestBody CheckoutRequest param,@RequestHeader(value = "Authorization", required = false) String token) {
         return customerService.checkApply(param,token);
     }
 

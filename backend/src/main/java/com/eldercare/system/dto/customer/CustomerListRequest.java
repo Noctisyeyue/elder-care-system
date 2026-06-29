@@ -1,7 +1,10 @@
-package com.eldercare.system.po.customer.customerparams;
+package com.eldercare.system.dto.customer;
 
 import lombok.Data;
 
+/**
+ * 客户列表查询请求
+ */
 @Data
 public class CustomerListRequest {
     private String customerName;      // 可为空

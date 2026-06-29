@@ -3,7 +3,7 @@ package com.eldercare.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverItem;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
     Long selectIdByUsername(String username);
 
-    List<CustomerNoCaregiverItem> listcustomerItems(Long caregiverId, int pageStart, int pageSize, String customerName);
+    List<CustomerNoCaregiverVO> listcustomerItems(Long caregiverId, int pageStart, int pageSize, String customerName);
     long countCustomerItems(Long caregiverId, String customerName);
 
     int addCustomer(Long caregiverId, Long customerId);

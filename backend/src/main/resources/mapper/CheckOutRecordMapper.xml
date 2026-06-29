@@ -9,7 +9,7 @@
         AND status = '2'
         AND del_flag = '0'
     </update>
-    <select id="selectMyCheckoutApplications" resultType="com.eldercare.system.po.customer.customerresult.MyCheckoutApplicationItem">
+    <select id="selectMyCheckoutApplications" resultType="com.eldercare.system.vo.customer.MyCheckoutApplicationVO">
     SELECT
         c.check_out_record_id AS id,
         u.customer_name AS customerName,

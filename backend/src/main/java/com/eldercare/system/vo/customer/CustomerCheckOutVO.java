@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerresult;
+package com.eldercare.system.vo.customer;
 
 import lombok.Data;
 
+/**
+ * 客户退住申请视图
+ */
 @Data
-public class CustomerCheckOutItem {
+public class CustomerCheckOutVO {
     private Long id;
     private String customerName;
     private String checkInDate;

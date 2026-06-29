@@ -3,6 +3,9 @@ package com.eldercare.system.dto.bed;
 import lombok.Data;
 
 @Data
+/**
+ * BedListRequest 请求
+ */
 public class BedListRequest {
     /*
     customerName: string, // 客户姓名 (模糊查询)

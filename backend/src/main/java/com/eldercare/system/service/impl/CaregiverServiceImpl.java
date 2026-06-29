@@ -10,8 +10,8 @@ import com.eldercare.system.po.caregiver.results.ApplicationStatus;
 import com.eldercare.system.po.caregiver.results.CaregiverListResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.caregiver.results.HomeResult;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverItem;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverListResult;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
 import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.po.user.UserList;
 import com.eldercare.system.po.caregiver.results.CaregiverResult;
@@ -116,16 +116,16 @@ public class CaregiverServiceImpl implements CaregiverService {
      * @return 客户列表
      */
     @Override
-    public ApiResult<CustomerNoCaregiverListResult> listCustomers(CustomersByCareIdRequest request) {
-        ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
+    public ApiResult<CustomerNoCaregiverListVO> listCustomers(CustomersByCareIdRequest request) {
+        ApiResult<CustomerNoCaregiverListVO> result = new ApiResult<>();
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
-        List<CustomerNoCaregiverItem> items = userMapper.listcustomerItems(
+        List<CustomerNoCaregiverVO> items = userMapper.listcustomerItems(
                 request.getCaregiverId(),
                 pageStart,
                 request.getPageSize(),
                 request.getCustomerName()
         );
-        CustomerNoCaregiverListResult response = new CustomerNoCaregiverListResult();
+        CustomerNoCaregiverListVO response = new CustomerNoCaregiverListVO();
         if(items.isEmpty()){
             result.setCode(200);
             response.setList(items);

@@ -10,7 +10,7 @@ import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.po.ListResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.customer.customerresult.CustomerItem;
+import com.eldercare.system.vo.customer.CustomerVO;
 import com.eldercare.system.po.diet.params.*;
 import com.eldercare.system.po.diet.result.*;
 import com.eldercare.system.po.user.ImgUploadUtil;

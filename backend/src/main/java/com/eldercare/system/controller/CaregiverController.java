@@ -5,7 +5,7 @@ import com.eldercare.system.po.caregiver.params.setCustomersRequest;
 import com.eldercare.system.po.caregiver.results.CaregiverListResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.caregiver.results.HomeResult;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverListResult;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
 import com.eldercare.system.po.user.UserList;
 import com.eldercare.system.service.CaregiverService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,7 @@ public class CaregiverController {
     // 根据管家的ID查询客户列表
     @Operation(summary = "根据管家的ID查询客户列表")
     @GetMapping("/customers")
-    public ApiResult<CustomerNoCaregiverListResult> noCaregiver(CustomersByCareIdRequest request) {
+    public ApiResult<CustomerNoCaregiverListVO> noCaregiver(CustomersByCareIdRequest request) {
         return caregiverService.listCustomers(request);
     }
 

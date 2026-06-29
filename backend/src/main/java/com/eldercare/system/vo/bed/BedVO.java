@@ -3,6 +3,9 @@ package com.eldercare.system.vo.bed;
 import lombok.Data;
 
 @Data
+/**
+ * BedVO 视图
+ */
 public class BedVO {
     /*
     "id": 1,           // 床位记录的唯一标识符

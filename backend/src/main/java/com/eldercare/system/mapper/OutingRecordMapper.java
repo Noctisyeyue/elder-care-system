@@ -2,7 +2,7 @@ package com.eldercare.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.OutingRecord;
-import com.eldercare.system.po.customer.customerresult.MyApplicationItem;
+import com.eldercare.system.vo.customer.MyApplicationVO;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public interface OutingRecordMapper extends BaseMapper<OutingRecord> {
     void returnOuting(Long id, String actualReturnDate);
 
-    List<MyApplicationItem> selectMyApplications(Long userId, int pageStart, Integer pageSize, String customerName);
+    List<MyApplicationVO> selectMyApplications(Long userId, int pageStart, Integer pageSize, String customerName);
 
     int countMyApplications(Long userId, String customerName);
 

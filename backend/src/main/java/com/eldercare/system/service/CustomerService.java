@@ -3,8 +3,8 @@ package com.eldercare.system.service;
 import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.customer.customerparams.*;
-import com.eldercare.system.po.customer.customerresult.*;
+import com.eldercare.system.dto.customer.*;
+import com.eldercare.system.vo.customer.*;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public interface CustomerService {
      * @param request 查询参数
      * @return 客户列表
      */
-    ApiResult<CustomerListResult> list(CustomerListRequest request);
+    ApiResult<CustomerListVO> list(CustomerListRequest request);
 
     /**
      * 登记客户入住信息
@@ -26,7 +26,7 @@ public interface CustomerService {
      * @param param 客户登记参数
      * @return 操作结果
      */
-    ApiResult register(CustomerRegisterParam param);
+    ApiResult register(CustomerRegisterRequest param);
 
     /**
      * 修改客户信息
@@ -35,7 +35,7 @@ public interface CustomerService {
      * @param param 客户修改参数
      * @return 操作结果
      */
-    ApiResult update(Long id, CustomerRegisterParam param);
+    ApiResult update(Long id, CustomerRegisterRequest param);
 
     /**
      * 删除客户
@@ -60,7 +60,7 @@ public interface CustomerService {
      * @param request 查询参数
      * @return 退住申请列表
      */
-    ApiResult<CustomerCheckOutListResult> checkoutList(CustomerListRequest request);
+    ApiResult<CustomerCheckOutListVO> checkoutList(CustomerListRequest request);
 
     /**
      * 审批退住申请
@@ -78,7 +78,7 @@ public interface CustomerService {
      * @param request 查询参数
      * @return 外出申请列表
      */
-    ApiResult<CustomerOutingListResult> outingList(CustomerListRequest request);
+    ApiResult<CustomerOutingListVO> outingList(CustomerListRequest request);
 
     /**
      * 审批外出申请
@@ -96,7 +96,7 @@ public interface CustomerService {
      * @param request 查询参数
      * @return 客户列表
      */
-    ApiResult<CustomerNoCaregiverListResult> listnoCaregiver(CustomerListRequest request);
+    ApiResult<CustomerNoCaregiverListVO> listnoCaregiver(CustomerListRequest request);
 
     /**
      * 查询客户已购护理项目
@@ -130,7 +130,7 @@ public interface CustomerService {
      * @param token   登录令牌
      * @return 客户列表
      */
-    ApiResult<CustomerNoCaregiverListResult> listMyCustomers(CustomerListRequest request, String token);
+    ApiResult<CustomerNoCaregiverListVO> listMyCustomers(CustomerListRequest request, String token);
 
     /**
      * 提交外出申请
@@ -139,7 +139,7 @@ public interface CustomerService {
      * @param token 登录令牌
      * @return 操作结果
      */
-    ApiResult outingApply(OutingParam param, String token);
+    ApiResult outingApply(OutingRequest param, String token);
 
     /**
      * 查询当前健康管家的外出申请
@@ -148,7 +148,7 @@ public interface CustomerService {
      * @param token   登录令牌
      * @return 外出申请列表
      */
-    ApiResult<MyApplicationsResults> listmyApplications(CustomerListRequest request, String token);
+    ApiResult<MyApplicationListVO> listmyApplications(CustomerListRequest request, String token);
 
     /**
      * 登记客户外出返回
@@ -174,7 +174,7 @@ public interface CustomerService {
      * @param token 登录令牌
      * @return 操作结果
      */
-    ApiResult checkApply(CheckoutParam param, String token);
+    ApiResult checkApply(CheckoutRequest param, String token);
 
     /**
      * 取消退住申请
@@ -191,7 +191,7 @@ public interface CustomerService {
      * @param token   登录令牌
      * @return 退住申请列表
      */
-    ApiResult<MyCheckoutApplicationsResults> listmyCheckoutApplications(CustomerListRequest request, String token);
+    ApiResult<MyCheckoutApplicationListVO> listmyCheckoutApplications(CustomerListRequest request, String token);
 
     /**
      * 统计客户总数

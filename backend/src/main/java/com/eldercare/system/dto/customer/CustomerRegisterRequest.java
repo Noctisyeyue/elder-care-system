@@ -1,9 +1,12 @@
-package com.eldercare.system.po.customer.customerparams;
+package com.eldercare.system.dto.customer;
 
 import lombok.Data;
 
+/**
+ * 客户入住登记请求
+ */
 @Data
-public class CustomerRegisterParam {
+public class CustomerRegisterRequest {
     /*参数：
 {
   customerName: string,    // 必填，客户姓名

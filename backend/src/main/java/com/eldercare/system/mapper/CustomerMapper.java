@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.Customer;
 import com.eldercare.system.entity.NursingItemRecord;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
-import com.eldercare.system.po.customer.customerresult.CustomerCheckOutItem;
-import com.eldercare.system.po.customer.customerresult.CustomerItem;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverItem;
-import com.eldercare.system.po.customer.customerresult.CustomerOutingItem;
+import com.eldercare.system.vo.customer.CustomerCheckOutVO;
+import com.eldercare.system.vo.customer.CustomerVO;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
+import com.eldercare.system.vo.customer.CustomerOutingVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -15,11 +15,11 @@ import java.util.Map;
 
 /** CustomerMapper */
 public interface CustomerMapper extends BaseMapper<Customer> {
-    List<CustomerItem> listCustomerItems(@Param("customerName") String customerName,
+    List<CustomerVO> listCustomerItems(@Param("customerName") String customerName,
                                          @Param("customerType") String customerType,
                                          @Param("pageStart") int pageStart,
                                          @Param("pageSize") int pageSize);
-    List<CustomerCheckOutItem> listCustomerCheckOutItems(@Param("customerName") String customerName,
+    List<CustomerCheckOutVO> listCustomerCheckOutItems(@Param("customerName") String customerName,
                                                          @Param("pageStart") int pageStart,
                                                          @Param("pageSize") int pageSize);
 
@@ -29,13 +29,13 @@ public interface CustomerMapper extends BaseMapper<Customer> {
 
     void updateDelFlag(Long id, int i);
 
-    List<CustomerOutingItem> listCustomerOutingItems(@Param("customerName") String customerName,
+    List<CustomerOutingVO> listCustomerOutingItems(@Param("customerName") String customerName,
                                                      @Param("pageStart") int pageStart,
                                                       @Param("pageSize") int pageSize
                                                      );
     long countCustomerOutingItems(@Param("customerName") String customerName);
 
-    List<CustomerNoCaregiverItem> listNoCaregiverItems(@Param("customerName") String customerName,
+    List<CustomerNoCaregiverVO> listNoCaregiverItems(@Param("customerName") String customerName,
                                                        @Param("pageStart") int pageStart,
                                                        @Param("pageSize") int pageSize);
 

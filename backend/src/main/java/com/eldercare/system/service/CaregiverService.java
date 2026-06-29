@@ -4,7 +4,7 @@ import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
 import com.eldercare.system.po.caregiver.results.CaregiverListResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.caregiver.results.HomeResult;
-import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverListResult;
+import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
 import com.eldercare.system.po.user.UserList;
 
 /** 健康管家服务接口 */
@@ -24,7 +24,7 @@ public interface CaregiverService {
      * @param request 查询参数
      * @return 客户列表
      */
-    ApiResult<CustomerNoCaregiverListResult> listCustomers(CustomersByCareIdRequest request);
+    ApiResult<CustomerNoCaregiverListVO> listCustomers(CustomersByCareIdRequest request);
 
     /**
      * 为健康管家添加服务对象
