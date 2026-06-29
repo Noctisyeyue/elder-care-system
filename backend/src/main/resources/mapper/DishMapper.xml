@@ -1,0 +1,54 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.DishMapper">
+
+    <select id="selectDishByCustomerIdAndDateAndTime" resultType="com.eldercare.system.entity.Dish">
+        select d.*
+        from set_meal_customer_mapping smcm, set_meal_record smr, set_meal_record_dish_mapping smrdm, dish d
+        where smcm.customer_id = #{customerId}
+        and smcm.date = #{date}
+        and smcm.set_meal_id = smr.set_meal_id
+        and smr.set_meal_record_id = smrdm.set_meal_record_id
+        and smrdm.dish_id = d.dish_id
+        and smr.time = #{time}
+        and d.status = '0'
+        and d.del_flag = '0'
+        and smrdm.del_flag = '0'
+        and smcm.del_flag = '0'
+        and smr.del_flag = '0'
+    </select>
+
+    <select id="availableDishes" resultType="com.eldercare.system.entity.Dish">
+        select *
+        from dish
+        where status = '0'
+        and time = #{time}
+        and pork = #{pork}
+        and del_flag = '0'
+        order by dish_id  desc
+    </select>
+
+    <update id="updateImg">
+        update dish
+        set img = #{upload}
+        where dish_name = #{name}
+    </update>
+    <select id="selectByName" resultType="string">
+        select dish_name
+        from dish
+        where dish_name = #{name}
+    </select>
+    <select id="selectDishBysetMealRecordIdAndTime" resultType="com.eldercare.system.entity.Dish">
+        select d.*
+        from dish d, set_meal_record_dish_mapping smrdm, set_meal_record smr
+        where smrdm.dish_id = d.dish_id
+        and smrdm.set_meal_record_id = smr.set_meal_record_id
+        and smr.set_meal_record_id = #{setMealRecordId}
+        and smr.time = #{time}
+        and d.status = '0'
+        and d.del_flag = '0'
+        and smrdm.del_flag = '0'
+        and smr.del_flag = '0'
+        </select>
+</mapper>

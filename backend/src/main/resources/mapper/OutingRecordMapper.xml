@@ -1,0 +1,66 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.OutingRecordMapper">
+
+    <select id="selectMyApplications" resultType="com.eldercare.system.entity.MyApplicationItem">
+        SELECT
+            outing_record_id AS id,
+            u.customer_name AS customerName,
+            reason AS outingReason,
+            outing_date AS outingDate,
+            expected_return_date AS returnDate,
+            real_return_date AS actualReturnDate,
+            accompany AS companion,
+            relationship,
+            accompany_tel AS companionPhone,
+        Case status when '0' then '通过' when '1' then '未通过' when '2' then '已提交' when '3' then '未提交' when '4' then '已撤销' end AS approvalStatus
+        FROM outing_record c
+        Left Join customer u ON c.customer_id = u.customer_id
+        <where>
+            c.user_id=#{userId}
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.del_flag = '0'
+        </where>
+        ORDER BY c.outing_record_id DESC
+        LIMIT #{pageStart}, #{pageSize}
+    </select>
+    <!-- 外出申请的数量 -->
+    <select id="countMyApplications" resultType="int">
+        SELECT COUNT(*) FROM outing_record c
+        <where>
+            c.user_id= #{userId}
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.del_flag = '0'
+        </where>
+    </select>
+    <update id="returnOuting">
+        UPDATE outing_record
+        SET real_return_date = #{actualReturnDate}
+        WHERE outing_record_id = #{id}
+        AND del_flag = '0'
+    </update>
+    <update id="cancelOuting">
+        UPDATE outing_record
+        SET status = '4'
+        WHERE outing_record_id = #{id}
+        AND status = '2'
+        AND del_flag = '0'
+    </update>
+    <update id="updateOutingRecordDelFlag">
+        UPDATE outing_record
+        SET del_flag = '1'
+        WHERE customer_id = #{id}
+        AND del_flag = '0'
+    </update>
+    <update id="updateOutingRecordDelFlagByUserId">
+        UPDATE outing_record
+        SET del_flag = '1'
+        WHERE user_id = #{id}
+        AND del_flag = '0'
+    </update>
+</mapper>

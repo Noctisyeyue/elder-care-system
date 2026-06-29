@@ -1,0 +1,15 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.SetMealMapper">
+
+    <select id="selectSetMealsByDietCalendarId" resultType="com.eldercare.system.entity.SetMeal">
+        select *
+        from set_meal sm, diet_calendar_set_meal_mapping dcsmm
+        where dcsmm.diet_calendar_id = #{dietCalendarId}
+        and sm.set_meal_id = dcsmm.set_meal_id
+        and sm.status = '0'
+        and sm.del_flag = '0'
+        and dcsmm.del_flag = '0'
+    </select>
+</mapper>

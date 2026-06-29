@@ -1,0 +1,46 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.NursingRecordMapper">
+    <update id="removeById">
+        update nursing_record
+        set del_flag = '1'
+        where nursing_record_id = #{recordId}
+        and del_flag = '0'
+    </update>
+
+    <select id="selectByCustomerId" resultType="com.eldercare.system.entity.NursingRecord">
+        select *
+        from nursing_record
+        where customer_id = #{customerId}
+        and del_flag = '0'
+        limit #{pageStart},#{pageSize}
+    </select>
+
+    <select id="countByCustomerId" resultType="java.lang.Integer">
+        select count(*)
+        from nursing_record
+        where customer_id = #{customerId}
+        and del_flag = '0'
+    </select>
+    <select id="countMonthCareCustomer" resultType="java.lang.Long">
+        select count(distinct customer_id)
+        from nursing_record
+        where user_id = #{userId}
+        and del_flag = '0'
+        and nursing_date like concat(#{date}, '%')
+    </select>
+
+    <update id="updateNursingRecordDelFlag">
+        update nursing_record
+        set del_flag = '1'
+        where nursing_record.customer_id = #{id}
+        and del_flag = '0'
+    </update>
+    <update id="updateNursingRecordDelFlagByUserId">
+        update nursing_record
+        set del_flag = '1'
+        where nursing_record.user_id = #{id}
+        and del_flag = '0'
+    </update>
+</mapper>

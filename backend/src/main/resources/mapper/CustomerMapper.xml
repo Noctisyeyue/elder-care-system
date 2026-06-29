@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.eldercare.system.mapper.CustomerMapper">
+
+    <select id="listCustomerItems" resultType="com.neusoft.neuhealth.po.customer.customerresult.CustomerItem">
+        SELECT
+        c.customer_id AS id,
+        c.customer_name AS customerName,
+        c.age AS age,
+        c.gender AS gender,
+        c.date_of_birth AS dateOfBirth,
+        c.id_number AS idNumber,
+        c.blood_type AS bloodType,
+        c.family_member AS familyMember,
+        c.tel AS tel,
+        c.nation,
+        c.family_member_tel,
+        r.building AS buildingNumber,
+        r.room_no AS roomNumber,
+        b.bed_no AS bedNumber,
+        s.user_name AS caregiver,
+        c.check_in_date AS checkInDate,
+        c.contract_end_date AS contractEndDate,
+        c.physical_mental_status AS physicalMentalStatus,
+        l.nursing_level_name AS nursingLevel,
+        c.nursing_level_id AS levelId,
+        c.customer_type AS customerType
+        FROM customer c
+        LEFT JOIN bed b ON c.bed_id = b.bed_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        LEFT JOIN user s ON c.user_id = s.user_id
+        LEFT JOIN nursing_level l ON c.nursing_level_id = l.nursing_level_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            <if test="customerType != null and customerType != ''">
+                AND c.customer_type = #{customerType}
+            </if>
+            AND c.del_flag = '0'
+            AND c.history = '1'
+        </where>
+        order by c.customer_id desc
+        LIMIT #{pageStart}, #{pageSize}
+    </select>
+
+    <!-- 查询总记录数 -->
+    <select id="countCustomerItems" resultType="long">
+        SELECT COUNT(*) FROM customer
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            <if test="customerType != null and customerType != ''">
+                AND customer_type = #{customerType}
+            </if>
+            AND del_flag = '0'
+            AND history = '1'
+        </where>
+    </select>
+
+    <!-- 分页查询出院客户列表 -->
+    <select id="listCustomerCheckOutItems" resultType="com.neusoft.neuhealth.po.customer.customerresult.CustomerCheckOutItem">
+        SELECT
+        c.check_out_record_id AS id,
+        cu.customer_name AS customerName,
+        cu.check_in_date AS checkInDate,
+        c.check_out_date AS checkOutDate,
+        CASE
+        WHEN c.type = '0' THEN '正常退住'
+        WHEN c.type = '1' THEN '死亡退住'
+        WHEN c.type = '2' THEN '保留床位'
+        ELSE '未知状态'
+        END AS checkOutType,
+        c.reason AS checkOutReason,
+        c.examing_date AS approvalTime,
+        s.user_name AS approvalPerson,
+        CASE
+        WHEN c.status = '0' THEN '通过'
+        WHEN c.status = '1' THEN '不通过'
+        WHEN c.status = '2' THEN '已提交'
+        WHEN c.status = '3' THEN '未提交'
+        WHEN c.status = '4' THEN '已撤销'
+        ELSE '未知状态'
+        END AS approvalStatus,
+        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber
+        FROM check_out_record c
+        LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+        LEFT JOIN user s ON c.examing_by = s.user_id
+        LEFT JOIN bed b ON cu.bed_id = b.bed_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND cu.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.check_out_date IS NOT NULL
+            AND c.del_flag = '0'
+        </where>
+        ORDER BY c.check_out_record_id DESC
+        LIMIT #{pageStart}, #{pageSize}
+
+    </select>
+
+    <!-- 获取出院记录总条数 -->
+    <select id="countCustomerCheckOutItems" resultType="long">
+        SELECT COUNT(*)
+        FROM check_out_record c
+        LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND cu.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.del_flag = '0'
+        </where>
+    </select>
+
+    <update id="updateDelFlag">
+        UPDATE customer
+        SET del_flag = 1
+        WHERE customer_id = #{id}
+    </update>
+
+    <!-- 分页查询外出客户列表 -->
+    <select id="listCustomerOutingItems" resultType="com.neusoft.neuhealth.po.customer.customerresult.CustomerOutingItem">
+        SELECT
+        c.outing_record_id AS id,
+        cu.customer_name AS customerName,
+        c.expected_return_date AS returnDate,
+        c.outing_date AS outingDate,
+        c.reason AS outingReason,
+        c.examing_date AS approvalTime,
+        s.user_name AS approvalPerson,
+        c.real_return_date AS actualReturnDate,
+        CASE
+        WHEN c.status = '0' THEN '通过'
+        WHEN c.status = '1' THEN '不通过'
+        WHEN c.status = '2' THEN '已提交'
+        WHEN c.status = '3' THEN '未提交'
+        WHEN c.status = '4' THEN '已撤销'
+        ELSE '未知状态'
+        END AS approvalStatus,
+        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber
+        FROM outing_record c
+        LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+        LEFT JOIN user s ON c.user_id = s.user_id
+        LEFT JOIN bed b ON cu.bed_id = b.bed_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND cu.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.outing_date IS NOT NULL
+            AND c.del_flag = '0'
+        </where>
+        ORDER BY c.outing_record_id DESC
+        limit #{pageStart}, #{pageSize}
+    </select>
+    <select id="countCustomerOutingItems" resultType="long">
+        SELECT COUNT(*)
+        FROM outing_record c
+        LEFT JOIN customer cu ON c.customer_id = cu.customer_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND cu.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.outing_date IS NOT NULL
+            AND c.del_flag = '0'
+        </where>
+    </select>
+    <select id="listNoCaregiverItems" resultType="com.neusoft.neuhealth.po.customer.customerresult.CustomerNoCaregiverItem">
+        SELECT
+        c.customer_id AS id,
+        c.customer_name AS customerName,
+        c.age,
+        c.gender,
+        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber,
+        l.nursing_level_name AS nursingLevel
+        FROM customer c
+        LEFT JOIN nursing_level l ON c.nursing_level_id = l.nursing_level_id
+        LEFT JOIN bed b ON c.bed_id = b.bed_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.del_flag = '0'
+            AND c.user_id IS NULL
+            AND c.customer_type = '1'
+        </where>
+        ORDER BY c.customer_id DESC
+        limit #{pageStart}, #{pageSize}
+
+    </select>
+    <select id="countCustomerNoCaregiverItems" resultType="long">
+        SELECT COUNT(*)
+        FROM customer c
+        <where>
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+            AND c.del_flag = '0'
+            AND c.user_id IS NULL
+            AND c.customer_type = '1'
+        </where>
+    </select>
+    <select id="listPurchasedItems" resultType="com.neusoft.neuhealth.po.caregiver.results.PurchasedItemsResult">
+        SELECT
+        p.nursing_item_record_id AS id,
+        c.customer_name AS customerName,
+        n.code AS code,
+        p.nursing_item_name AS name,
+        p.price AS price,
+        p.execution_times AS executionTimes,
+        p.purchasing_times*p.execution_times-p.executed_times AS remain,
+        p.expiration_date AS expireDate,
+        CASE
+            WHEN NOW() > p.expiration_date THEN 'expired'
+            ELSE 'normal'
+            END AS status
+        FROM nursing_item_record p
+        LEFT JOIN customer c ON p.customer_id = c.customer_id
+        LEFT JOIN nursing_item n ON p.nursing_item_name = n.nursing_item_name
+         WHERE
+            p.customer_id = #{customerId}
+            AND p.del_flag = '0'
+            <if test="itemName != null and itemName != ''">
+                AND n.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
+            </if>
+        ORDER BY p.nursing_item_record_id DESC
+        LIMIT #{pageStart}, #{pageSize}
+
+    </select>
+    <select id="countPurchasedItems" resultType="int">
+        SELECT COUNT(*)
+        FROM nursing_item_record p
+        WHERE p.customer_id = #{customerId}
+        <if test="itemName != null and itemName != ''">
+            AND n.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
+        </if>
+        AND p.del_flag = '0'
+    </select>
+    <select id="isPurchased" resultType="int">
+        SELECT COUNT(*)
+        FROM nursing_item_record p
+        LEFT JOIN nursing_item n ON p.nursing_item_name = n.nursing_item_name
+        WHERE p.customer_id = #{customerId}
+        AND n.nursing_item_id = #{itemId}
+        AND p.del_flag = '0'
+    </select>
+
+    <insert id="buyNursingItems">
+        INSERT INTO nursing_item_record (customer_id, nursing_item_id,nursing_item_code,nursing_item_name, price, execution_cycle, execution_times, purchasing_date, purchasing_times, expiration_date, status)
+        VALUES
+        <foreach item="item" collection="requests" separator=",">
+            (#{item.customerId},#{item.nursingItemId},#{item.nursingItemCode},#{item.nursingItemName}, #{item.price}, #{item.executionCycle}, #{item.executionTimes}, #{item.purchasingDate}, #{item.purchasingTimes}, #{item.expirationDate}, #{item.status})
+        </foreach>
+    </insert>
+
+    <select id="getNursingItemById" resultType="map">
+        SELECT
+        n.nursing_item_id AS id,
+        n.code AS code,
+        n.nursing_item_name AS name,
+        n.price AS price,
+        n.execution_cycle AS executionCycle,
+        n.execution_times AS executionTimes,
+        n.code AS code,
+        n.status AS status
+        FROM nursing_item n
+        WHERE n.nursing_item_id = #{itemId}
+        AND n.del_flag = '0'
+    </select>
+
+    <select id="getIdByIdNum" parameterType="string" resultType="long">
+        select customer_id
+        from customer
+        where id_number = #{idNumber}
+        and del_flag = '0'
+    </select>
+    <!-- Customer selectByIdNum(String idNumber);-->
+    <select id="selectByIdNum" parameterType="string" resultType="com.eldercare.system.entity.Customer">
+        select *
+        from customer c
+        where id_number = #{idNumber}
+        and c.del_flag = '0'
+    </select>
+    <update id="removeAllCustomers">
+        update customer
+        set user_id = NULL
+        where user_id = #{caregiverId}
+    </update>
+    <update id="updateNursingLevelById" parameterType="com.eldercare.system.entity.Customer">
+        update customer
+        set nursing_level_id = null
+        where customer_id = #{customerId}
+    </update>
+</mapper>

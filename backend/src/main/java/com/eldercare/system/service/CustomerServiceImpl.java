@@ -1,0 +1,1042 @@
+package com.eldercare.system.service;
+
+import com.auth0.jwt.interfaces.Claim;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.eldercare.system.entity.*;
+import com.eldercare.system.mapper.*;
+import com.eldercare.system.po.bed.params.SwapParams;
+import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
+import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
+import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
+import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
+import com.eldercare.system.util.ApiResult;
+import com.eldercare.system.po.customer.customerparams.*;
+import com.eldercare.system.po.customer.customerresult.*;
+import com.eldercare.system.po.user.JWTUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+/** 客户服务实现 */
+@Slf4j
+@Service
+public class CustomerServiceImpl implements CustomerService{
+    @Autowired
+    private CustomerMapper customerMapper;
+    @Autowired
+    private BedMapper bedMapper;
+    @Autowired
+    private BedRecordMapper bedRecordMapper;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private UserMapper  userMapper;
+    @Autowired
+    private RoomServiceImpl roomService;
+    @Autowired
+    private RoomMapper roomMapper;
+    @Autowired
+    BedServiceImpl bedService ;
+    @Autowired
+    private CaregiverServiceImpl caregiverServiceImpl;
+    @Autowired
+    private OutingRecordMapper outingRecordMapper;
+    @Autowired
+    private CheckOutRecordMapper checkOutRecordMapper;
+    @Autowired
+    private CheckOutRecordMapper checkoutMapper;
+    @Autowired
+    private NursingRecordMapper nursingRecordMapper;
+    @Autowired
+    private CheckOutRecordMapper checkoutRecordMapper;
+    @Autowired
+    private SetMealCustomerMappingMapper setMealCustomerMappingMapper;
+
+    @Override
+    public ApiResult<CustomerListResult> list(CustomerListRequest request) {
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+        if(Objects.equals(request.getCustomerType(), "self-care"))
+            request.setCustomerType("0");
+        if(Objects.equals(request.getCustomerType(), "nursing-care"))
+            request.setCustomerType("1");
+        List<CustomerItem> items = customerMapper.listCustomerItems(
+                request.getCustomerName(),
+                request.getCustomerType(),
+                pageStart,
+                request.getPageSize()
+        );
+        long total = customerMapper.countCustomerItems(
+                request.getCustomerName(),
+                request.getCustomerType()
+        );
+        CustomerListResult response = new CustomerListResult();
+        response.setRecords(items);
+        response.setTotal(total);
+        ApiResult<CustomerListResult> result = new ApiResult<>();
+        result.setData(response);
+        if(!items.isEmpty()){
+            result.setCode(200);
+            result.setMessage("查询成功");
+        }else {
+            result.setCode(200);
+            result.setMessage("数据为空");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult register(CustomerRegisterParam param) {
+        //创建一个返回值
+        ApiResult result = new ApiResult<>();
+        //创建一个Customer对象
+        Customer customer = new Customer();
+        customer.setCustomerName(param.getCustomerName());
+        //根据出生日期param.getDateOfBirth()获取年龄
+        if (param.getDateOfBirth() != null && !param.getDateOfBirth().isEmpty()) {
+            try {
+                LocalDate birthDate = LocalDate.parse(param.getDateOfBirth(),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd")); // 根据实际格式调整
+                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                customer.setAge(age);
+            } catch (Exception e) {
+                // 可记录日志或返回错误码
+                result.setMessage("出生日期格式不正确");
+                return result ;
+            }
+        }
+        //swtichgender male变成男
+        switch (param.getGender()) {
+            case "male": customer.setGender("男");
+            break;
+            case "female": customer.setGender("女");
+            break;
+            case "男": customer.setGender("男");
+            break;
+            case "女": customer.setGender("女");
+            break;
+        }
+        customer.setBloodType(param.getBloodType());
+        customer.setFamilyMember(param.getFamilyMember());
+        customer.setTel(param.getTel());
+        customer.setFamilyMemberTel(param.getFamilyMemberTel());
+        customer.setNation(param.getNation());
+        customer.setIdNumber(param.getIdNumber());
+        //根据床号和房间号获取床id
+        Map<String, Object> newBedParams = new HashMap<>();
+        newBedParams.put("bedNo", param.getBedNumber());
+        newBedParams.put("roomNo", param.getRoomNumber());
+        Long newBedId = bedMapper.selectBedByBedDetails(newBedParams).getBedId();
+
+        try {
+            customer.setBedId(newBedId);
+            //根据id_number查询customer,如果有则返回错误
+            if (customerMapper.selectByIdNum(param.getIdNumber()) != null) {
+                result.setCode(500);
+                result.setMessage("添加失败，用户已存在");
+                return result;
+            }
+        }catch (Exception e){
+            result.setCode(500);
+            throw e;
+        }
+        customer.setDateOfBirth(param.getDateOfBirth());
+        customer.setCheckInDate(param.getCheckInDate());
+        customer.setContractEndDate(param.getContractEndDate());
+        customer.setCustomerType(param.getCustomerType());
+        customer.setPhysicalMentalStatus(param.getPhysicalMentalStatus());
+        //插入客户
+        try {
+            //插入客户
+            customerMapper.insert(customer);
+            //修改床的使用状态
+            bedMapper.updateBedStatusUsed(newBedId);
+            //增加床的使用记录
+            BedRecord bedRecord = new BedRecord();
+            bedRecord.setBedId(newBedId);
+            bedRecord.setBedNo(param.getBedNumber());
+            bedRecord.setCustomerId(customerMapper.getIdByIdNum(param.getIdNumber()));
+            bedRecord.setUsageStartDate(param.getCheckInDate());
+            bedRecord.setUsageEndDate(param.getContractEndDate());
+            bedRecord.setHistory("1");
+            bedRecordMapper.insert(bedRecord);
+            result.setCode(200);
+            result.setMessage("登记成功");
+        }catch (Exception e){
+            result.setMessage("登记失败，数据库错误");
+            result.setCode(500);
+            throw e;
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult update(Long id, CustomerRegisterParam param) {
+        // 创建返回结果对象
+        ApiResult result = new ApiResult<>();
+        // 1. 根据ID查询现有客户信息
+        Customer existingCustomer = customerMapper.selectById(id);
+        if (existingCustomer == null) {
+            result.setCode(404);
+            result.setMessage("客户不存在");
+            return result;
+        }else {
+            SwapParams params = new SwapParams();
+            //根据床id和history=1查找床位记录的id
+            Long bedRecordId = bedRecordMapper.selectBedRecordIdByBedIdAndHistory(existingCustomer.getBedId(), "1");
+            //根据existingCustomer.getBedId()查床的房间号和床号
+            Bed bed = bedMapper.selectById(existingCustomer.getBedId());
+            String oldBedDetails = "606" + "#" +roomMapper.selectById( bed.getRoomId() ).getRoomNo()+ "-" + bed.getBedNo()+"号床";
+            params.setOldBedId(bedRecordId);
+            params.setOldBedEndDate(existingCustomer.getContractEndDate());
+            params.setNewBedDetails("606" + "#" + param.getRoomNumber() + "-" + param.getBedNumber());
+            params.setNewBedStartDate(param.getCheckInDate());
+            params.setNewBedEndDate(param.getContractEndDate());
+            //如果旧的床位和新床位的床号相同、房间号相同，则不需要进行更换
+            if (!oldBedDetails.equals(params.getNewBedDetails())) {
+                bedService.swap(params);
+            }
+        }
+
+        // 2. 设置基础信息
+        existingCustomer.setCustomerName(param.getCustomerName());
+
+        // 3. 计算年龄
+        if (param.getDateOfBirth() != null && !param.getDateOfBirth().isEmpty()) {
+            try {
+                LocalDate birthDate = LocalDate.parse(param.getDateOfBirth(),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                existingCustomer.setAge(age);
+            } catch (Exception e) {
+                result.setMessage("出生日期格式不正确");
+                result.setCode(400);
+                return result;
+            }
+        }
+
+        existingCustomer.setGender(param.getGender());
+        existingCustomer.setBloodType(param.getBloodType());
+        existingCustomer.setFamilyMember(param.getFamilyMember());
+        existingCustomer.setTel(param.getTel());
+        existingCustomer.setFamilyMemberTel(param.getFamilyMemberTel());
+        existingCustomer.setNation(param.getNation());
+        existingCustomer.setIdNumber(param.getIdNumber());
+
+
+        // 4. 获取新的床号 ID（如果提供了 roomNumber 和 bedNumber）
+        if (param.getRoomNumber() != null && !param.getRoomNumber().isEmpty()
+                && param.getBedNumber() != null && !param.getBedNumber().isEmpty()) {
+            Map<String, Object> bedParams = new HashMap<>();
+            //去掉bedNumber中的"号床"字
+            param.setBedNumber(param.getBedNumber().replace("号床", ""));
+            bedParams.put("bedNo", param.getBedNumber());
+            bedParams.put("roomNo", param.getRoomNumber());
+            try {
+                Long newBedId = bedMapper.selectBedByBedDetails(bedParams).getBedId();
+                Long oldBedId = existingCustomer.getBedId();
+                BedRecord bedRecord = bedRecordMapper.selectByBedId(oldBedId);
+                existingCustomer.setBedId(newBedId);
+            } catch (Exception e) {
+                result.setMessage("床位信息无效");
+                result.setCode(500);
+                return result;
+            }
+        }
+
+        // 5. 设置其他字段
+        existingCustomer.setDateOfBirth(param.getDateOfBirth());
+        existingCustomer.setCheckInDate(param.getCheckInDate());
+        existingCustomer.setContractEndDate(param.getContractEndDate());
+        existingCustomer.setPhysicalMentalStatus(param.getPhysicalMentalStatus());
+        existingCustomer.setCustomerType(param.getCustomerType());
+        // 6. 执行更新
+        try {
+            customerMapper.updateById(existingCustomer);
+            result.setCode(200);
+            result.setMessage("更新成功");
+        } catch (Exception e) {
+            result.setMessage("更新失败，数据库错误");
+            result.setCode(500);
+            // 可以选择打印日志：log.error("更新客户失败", e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult delete(Long id) {
+        ApiResult result = new ApiResult();
+        if (id == null) {
+            result.setCode(500);
+        }
+        //获取当前日期
+        String date = LocalDate.now().toString();
+        try{
+            Customer customer = customerMapper.selectById(id);
+            customerMapper.updateDelFlag(id,1);
+            //根据床id将床的状态设置为free
+            bedMapper.updateBedStatus(customer.getBedId());
+            //将客户表的del_flag改为1
+            customerMapper.updateDelFlag(id, 1);
+            //修改床位记录表，截止时间usage_end_date改为当前日期
+            //是否为历史记录标识符history改为0
+            bedRecordMapper.updateBedRecordUsageEndDate(id, date, "0");
+            // set_meal_customer_mapping del_flag改为1
+            UpdateWrapper<SetMealCustomerMapping> setMealCustomerMappingUpdateWrapper = new UpdateWrapper<>();
+            setMealCustomerMappingUpdateWrapper.eq("customer_id", id);
+            setMealCustomerMappingUpdateWrapper.set("del_flag", "0");
+            setMealCustomerMappingMapper.update(null, setMealCustomerMappingUpdateWrapper);
+            // customer对应的nursing_record del_flag改为1
+            nursingRecordMapper.updateNursingRecordDelFlag(id);
+            // customer对应的outing_record和check_record del_flag改为1
+            outingRecordMapper.updateOutingRecordDelFlag(id);
+            checkoutRecordMapper.updateCheckoutRecordDelFlag(id);
+            result.setCode(200);
+            result.setMessage("删除成功");
+        }
+        catch (Exception e){
+            result.setCode(500);
+            result.setMessage("删除失败，未找到对应用户");
+            throw e;
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult deleteBed(Long id, Long bedNumber) {
+        ApiResult result = new ApiResult();
+        // 根据用户id和床位号删除床位记录
+        try {
+            bedRecordMapper.deleteBedRecord(id, bedNumber);
+            result.setCode(200);
+            result.setMessage("删除成功");
+        }
+        catch (Exception e){
+            result.setCode(500);
+            result.setMessage("删除失败");
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult<CustomerCheckOutListResult> checkoutList(CustomerListRequest request) {
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+
+        List<CustomerCheckOutItem> items = customerMapper.listCustomerCheckOutItems(
+                request.getCustomerName(),
+                pageStart,
+                request.getPageSize()
+        );
+
+        long total = customerMapper.countCustomerCheckOutItems(
+                request.getCustomerName()
+        );
+
+        CustomerCheckOutListResult response = new CustomerCheckOutListResult();
+        response.setRecords(items);
+        response.setTotal(total);
+
+        ApiResult<CustomerCheckOutListResult> result = new ApiResult<>();
+        result.setData(response);
+
+        if(!items.isEmpty()){
+            result.setCode(200);
+            result.setMessage("查询成功");
+        } else {
+            result.setCode(200);
+            result.setMessage("数据为空");
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult approveCheckout(Long id, Map<String, Object> params, String token) {
+        ApiResult result = new ApiResult();
+        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
+        String username = "";
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            return result;
+        }
+
+        Long userId = userMapper.selectIdByUsername(username);
+        //获取当前日期
+        String date = LocalDate.now().toString();
+        //获取退住类型,用汉字映射字符型的数字，退住类型0正常退住1死亡退住2保留床位
+        String type =
+            switch (params.get("checkOutType").toString()) {
+                case "正常退住" -> "0";
+                case "死亡退住" -> "1";
+                case "保留床位" -> "2";
+                default -> "3";
+            };
+        //获取通过状态,0通过1不通过2已提交3未提交
+        String status =
+                switch (params.get("approvalStatus").toString()) {
+                    case "通过" -> "0";
+                    case "不通过" -> "1";
+                    case "已提交" -> "2";
+                    case "未提交" -> "3";
+                    default -> "4";
+                };
+        //获取房间号和床号格式为"1001-1"，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
+        String[] bedNumber = params.get("bedNumber").toString().split("-");
+        //转成Long
+        Long roomNo = Long.parseLong(bedNumber[0]);
+        Long bedNo = Long.parseLong(bedNumber[1]);
+        //更新退住记录表
+        //如果不通过则状态改为不通过，更新时间改为当前日期
+        try {
+            int rowsAffected = bedRecordMapper.updateCheckOutRecord(id,userId, status, date, type);
+            if (rowsAffected == 0) {
+                result.setCode(404);
+                result.setMessage("未找到对应退住记录");
+                return result;
+            }
+            if(!type.equals("2")&& status.equals("0")){
+                //根据床号将床的状态设置为free
+                roomService.updateBedStatus(roomNo, bedNo);
+                //将客户表的del_flag改为1
+                customerMapper.updateDelFlag(id, 1);
+                //修改床位记录表，截止时间usage_end_date改为当前日期
+                //是否为历史记录标识符history改为0
+                bedRecordMapper.updateBedRecordUsageEndDate(id, date, "0");
+                // set_meal_customer_mapping del_flag改为1
+                UpdateWrapper<SetMealCustomerMapping> setMealCustomerMappingUpdateWrapper = new UpdateWrapper<>();
+                setMealCustomerMappingUpdateWrapper.eq("customer_id", id);
+                setMealCustomerMappingUpdateWrapper.set("del_flag", "0");
+                setMealCustomerMappingMapper.update(null, setMealCustomerMappingUpdateWrapper);
+                // customer对应的nursing_record del_flag改为1
+                nursingRecordMapper.updateNursingRecordDelFlag(id);
+                // customer对应的outing_record和check_record del_flag改为1
+                outingRecordMapper.updateOutingRecordDelFlag(id);
+                checkoutRecordMapper.updateCheckoutRecordDelFlag(id);
+            }
+            result.setCode(200);
+            result.setMessage("更新成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("更新失败，数据库错误");
+            throw e;
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult<CustomerOutingListResult> outingList(CustomerListRequest request) {
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+
+        List<CustomerOutingItem> items = customerMapper.listCustomerOutingItems(
+                request.getCustomerName(),
+                pageStart,
+                request.getPageSize()
+        );
+
+        long total = customerMapper.countCustomerOutingItems(
+                request.getCustomerName()
+        );
+
+        CustomerOutingListResult response = new CustomerOutingListResult();
+        response.setRecords(items);
+        response.setTotal(total);
+
+        ApiResult<CustomerOutingListResult> result = new ApiResult<>();
+        result.setData(response);
+
+        if (!items.isEmpty()) {
+            result.setCode(200);
+            result.setMessage("查询成功");
+        } else {
+            result.setCode(200);
+            result.setMessage("数据为空");
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult approveOuting(Long id, Map<String, Object> params, String token) {
+        ApiResult result = new ApiResult();
+        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
+        String username = "";
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            return result;
+        }
+        Long userId = userMapper.selectIdByUsername(username);
+        //获取当前日期
+        String date = LocalDate.now().toString();
+        //获取通过状态,0通过1不通过2已提交3未提交
+        String status =
+                switch (params.get("approvalStatus").toString()) {
+                    case "通过" -> "0";
+                    case "不通过" -> "1";
+                    case "已提交" -> "2";
+                    case "未提交" -> "3";
+                    default -> "4";
+                };
+        //获取房间号和床号格式为"1001-1"，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
+        String[] bedNumber = params.get("bedNumber").toString().split("-");
+        //转成Long
+        Long roomNo = Long.parseLong(bedNumber[0]);
+        Long bedNo = Long.parseLong(bedNumber[1]);
+        Map<String, Object> newBedParams = new HashMap<>();
+        newBedParams.put("roomNo", roomNo);
+        newBedParams.put("bedNo", bedNo);
+        Long bedId;
+        try {
+            bedId = bedMapper.selectBedByBedDetails(newBedParams).getBedId();
+            result.setCode(200);
+            result.setMessage("获取床位成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("获取床Id失败，数据库错误");
+            return result;
+        }
+        //更新外出记录表
+        try {
+            int rowsAffected = bedRecordMapper.updateOutingRecord(id,userId, status, date);
+            if (rowsAffected == 0) {
+                result.setCode(404);
+                result.setMessage("未找到对应外出记录");
+                return result;
+            }
+            if(status.equals("0")){
+                //根据床号将床的状态设置为out
+                bedMapper.updateBedStatusOut(bedId);
+            }
+            result.setCode(200);
+            result.setMessage("更新成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("更新失败，数据库错误");
+            log.error("e: ", e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public ApiResult<CustomerNoCaregiverListResult> listnoCaregiver(CustomerListRequest request) {
+        ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+        List<CustomerNoCaregiverItem> items = customerMapper.listNoCaregiverItems(
+                request.getCustomerName(),
+                pageStart,
+                request.getPageSize()
+        );
+        if(items.isEmpty()){
+            result.setCode(200);
+            result.setMessage("数据为空");
+            List<CustomerNoCaregiverItem> list = new ArrayList<>();
+            CustomerNoCaregiverListResult response = new CustomerNoCaregiverListResult();
+            response.setList(list);
+            response.setTotal(0L);
+            result.setData(response);
+            return result;
+        }
+        long total = customerMapper.countCustomerItems(
+                request.getCustomerName(),
+                request.getCustomerType());
+
+        CustomerNoCaregiverListResult response = new CustomerNoCaregiverListResult();
+        response.setList(items);
+        response.setTotal(total);
+        result.setData(response);
+        result.setMessage("查询成功");
+        result.setCode(200);
+        return result;
+    }
+
+    @Override
+    public ApiResult<PurchasedItemsListResult> purchasedItems(PurchasedItemsRequest request) {
+        ApiResult<PurchasedItemsListResult> result = new ApiResult<>();
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+        List<PurchasedItemsResult> items = customerMapper.listPurchasedItems(
+                request.getCustomerId(),
+                pageStart,
+                request.getPageSize(),
+                request.getItemName()
+        );
+        if(items.isEmpty()){
+            result.setCode(200);
+            result.setData(new PurchasedItemsListResult(new ArrayList<>(), 0));
+            result.setMessage("数据为空");
+            return result;
+        }
+        try {
+            int total = customerMapper.countPurchasedItems(request.getCustomerId(),request.getItemName());
+            PurchasedItemsListResult response = new PurchasedItemsListResult(items, total);
+
+            result.setData(response);
+            result.setCode(200);
+            result.setMessage("查询成功");
+            return result;
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("查询失败，数据库错误");
+            log.error("e: ", e);
+            return result;
+        }
+
+    }
+
+    @Override
+    public ApiResult isPurchased(Long customerId, Long itemId) {
+        ApiResult result = new ApiResult();
+        try {
+            int res = customerMapper.isPurchased(customerId, itemId);
+            if (res == 1) {
+                result.setCode(200);
+                result.setMessage("success");
+                result.setData(true);
+                return result;
+            } else {
+                result.setCode(200);
+                result.setMessage("false");
+                result.setData(false);
+                return result;
+            }
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询失败，数据库错误");
+            log.error("e: ", e);
+            return result;
+        }
+    }
+
+    @Override
+    public ApiResult<Map<String, Boolean>> buyItems(List<BuyItemRequest> requests) {
+        ApiResult<Map<String, Boolean>> result = new ApiResult<>();
+        //新建一个NursingItemRecord对象列表，用于存储要购买的项目信息
+        List<NursingItemRecord> records = new ArrayList<>();
+        for (BuyItemRequest req : requests) {
+            Map<String, Object> itemInfo = customerMapper.getNursingItemById(req.getItemId());
+            NursingItemRecord record = new NursingItemRecord();
+            record.setCustomerId(req.getCustomerId());
+            record.setNursingItemName(itemInfo.get("name").toString());
+            record.setPrice((Float) itemInfo.get("price"));
+            record.setExecutionCycle(itemInfo.get("executionCycle").toString());
+            record.setExecutionTimes( (Integer) itemInfo.get("executionTimes"));
+            record.setExecutedTimes(0);
+            record.setNursingItemCode(itemInfo.get("code").toString());
+            record.setNursingItemId(req.getItemId());
+            record.setPurchasingDate(req.getBuyDate());
+            record.setPurchasingTimes(req.getBuyCount());
+            record.setExpirationDate(req.getExpireDate());
+            record.setStatus("0");
+            records.add(record);
+        }
+        try {
+            customerMapper.buyNursingItems(records);
+            result.setCode(200);
+            result.setMessage("购买成功");
+            return result;
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("购买失败，数据库错误");
+            log.error("e: ", e);
+            return result;
+        }
+    }
+
+    @Override
+    public ApiResult<CustomerNoCaregiverListResult> listMyCustomers(CustomerListRequest request, String token) {
+        ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
+        //从token中获取当前健康管家的 id
+        //根据Token获取用户名，根据用户名找到用户ID
+        String username = "";
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            throw e;
+        }
+        Long userId = userMapper.selectIdByUsername(username);
+        CustomersByCareIdRequest request2 = new CustomersByCareIdRequest();
+        request2.setCustomerName(request.getCustomerName());
+        request2.setCaregiverId(userId);
+        request2.setPageNum(request.getPageNum());
+        request2.setPageSize(request.getPageSize());
+        result = caregiverServiceImpl.listCustomers(request2);
+        return result;
+    }
+
+    @Override
+    public ApiResult outingApply(OutingParam param, String token) {
+        //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为"已提交"
+        ApiResult result = new ApiResult();
+        OutingRecord outingRecord = new OutingRecord();
+        String username ;
+        //获取token中的用户名
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            throw e;
+        }
+        // 验证客户id是否存在
+        if (customerMapper.selectById(param.getCustomerId()) == null) {
+
+            result.setCode(400);
+            result.setMessage("客户id不存在");
+            return result;
+        }
+        outingRecord.setUserId(userMapper.selectIdByUsername(username));
+        outingRecord.setCustomerId(param.getCustomerId());
+        outingRecord.setOutingDate(param.getOutingDate());
+        outingRecord.setReason(param.getOutingReason());
+        outingRecord.setExpectedReturnDate(param.getReturnDate());
+        outingRecord.setAccompany(param.getCompanion());
+        outingRecord.setRelationship(param.getRelationship());
+        outingRecord.setAccompanyTel(param.getCompanionPhone());
+        outingRecord.setStatus("2");
+        //向outing_record表插入数据
+        try{
+            outingRecordMapper.insert(outingRecord);
+            result.setCode(200);
+            result.setMessage("申请成功");
+        }catch (Exception e){
+            throw e;
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult<MyApplicationsResults> listmyApplications(CustomerListRequest request, String token) {
+        ApiResult<MyApplicationsResults> result = new ApiResult<>();
+        //获取token中的用户Id
+        String username ;
+        //获取token中的用户名
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            throw e;
+        }
+        Long userId = userMapper.selectIdByUsername(username);
+
+        String customerName = request.getCustomerName();
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+
+        //根据user_id获取用户申请列表
+        try {
+            List<MyApplicationItem> records = outingRecordMapper.selectMyApplications(userId, pageStart, request.getPageSize(), customerName);
+            int total = outingRecordMapper.countMyApplications(userId, customerName);
+            result.setData(new MyApplicationsResults(records, total));
+            result.setCode(200);
+            result.setMessage("查询成功");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(500);
+            result.setMessage("数据库错误");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult returnOuting(Long id, String actualReturnDate) {
+        ApiResult result = new ApiResult();
+        //根据id更新actualReturnDate
+        try {
+            outingRecordMapper.returnOuting(id, actualReturnDate);
+            //查询客户id，根据客户Id将床位状态改为空闲
+            OutingRecord outingRecord = outingRecordMapper.selectById(id);
+            Customer customer = customerMapper.selectById(outingRecord.getCustomerId());
+            //根据customer.getBedId())将床位设为used
+            bedMapper.updateBedStatusUsed(customer.getBedId());
+            result.setCode(200);
+            result.setMessage("成功");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(500);
+            result.setMessage("数据库错误");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult cancelOuting(Long id) {
+        //将状态改为已撤销(approvalStatus:"已提交"->"已撤销")
+        //如果status是2改成3
+        ApiResult result = new ApiResult();
+        try {
+            outingRecordMapper.cancelOuting(id);
+            result.setCode(200);
+            result.setMessage("撤销成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("撤销失败");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult checkApply(CheckoutParam param, String token) {
+        ApiResult result = new ApiResult();
+        //获取token中的用户Id
+        String username ;
+        //获取token中的用户名
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            throw e;
+        }
+        Long userId = userMapper.selectIdByUsername(username);
+        CheckOutRecord checkoutRecord = new CheckOutRecord();
+        checkoutRecord.setUserId(userId);
+        checkoutRecord.setCustomerId(param.getCustomerId());
+        checkoutRecord.setCheckOutDate(param.getCheckOutDate());
+        checkoutRecord.setType(switch (param.getCheckOutType()) {
+            case "正常退住" -> "0";
+            case "死亡退住" -> "1";
+            case "保留床位" -> "2";
+            default -> "3";
+        });
+        //如果是正常退住或死亡退住，根据customerId调用删除用户方法
+        if (param.getCheckOutType().equals("正常退住") || param.getCheckOutType().equals("死亡退住")) {
+            userMapper.deleteUser(param.getCustomerName());
+        }
+        checkoutRecord.setStatus("2");
+        checkoutRecord.setReason(param.getCheckOutReason());
+        try {
+            checkOutRecordMapper.insert(checkoutRecord);
+            result.setCode(200);
+            result.setMessage("添加成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("添加失败");
+            throw e;
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult cancelCheckout(Long id) {
+        //将状态改为已撤销(approvalStatus:"已提交"->"已撤销")
+        //如果status是2改成3
+        ApiResult result = new ApiResult();
+        try {
+            checkOutRecordMapper.cancelCheckout(id);
+            result.setCode(200);
+            result.setMessage("撤销成功");
+        }catch (Exception e){
+            result.setCode(500);
+            result.setMessage("撤销失败");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult<MyCheckoutApplicationsResults> listmyCheckoutApplications(CustomerListRequest request, String token) {
+        ApiResult<MyCheckoutApplicationsResults> result = new ApiResult<>();
+        //获取token中的用户Id
+        String username ;
+        //获取token中的用户名
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim usernameClaim = claims.get("userName");
+            if (usernameClaim == null) {
+                // 处理 username 不存在的情况
+                result.setCode(401);
+                result.setMessage("用户名不存在");
+                return result;
+            }
+            username = usernameClaim.asString();
+            // 继续业务逻辑
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            throw e;
+        }
+        Long userId = userMapper.selectIdByUsername(username);
+
+        String customerName = request.getCustomerName();
+        int pageStart = (request.getPageNum() - 1) * request.getPageSize();
+
+        //根据user_id获取用户申请列表
+        try {
+            List<MyCheckoutApplicationItem> records = checkoutRecordMapper.selectMyCheckoutApplications(userId, pageStart, request.getPageSize(), customerName);
+            int total = checkoutRecordMapper.countMyCheckoutApplications(userId, customerName);
+            result.setData(new MyCheckoutApplicationsResults(records, total));
+            result.setCode(200);
+            result.setMessage("查询成功");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(500);
+            result.setMessage("数据库错误");
+        }
+        return result;
+    }
+
+    @Override
+    public ApiResult<Long> count() {
+        // 获取客户数量
+        // 变量准备
+        ApiResult<Long> result = new ApiResult<>();
+        Long data;
+        // 数据库查询
+        QueryWrapper<Customer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("del_flag", "0");
+        queryWrapper.eq("history","1");
+        try {
+            data = customerMapper.selectCount(queryWrapper);
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询客户数量数据库错误");
+            throw e;
+        }
+        // 数据包装并返回
+        result.setCode(200);
+        result.setData(data);
+        result.setMessage("查询成功");
+        return result;
+    }
+
+    @Override
+    public ApiResult<Long> monthCount(String date) {
+        // 获取新增客户数量
+        // 变量准备
+        ApiResult<Long> result = new ApiResult<>();
+        Long data;
+        // 数据库查询
+        QueryWrapper<Customer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("del_flag", "0");
+        queryWrapper.eq("history","1");
+        queryWrapper.like("check_in_date", date+"%");
+        try {
+            data = customerMapper.selectCount(queryWrapper);
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询某月客户数量失败");
+            throw e;
+        }
+        // 数据包装并返回
+        result.setCode(200);
+        result.setData(data);
+        result.setMessage("查询成功");
+        return result;
+    }
+
+    @Override
+    public ApiResult<List<Long>> yearCount(String year) {
+        // 获取新增客户数量
+        // 变量准备
+        ApiResult<List<Long>> result = new ApiResult<>();
+        List<Long> data = new ArrayList<>();
+        // 数据库查询
+        for (int i = 1; i < 13; i++){
+            Long monthData;
+            QueryWrapper<Customer> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("del_flag", "0");
+            queryWrapper.eq("history","1");
+            queryWrapper.like("check_in_date", i<10?(year+"-"+"0"+i+"%"):(year+"-"+i+"%"));
+            try {
+                monthData = customerMapper.selectCount(queryWrapper);
+            } catch (Exception e) {
+                result.setCode(500);
+                result.setMessage("查询某月客户数量失败");
+                throw e;
+            }
+            data.add(monthData);
+        }
+        // 数据包装并返回
+        result.setCode(200);
+        result.setData(data);
+        result.setMessage("查询成功");
+        return result;
+    }
+}

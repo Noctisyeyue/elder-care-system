@@ -1,0 +1,85 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.UserMapper">
+    <select id="selectIdByUsername" parameterType="string" resultType="long">
+        select user_id from user where user_name = #{username}
+        and del_flag = '0'
+    </select>
+    <select id="listcustomerItems" parameterType="long" resultType="com.neusoft.neuhealth.po.customer.customerresult.CustomerNoCaregiverItem">
+        select c.customer_id AS id,
+               c.customer_name AS customerName,
+               c.age,
+               c.gender,
+               c.tel,
+               "606" AS buildingNumber,
+               r.room_no AS roomNumber,
+               b.bed_no AS bedNumber,
+               n.nursing_level_name AS nursingLevel
+        from customer c
+        left join bed b on c.bed_id = b.bed_id
+        left join nursing_level n on c.nursing_level_id = n.nursing_level_id
+        left join room r on b.room_id = r.room_id
+        where c.user_id=#{caregiverId}
+          and c.del_flag = '0'
+        <if test="customerName != null">
+            and c.customer_name like concat('%', #{customerName}, '%')
+        </if>
+        ORDER BY c.customer_id DESC
+        LIMIT #{pageStart}, #{pageSize}
+    </select>
+    <select id="countCustomerItems" parameterType="long" resultType="long">
+        select count(*) from customer c
+        where c.user_id= #{caregiverId}
+          and c.del_flag = '0'
+        <if test="customerName != null">
+            and c.customer_name like concat('%', #{customerName}, '%')
+        </if>
+    </select>
+
+    <update id="addCustomer" parameterType="long">
+        update customer set user_id=#{caregiverId} where customer_id=#{customerId}
+    </update>
+    <update id="removeCustomer" parameterType="long">
+        update customer set user_id=null where customer_id= #{customerId}
+    </update>
+    <update id="deleteUser" parameterType="string">
+        UPDATE user
+        SET del_flag = '1'
+        WHERE user_name = #{userName}
+        AND del_flag = '0'
+    </update>
+    <update id="updateByEmail" parameterType="String">
+        UPDATE user
+        SET password = #{password}
+        WHERE email = #{email}
+          AND del_flag = '0'
+    </update>
+    <update id="updateAvatar">
+        UPDATE user
+        SET img = #{upload}
+        WHERE user_id = #{userId}
+          AND del_flag = '0'
+    </update>
+    <select id="selectAvatar" parameterType="long" resultType="string">
+        select img from user where user_id = #{userId}
+    </select>
+    <update id="updateUserId">
+        UPDATE customer
+        SET user_id = NULL
+        WHERE user_id = #{oldUserId}
+          AND del_flag = '0'
+    </update>
+    <select id="selectEmail" parameterType="long" resultType="string">
+        select email from user where user_id = #{userId}
+    </select>
+
+    <select id="getTotalCareCount" resultType="java.lang.Long">
+        select sum(nir.execution_times * nir.purchasing_times - nir.executed_times)
+        from customer c, nursing_item_record nir
+        where c.customer_id = nir.customer_id
+        and c.user_id = #{userId}
+        and c.del_flag = '0'
+        and nir.del_flag = '0'
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.BedRecordMapper">
+    <!-- 逻辑删除 -->
+    <update id="deleteBedRecord" parameterType="map">
+        UPDATE bed_record
+        SET del_flag = '1'
+        WHERE customer_id = #{id} AND bed_id = #{bedNumber}
+    </update>
+    <!-- 更新退住信息 -->
+    <update id="updateCheckOutRecord" parameterType="map">
+        UPDATE check_out_record
+        SET examing_by = #{userId},
+        status = #{status},
+        examing_date = #{date},
+        type = #{type}
+        WHERE check_out_record_id = #{id}
+    </update>
+    <!-- 更新bedrecord -->
+    <update id="updateBedRecordUsageEndDate" parameterType="map">
+        UPDATE bed_record
+        SET usage_end_date = #{date},
+            history = #{number}
+        WHERE bed_record_id = #{id}
+    </update>
+    <update id="updateOutingRecord" parameterType="map">
+        UPDATE outing_record
+        SET examing_by = #{userId},
+        status = #{status},
+        examing_date = #{date}
+        WHERE outing_record_id = #{id}
+    </update>
+    <select id="selectBedRecordIdByBedIdAndHistory" resultType="java.lang.Long">
+        SELECT bed_record_id
+        FROM bed_record
+        WHERE bed_id = #{oldBedId} AND history = #{number}
+        AND  del_flag = '0'
+    </select>
+    <select id="selectByBedId" resultType="com.eldercare.system.entity.BedRecord">
+        SELECT bed_record_id, bed_id, bed_no, customer_id, usage_start_date, usage_end_date, history, del_flag, create_by, create_time, update_by, update_time
+        FROM bed_record
+        WHERE bed_id = #{oldBedId}
+        AND  del_flag = '0'
+        AND history = '1'
+    </select>
+</mapper>

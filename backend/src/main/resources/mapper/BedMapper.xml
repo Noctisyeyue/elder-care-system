@@ -1,0 +1,109 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.BedMapper">
+    <select id="selectRoomsByFloor" parameterType="string" resultType="map">
+        select r.room_id, r.room_no
+        from room r
+        where r.floor = #{floor}
+        and r.del_flag = '0'
+        order by r.room_no
+    </select>
+
+    <select id="selectBedsByRoom" parameterType="long" resultType="map">
+        select b.bed_no, b.status, b.bed_id
+        from bed b
+        where b.room_id = #{roomId}
+        and b.del_flag = '0'
+        order by b.bed_no
+    </select>
+
+    <select id="selectFreeBedsByRoom" parameterType="string" resultType="map">
+        select b.bed_no, b.status
+        from bed b, room r
+        where b.room_id = r.room_id
+        and r.room_no = #{roomNumber}
+        and b.del_flag = '0'
+        and b.status = 'free'
+        order by b.bed_no
+    </select>
+
+    <select id="selectBedsByCustomerNameAndCheckInDateAndHistory" parameterType="map" resultType="map">
+        select b.bed_no, b.status, b.room_id, br.usage_start_date, br.bed_record_id, br.usage_end_date, br.history
+             , r.building, r.room_no, c.customer_name, c.gender
+        from bed b, bed_record br, room r, customer c
+        where b.room_id = r.room_id
+        and br.bed_id = b.bed_id
+        and br.customer_id = c.customer_id
+        and c.customer_name like '%${customerName}%'
+        and br.usage_start_date = #{checkInDate}
+        and br.history = #{history}
+        and br.del_flag = '0'
+        and (
+            br.history != '1'
+            or (
+                b.del_flag = '0'
+                and r.del_flag = '0'
+                and c.del_flag = '0'
+            )
+        )
+        order by c.customer_id desc
+    </select>
+
+    <select id="selectBedsByCustomerNameAndHistory" parameterType="map" resultType="map">
+        select b.bed_no, b.status, b.room_id, br.usage_start_date, br.bed_record_id, br.usage_end_date, br.history
+             , r.building, r.room_no, c.customer_name, c.gender
+        from bed b, bed_record br, room r, customer c
+        where b.room_id = r.room_id
+        and br.bed_id = b.bed_id
+        and br.customer_id = c.customer_id
+        and c.customer_name like '%${customerName}%'
+        and br.history = #{history}
+        and br.del_flag = '0'
+        and (
+            br.history != '1'
+            or (
+                b.del_flag = '0'
+                and r.del_flag = '0'
+                and c.del_flag = '0'
+            )
+        )
+        order by b.bed_id
+    </select>
+
+    <select id="selectFreeRooms" resultType="map">
+        select distinct r.room_no, r.floor
+        from room r, bed b
+        where r.del_flag = '0'
+        and b.del_flag = '0'
+        and b.room_id = r.room_id
+        and b.status = 'free'
+        order by r.room_no
+    </select>
+
+    <select id="selectBedByBedDetails" parameterType="map" resultType="com.eldercare.system.entity.Bed">
+        select b.*
+        from bed b, room r
+        where b.room_id = r.room_id
+        and b.del_flag = '0'
+        and r.del_flag = '0'
+        and b.bed_no = #{bedNo}
+        and r.room_no = #{roomNo}
+    </select>
+
+    <update id="updateBedStatus">
+        update bed
+        set status = 'free'
+        where bed_id = #{bedId}
+    </update>
+    <update id="updateBedStatusOut">
+        update bed
+        set status = 'out'
+        where bed_id = #{bedId}
+    </update>
+    <update id="updateBedStatusUsed">
+        update bed
+        set status = 'used'
+        where bed_id = #{bedId}
+    </update>
+</mapper>

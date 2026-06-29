@@ -1,0 +1,67 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eldercare.system.mapper.CheckOutRecordMapper">
+    <update id="cancelCheckout">
+        UPDATE check_out_record
+        SET status = '4'
+        WHERE check_out_record_id = #{id}
+        AND status = '2'
+        AND del_flag = '0'
+    </update>
+    <select id="selectMyCheckoutApplications" resultType="com.eldercare.system.po.customer.customerresult.MyCheckoutApplicationItem">
+    SELECT
+        c.check_out_record_id AS id,
+        u.customer_name AS customerName,
+        CASE
+            WHEN c.type = '0' THEN '正常退住'
+            WHEN c.type = '1' THEN '死亡退住'
+            WHEN c.type = '2' THEN '保留床位'
+            ELSE '未知状态'
+            END AS checkOutType,
+        c.reason AS checkOutReason,
+        c.check_out_date AS checkOutDate,
+        CASE
+        WHEN c.status = '0' THEN '通过'
+        WHEN c.status = '1' THEN '不通过'
+        WHEN c.status = '2' THEN '已提交'
+        WHEN c.status = '3' THEN '未提交'
+        WHEN c.status = '4' THEN '已撤销'
+        ELSE '未知'
+        END AS approvalStatus
+    FROM
+        check_out_record c
+    LEFT JOIN customer u ON c.customer_id = u.customer_id
+    WHERE
+        c.user_id = #{userId}
+        AND c.del_flag = '0'
+    <if test="customerName != null and customerName != ''">
+        AND u.customer_name LIKE CONCAT('%', #{customerName}, '%')
+    </if>
+    order by c.check_out_record_id DESC
+    LIMIT #{pageStart}, #{pageSize}
+    </select>
+    <select id="countMyCheckoutApplications" resultType="int">
+    SELECT
+        COUNT(*)
+    FROM
+        check_out_record c
+    LEFT JOIN customer u ON c.customer_id = u.customer_id
+    WHERE
+        c.user_id = #{userId}
+        AND c.del_flag = '0'
+    <if test="customerName != null and customerName != ''">
+        AND u.customer_name LIKE CONCAT('%', #{customerName}, '%')
+    </if>
+    </select>
+    <update id="updateCheckoutRecordDelFlag">
+        UPDATE check_out_record
+        SET del_flag = '1'
+        WHERE customer_id = #{id}
+    </update>
+    <update id="updateCheckoutRecordDelFlagByUserId">
+        UPDATE check_out_record
+        SET del_flag = '1'
+        WHERE user_id = #{id}
+    </update>
+</mapper>
