@@ -8,12 +8,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
-import com.eldercare.system.po.ListResult;
+import com.eldercare.system.util.PageResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.vo.customer.CustomerVO;
 import com.eldercare.system.dto.diet.*;
 import com.eldercare.system.vo.diet.*;
-import com.eldercare.system.po.user.ImgUploadUtil;
+import com.eldercare.system.util.ImgUploadUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -488,11 +488,11 @@ public class DietServiceImpl implements DietService{
      * @return 客户膳食分页列表
      */
     @Override
-    public ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params) {
+    public ApiResult<PageResult<CustomerDishListVO>> customerList(CustomerListRequest params) {
         // 获取客户菜品列表列表
         // 变量准备
-        ApiResult<ListResult<CustomerDishListVO>> result = new ApiResult<>();
-        ListResult<CustomerDishListVO> data = new ListResult<>();
+        ApiResult<PageResult<CustomerDishListVO>> result = new ApiResult<>();
+        PageResult<CustomerDishListVO> data = new PageResult<>();
         List<CustomerDishListVO> list = new ArrayList<>();
         List<Customer> customers;
         // 数据库查询
@@ -687,11 +687,11 @@ public class DietServiceImpl implements DietService{
      * @return 套餐分页列表
      */
     @Override
-    public ApiResult<ListResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize) {
+    public ApiResult<PageResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize) {
         // 获取套餐列表
         // 变量准备
-        ApiResult<ListResult<SetMealVO>> result = new ApiResult<>();
-        ListResult<SetMealVO> data = new ListResult<>();
+        ApiResult<PageResult<SetMealVO>> result = new ApiResult<>();
+        PageResult<SetMealVO> data = new PageResult<>();
         List<SetMealVO> setMealResults = new ArrayList<>();
         List<SetMeal> setMeals;
         Long total;

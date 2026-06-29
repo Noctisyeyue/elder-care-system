@@ -1,7 +1,7 @@
 package com.eldercare.system.controller;
 
 import com.eldercare.system.entity.SetMeal;
-import com.eldercare.system.po.ListResult;
+import com.eldercare.system.util.PageResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.dto.diet.*;
 import com.eldercare.system.vo.diet.*;
@@ -36,7 +36,7 @@ public class DietController {
 
     @Operation(summary = "获取套餐信息列表")
     @GetMapping("/setMeal/list")
-    public ApiResult<ListResult<SetMealVO>> setMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize){
+    public ApiResult<PageResult<SetMealVO>> setMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize){
         return dietService.getSetMealList(status, pork, setMealName, pageNum, pageSize);
     }
 
@@ -90,7 +90,7 @@ public class DietController {
 
     @Operation(summary = "获取客户菜品列表")
     @GetMapping("/customerList")
-    public ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params){
+    public ApiResult<PageResult<CustomerDishListVO>> customerList(CustomerListRequest params){
         return dietService.customerList(params);
     }
 

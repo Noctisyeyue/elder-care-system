@@ -10,9 +10,9 @@ import com.eldercare.system.entity.User;
 import com.eldercare.system.config.JwtProperties;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.JWTUtil;
-import com.eldercare.system.po.user.PasswordUtil;
-import com.eldercare.system.po.user.PasswordUtil;
-import com.eldercare.system.po.user.ImgUploadUtil;
+import com.eldercare.system.util.PasswordUtil;
+import com.eldercare.system.util.PasswordUtil;
+import com.eldercare.system.util.ImgUploadUtil;
 import com.eldercare.system.dto.user.*;
 import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
+import static com.eldercare.system.util.PasswordUtil.hashPassword;
 
 /**
  * 用户服务实现

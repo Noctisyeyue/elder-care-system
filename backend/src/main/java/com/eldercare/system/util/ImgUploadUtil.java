@@ -1,4 +1,4 @@
-package com.eldercare.system.po.user;
+package com.eldercare.system.util;
 
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;

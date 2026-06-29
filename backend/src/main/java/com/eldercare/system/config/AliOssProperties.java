@@ -1,4 +1,4 @@
-package com.eldercare.system.po.user;
+package com.eldercare.system.config;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

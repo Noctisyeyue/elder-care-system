@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
+import static com.eldercare.system.util.PasswordUtil.hashPassword;
 
 /**
  * 通用服务实现

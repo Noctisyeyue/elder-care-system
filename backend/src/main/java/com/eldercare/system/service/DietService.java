@@ -1,7 +1,7 @@
 package com.eldercare.system.service;
 
 import com.eldercare.system.entity.SetMeal;
-import com.eldercare.system.po.ListResult;
+import com.eldercare.system.util.PageResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.dto.diet.*;
 import com.eldercare.system.vo.diet.*;
@@ -67,7 +67,7 @@ public interface DietService {
      * @param params 客户查询参数
      * @return 客户膳食分配列表
      */
-    ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params);
+    ApiResult<PageResult<CustomerDishListVO>> customerList(CustomerListRequest params);
 
     /**
      * 查询可选菜品
@@ -97,7 +97,7 @@ public interface DietService {
      * @param pageSize    每页大小
      * @return 套餐列表
      */
-    ApiResult<ListResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize);
+    ApiResult<PageResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize);
 
     /**
      * 保存膳食日历
