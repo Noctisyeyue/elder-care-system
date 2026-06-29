@@ -208,14 +208,15 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBedList, updateBedUsageEndDate, getFreeRooms, getFreeBeds, swapBeds } from '@/api/bed'
 import { Search } from '@element-plus/icons-vue'
-// 查询表单数据
+
+/** 查询表单。 */
 const searchForm = reactive({
   customerName: '',
   checkInDate: '',
-  history: 1, // 1: 正在使用, 0: 使用历史
+  history: 1,
 })
 
-// 表格数据
+/** 床位列表。 */
 const bedList = ref([
   {
     customerName: '李福星',
@@ -225,17 +226,18 @@ const bedList = ref([
   },
 ])
 
-// 分页数据
+/** 分页信息。 */
 const pagination = reactive({
   currentPage: 1,
   pageSize: 10,
   total: 0,
 })
 
-// 修改信息弹窗数据
+/** 修改弹窗是否显示。 */
 const editDialogVisible = ref(false)
+/** 修改表单。 */
 const editForm = reactive({
-  id: null, // 添加 id 字段用于后端请求
+  id: null,
   customerName: '',
   gender: '',
   bedDetails: '',
@@ -243,6 +245,7 @@ const editForm = reactive({
   usageEndDate: '',
 })
 const editFormRef = ref()
+/** 修改表单校验规则。 */
 const editFormRules = {
   usageEndDate: [
     {
@@ -262,20 +265,22 @@ const editFormRules = {
   ],
 }
 
-// 床位调换弹窗数据
+/** 床位调换弹窗是否显示。 */
 const changeBedDialogVisible = ref(false)
+/** 床位调换表单。 */
 const changeBedForm = reactive({
-  id: null, // 旧床位记录的 ID
+  id: null,
   customerName: '',
   oldBedDetails: '',
   gender: '',
-  newBuildingNumber: '606', // 固定为606
+  newBuildingNumber: '606',
   newRoomNumber: '',
   currentBedUsageStartDate: '',
   newBedNumber: '',
   currentBedUsageEndDate: '',
 })
 const changeBedFormRef = ref()
+/** 床位调换表单校验规则。 */
 const changeBedFormRules = {
   currentBedUsageEndDate: [
     {
@@ -295,13 +300,17 @@ const changeBedFormRules = {
   ],
 }
 
-// 房间号选项 (根据需求，楼栋信息固定606)
+/** 房间号选项。 */
 const roomOptions = ref([])
 
-// 可用床位选项
+/** 可用床位选项。 */
 const availableBeds = ref([])
 
-// 查询床位使用详情列表
+/**
+ * 查询床位使用详情列表。
+ *
+ * @returns 无返回值
+ */
 const fetchBedList = async () => {
   try {
     const params = {
@@ -313,7 +322,7 @@ const fetchBedList = async () => {
       pageNum: pagination.currentPage,
       pageSize: pagination.pageSize,
     }
-    const response = await getBedList(params) // API 路径
+    const response = await getBedList(params)
     bedList.value = response.list || []
     pagination.total = response.total || 0
   } catch (error) {
@@ -322,37 +331,65 @@ const fetchBedList = async () => {
   }
 }
 
-// 处理查询
+/**
+ * 执行查询。
+ *
+ * @returns 无返回值
+ */
 const handleSearch = () => {
   pagination.currentPage = 1
   fetchBedList()
 }
 
-// 根据使用状态查询
+/**
+ * 按床位使用状态筛选。
+ *
+ * @param history 使用状态
+ * @returns 无返回值
+ */
 const searchByStatus = (history) => {
   searchForm.history = history
   handleSearch()
 }
 
-// 处理分页大小改变
+/**
+ * 处理分页大小变化。
+ *
+ * @param val 每页数量
+ * @returns 无返回值
+ */
 const handleSizeChange = (val) => {
   pagination.pageSize = val
   fetchBedList()
 }
 
-// 处理当前页改变
+/**
+ * 处理当前页变化。
+ *
+ * @param val 页码
+ * @returns 无返回值
+ */
 const handleCurrentChange = (val) => {
   pagination.currentPage = val
   fetchBedList()
 }
 
-// 处理修改操作
+/**
+ * 打开修改弹窗。
+ *
+ * @param row 当前床位记录
+ * @returns 无返回值
+ */
 const handleEdit = (row) => {
   Object.assign(editForm, row)
   editDialogVisible.value = true
 }
 
-// 保存修改
+/**
+ * 保存床位修改。
+ *
+ * @returns 无返回值
+ */
 const saveEdit = () => {
   editFormRef.value?.validate(async (valid) => {
     if (!valid) {
@@ -366,8 +403,7 @@ const saveEdit = () => {
     })
       .then(async () => {
         try {
-          // 假设后端修改接口需要床位 ID 和新的结束时间
-          await updateBedUsageEndDate(editForm.id, editForm.usageEndDate) // 自定义 API 路径
+          await updateBedUsageEndDate(editForm.id, editForm.usageEndDate)
           fetchBedList()
           ElMessage.success('修改成功！')
           editDialogVisible.value = false
@@ -382,25 +418,29 @@ const saveEdit = () => {
   })
 }
 
-// 处理床位调换操作
+/**
+ * 打开床位调换弹窗。
+ *
+ * @param row 当前床位记录
+ * @returns 无返回值
+ */
 const handleChangeBed = async (row) => {
   Object.assign(changeBedForm, {
-    id: row.id, // 保存旧床位记录的 ID
+    id: row.id,
     customerName: row.customerName,
     oldBedDetails: row.bedDetails,
     gender: row.gender,
-    newBuildingNumber: '606', // 固定为606
+    newBuildingNumber: '606',
     newRoomNumber: '',
     currentBedUsageStartDate: row.usageStartDate,
     newBedNumber: '',
     currentBedUsageEndDate: row.usageEndDate,
   })
-  availableBeds.value = [] // 清空可用床位
+  availableBeds.value = []
 
   try {
-    // 获取有空闲床位的房间号选项
-    const response = await getFreeRooms() // 自定义 API 路径，获取有空闲床位的房间
-    roomOptions.value = response // 假设后端直接返回房间号列表
+    const response = await getFreeRooms()
+    roomOptions.value = response
   } catch (error) {
     console.error('获取有空闲床位的房间号失败:', error)
     ElMessage.error('获取有空闲床位的房间号失败')
@@ -409,7 +449,12 @@ const handleChangeBed = async (row) => {
   changeBedDialogVisible.value = true
 }
 
-// 获取可用床位
+/**
+ * 获取可用床位。
+ *
+ * @param roomNumber 房间号
+ * @returns 无返回值
+ */
 const getAvailableBeds = async (roomNumber) => {
   try {
     const response = await getFreeBeds(roomNumber)
@@ -420,7 +465,11 @@ const getAvailableBeds = async (roomNumber) => {
   }
 }
 
-// 保存床位调换
+/**
+ * 保存床位调换。
+ *
+ * @returns 无返回值
+ */
 const saveChangeBed = () => {
   changeBedFormRef.value?.validate(async (valid) => {
     if (!valid) {
@@ -462,7 +511,11 @@ const saveChangeBed = () => {
   })
 }
 
-// 组件挂载时获取初始数据
+/**
+ * 组件挂载时加载床位列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchBedList()
 })

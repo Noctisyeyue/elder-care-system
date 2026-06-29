@@ -96,20 +96,20 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
-// 导入 SVG 文件
 import freeBedSvg from '@/assets/free_bed.svg'
 import outBedSvg from '@/assets/out_bed.svg'
 import totalBedSvg from '@/assets/total_bed.svg'
 import usedBedSvg from '@/assets/used_bed.svg'
 import { getBedMap, getFloorList } from '@/api/bed'
-// 楼层列表
+
+/** 楼层列表。 */
 const floorList = ref([])
 const selectedFloor = ref('')
 
-// 房间及床位数据
+/** 房间及床位数据。 */
 const roomList = ref([])
 
-// 统计数据
+/** 床位统计数据。 */
 const bedStats = reactive({
   total: 0,
   free: 0,
@@ -117,10 +117,14 @@ const bedStats = reactive({
   out: 0,
 })
 
-// 最大床位数（用于动态生成表头）
+/** 最大床位数。 */
 const maxBedCount = ref(0)
 
-// 处理分组，每行最多5个房间，基于 roomList
+/**
+ * 将房间按行分组。
+ *
+ * @returns 分组后的房间列表
+ */
 const tableRows = computed(() => {
   const rows = []
   let currentRow = []
@@ -135,7 +139,12 @@ const tableRows = computed(() => {
   return rows
 })
 
-// 床位状态文字
+/**
+ * 获取床位状态文字。
+ *
+ * @param status 床位状态
+ * @returns 状态文字
+ */
 function bedStatusText(status) {
   switch (status) {
     case 'free':
@@ -149,7 +158,12 @@ function bedStatusText(status) {
   }
 }
 
-// 根据床位状态获取对应的SVG图标
+/**
+ * 获取床位状态图标。
+ *
+ * @param status 床位状态
+ * @returns 图标地址
+ */
 function getBedIcon(status) {
   switch (status) {
     case 'free':
@@ -163,29 +177,26 @@ function getBedIcon(status) {
   }
 }
 
-// 获取房间及床位信息
-// 后端data需要返回：
-// {
-//   list: Array<{
-//     roomNumber: string;
-//     beds: Array<{
-//       bedNo: string;
-//       status: 'free' | 'used' | 'out';
-//     }>;
-//   }>;
-// }
+/**
+ * 获取房间及床位信息。
+ *
+ * @returns 无返回值
+ */
 function fetchRoomList() {
   getBedMap({
     floor: selectedFloor.value,
   }).then((res) => {
     roomList.value = res || []
-    // 统计最大床位数
     maxBedCount.value = Math.max(...roomList.value.map((r) => r.beds.length), 0)
     updateBedStats()
   })
 }
 
-// 统计床位信息，基于 roomList
+/**
+ * 统计床位信息。
+ *
+ * @returns 无返回值
+ */
 function updateBedStats() {
   let total = 0,
     free = 0,
@@ -207,6 +218,11 @@ function updateBedStats() {
   bedStats.out = out
 }
 
+/**
+ * 查询楼层列表。
+ *
+ * @returns 无返回值
+ */
 function fetchFloorList() {
   getFloorList().then((res) => {
     floorList.value = res || []
@@ -217,6 +233,11 @@ function fetchFloorList() {
   })
 }
 
+/**
+ * 组件挂载时初始化楼层和床位数据。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchFloorList()
 })
