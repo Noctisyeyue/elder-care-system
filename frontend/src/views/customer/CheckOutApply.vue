@@ -119,14 +119,14 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// 查询表单数据
+/** 查询表单。 */
 const searchForm = reactive({
   customerName: '',
   pageNum: 1,
   pageSize: 10,
 })
 
-// 客户信息列表数据
+/** 客户列表。 */
 const customerInfoList = ref([
   {
     id: 1,
@@ -139,7 +139,7 @@ const customerInfoList = ref([
 ])
 const customerInfoTotal = ref(0)
 
-// 退住申请表单数据
+/** 退住申请表单。 */
 const checkOutForm = reactive({
   customerName: '',
   customerId: '',
@@ -148,7 +148,7 @@ const checkOutForm = reactive({
   checkOutDate: '',
 })
 
-// 表单验证规则
+/** 退住申请表单校验规则。 */
 const checkOutRules = {
   checkOutType: [{ required: true, message: '请选择退住类型', trigger: 'change' }],
   checkOutReason: [{ required: true, message: '请输入退住原因', trigger: 'blur' }],
@@ -169,12 +169,16 @@ const checkOutRules = {
   ],
 }
 
-// 对话框相关
+/** 弹窗是否显示。 */
 const addCheckOutDialogVisible = ref(false)
 const checkOutFormRef = ref()
 const loading = ref(false)
 
-// 获取我的服务客户列表
+/**
+ * 查询当前服务客户列表。
+ *
+ * @returns 无返回值
+ */
 const fetchMyCustomers = async () => {
   loading.value = true
   try {
@@ -193,19 +197,33 @@ const fetchMyCustomers = async () => {
   }
 }
 
-// 处理查询
+/**
+ * 执行查询。
+ *
+ * @returns 无返回值
+ */
 const handleSearch = () => {
   searchForm.pageNum = 1
   fetchMyCustomers()
 }
 
-// 客户信息分页变化
+/**
+ * 处理分页变化。
+ *
+ * @param page 页码
+ * @returns 无返回值
+ */
 const handleCustomerInfoPageChange = (page) => {
   searchForm.pageNum = page
   fetchMyCustomers()
 }
 
-// 显示添加退住申请对话框
+/**
+ * 打开退住申请弹窗。
+ *
+ * @param row 客户行数据
+ * @returns 无返回值
+ */
 const showAddCheckOutDialog = (row) => {
   checkOutForm.customerName = row.customerName
   checkOutForm.customerId = row.id
@@ -215,7 +233,11 @@ const showAddCheckOutDialog = (row) => {
   addCheckOutDialogVisible.value = true
 }
 
-// 提交退住申请
+/**
+ * 提交退住申请。
+ *
+ * @returns 无返回值
+ */
 const submitCheckOutApplication = async () => {
   try {
     await checkOutFormRef.value.validate()
@@ -230,7 +252,7 @@ const submitCheckOutApplication = async () => {
 
     ElMessage.success('退住申请提交成功')
     addCheckOutDialogVisible.value = false
-    fetchMyCustomers() // 刷新客户列表
+    fetchMyCustomers()
   } catch (error) {
     console.error('提交退住申请失败:', error)
     if (error.message) {
@@ -241,12 +263,20 @@ const submitCheckOutApplication = async () => {
   }
 }
 
-// 跳转到退住申请列表页面
+/**
+ * 跳转到退住申请列表页。
+ *
+ * @returns 无返回值
+ */
 const goToCheckOutList = () => {
   router.push('/customer/checkOutList')
 }
 
-// 页面加载时获取数据
+/**
+ * 页面初始化时加载客户列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchMyCustomers()
 })

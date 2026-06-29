@@ -448,16 +448,14 @@ const fetchRoomOptions = async () => {
 }
 
 const getAvailableBeds = async (roomNumber) => {
-  // 清空当前的床位号选择
-  customerForm.bedNumber = '';
+  customerForm.bedNumber = ''
   try {
     const res = await getRoomBeds(roomNumber)
-    bedOptions.value = (res || []).map(bed => ({
+    bedOptions.value = (res || []).map((bed) => ({
       ...bed,
       label: bed.label ? bed.label : `${bed.value}号床`,
     }))
     oldbednumber.value = customerForm.bedNumber
-    // 如果是修改操作，且当前床位不在可用床位中，则清空床位选择
     if (isEdit.value && !bedOptions.value.some((bed) => bed.value === customerForm.bedNumber)) {
       customerForm.bedNumber = oldbednumber.value
     }
@@ -466,6 +464,12 @@ const getAvailableBeds = async (roomNumber) => {
   }
 }
 
+/**
+ * 根据出生日期计算年龄。
+ *
+ * @param dateString 出生日期
+ * @returns 无返回值
+ */
 const calculateAge = (dateString) => {
   if (dateString) {
     const today = new Date()
@@ -481,20 +485,23 @@ const calculateAge = (dateString) => {
   }
 }
 
+/**
+ * 提交客户表单。
+ *
+ * @returns 无返回值
+ */
 const submitForm = () => {
   customerFormRef.value?.validate(async (valid) => {
     if (valid) {
       try {
         if (isEdit.value) {
-          // 修改操作
           await updateCustomer(customerForm.id, customerForm)
           ElMessage.success('修改成功！')
         } else {
-          // 登记操作
-          if(customerForm.customerType=='self-care'){
-            customerForm.customerType='0'
-          }else{
-            customerForm.customerType='1'
+          if (customerForm.customerType === 'self-care') {
+            customerForm.customerType = '0'
+          } else {
+            customerForm.customerType = '1'
           }
           await registerCustomer(customerForm)
           ElMessage.success('登记成功！')
@@ -511,9 +518,14 @@ const submitForm = () => {
   })
 }
 
+/**
+ * 重置客户表单。
+ *
+ * @returns 无返回值
+ */
 const resetForm = () => {
   customerFormRef.value?.resetFields()
-  bedOptions.value=[]
+  bedOptions.value = []
   Object.assign(customerForm, {
     id: null,
     customerName: '',
@@ -537,10 +549,21 @@ const resetForm = () => {
   })
 }
 
+/**
+ * 更新多选结果。
+ *
+ * @param val 选中行
+ * @returns 无返回值
+ */
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
 
+/**
+ * 批量删除客户。
+ *
+ * @returns 无返回值
+ */
 const deleteSelectedCustomers = () => {
   if (multipleSelection.value.length === 0) {
     ElMessage.warning('请先选择要删除的客户')
@@ -562,15 +585,24 @@ const deleteSelectedCustomers = () => {
     })
     .catch(() => {
       ElMessage.info('已取消删除')
-    })
+  })
 }
 
+/**
+ * 关闭弹窗。
+ *
+ * @returns 无返回值
+ */
 const closeDialog = () => {
   dialogVisible.value = false
   customerFormRef.value?.clearValidate()
 }
 
-// 新增身份证号解析函数
+/**
+ * 解析身份证号并自动填充性别、出生日期和年龄。
+ *
+ * @returns 无返回值
+ */
 function parseIdNumber() {
   const id = customerForm.idNumber
   if (!id || id.length < 18) {
@@ -579,19 +611,20 @@ function parseIdNumber() {
     customerForm.age = null
     return
   }
-  // 出生日期
   const year = id.substring(6, 10)
   const month = id.substring(10, 12)
   const day = id.substring(12, 14)
   customerForm.dateOfBirth = `${year}-${month}-${day}`
-  // 性别
   const genderCode = id.charAt(16)
   customerForm.gender = genderCode % 2 === 1 ? '男' : '女'
-  // 年龄
   calculateAge(customerForm.dateOfBirth)
 }
 
-// 初始化查询数据
+/**
+ * 页面初始化时查询客户列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   queryCustomers()
 })
