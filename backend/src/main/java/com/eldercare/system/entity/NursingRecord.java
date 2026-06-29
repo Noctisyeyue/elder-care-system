@@ -19,7 +19,7 @@ public class NursingRecord extends BaseEntity {
     /** 客户ID */
     private Long customerId;
 
-    /** 用户ID（护工ID） */
+    /** 用户ID（健康管家用户ID） */
     private Long userId;
 
     /** 护理项目ID */

@@ -19,7 +19,7 @@ public class OutingRecord extends BaseEntity {
     /** 客户ID */
     private Long customerId;
 
-    /** 护工的用户ID */
+    /** 健康管家的用户ID */
     private Long userId;
 
     /** 外出原因 */

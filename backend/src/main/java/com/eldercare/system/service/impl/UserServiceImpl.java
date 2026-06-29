@@ -1,11 +1,16 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.RedisService;
+import com.eldercare.system.service.UserService;
 
 import com.aliyuncs.exceptions.ClientException;
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
+import com.eldercare.system.config.JwtProperties;
 import com.eldercare.system.mapper.*;
+import com.eldercare.system.util.JWTUtil;
+import com.eldercare.system.po.user.PasswordUtil;
 import com.eldercare.system.po.user.*;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.user.result.RoleNumResult;
@@ -22,7 +27,6 @@ import java.util.UUID;
 
 import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
 
-/** 用户服务实现 */
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -40,6 +44,18 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private ImgUploadUtil imgUploadUtil;
+    @Autowired
+    private JwtProperties jwtProperties;
+
+    /**
+     * 获取 JWT 过期时间（毫秒），用于 Redis token 同步过期
+     *
+     * @return 过期毫秒数，配置缺失时默认 72000000
+     */
+    private long jwtTtlMillis() {
+        Long ttl = jwtProperties.getTtl();
+        return ttl != null && ttl > 0 ? ttl : 72000000L;
+    }
     @Override
     public ApiResult<LoginResponse> login(UserLogin user) {
         //根据用户名密码查询用户
@@ -57,13 +73,13 @@ public class UserServiceImpl implements UserService{
         // 判断用户是否存在
         if (user0!= null&&flag) {
             token = JWTUtil.getToken(new HashMap<>() {{
-                put("userName", user.getUserName());
-                put("password", user.getPassword());
-                put("role", user.getRole());
+                put("userName", user0.getUserName());
+                put("userId", String.valueOf(user0.getUserId()));
+                put("roleId", String.valueOf(user0.getRoleId()));
             }});
-            //将token传给redis
-            redisService.setToken(user.getUserName(), token, 60 * 300);
-            System.out.println("登录成功（该token300分钟内有效）,token为:" + token);
+            //将token传给redis，过期时间与 jwt.ttl（毫秒）一致
+            redisService.setToken(user.getUserName(), token, jwtTtlMillis());
+            System.out.println("登录成功,token为:" + token);
             System.out.println("当前登录的用户信息为:" + user);
             result.setCode(200);
             loginResponse.setToken(token);
@@ -80,8 +96,13 @@ public class UserServiceImpl implements UserService{
     @Override
     public ApiResult add(UserAdd user) {
         ApiResult result = new ApiResult();
-        //将role转换为数字，护工是2，医生是3，护士是4
-        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
+        // 角色只允许"管理员"或"健康管家"，其他值直接拒绝
+        if (!"管理员".equals(user.getRole()) && !"健康管家".equals(user.getRole())) {
+            result.setCode(500);
+            result.setMessage("添加失败，角色只能是 管理员 或 健康管家");
+            return result;
+        }
+        Long roleId = "管理员".equals(user.getRole()) ? 1L : 2L;
         // 查询是否已存在相同用户名
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_name", user.getUserName());
@@ -138,9 +159,7 @@ public class UserServiceImpl implements UserService{
             // 根据 roleId 映射角色名称
             switch (user0.getRoleId().intValue()) {
                 case 1 -> userResult.setRole("管理员");
-                case 2 -> userResult.setRole("护工");
-                case 3 -> userResult.setRole("医生");
-                case 4 -> userResult.setRole("护士");
+                case 2 -> userResult.setRole("健康管家");
             }
             userResults.add(userResult);
         }
@@ -213,8 +232,14 @@ public class UserServiceImpl implements UserService{
             result.setMessage("修改失败，未找到用户");
             return result;
         }
-        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
-        if(!user.getRole().equals("护工")){
+        // 角色只允许"管理员"或"健康管家"，其他值直接拒绝
+        if (!"管理员".equals(user.getRole()) && !"健康管家".equals(user.getRole())) {
+            result.setCode(500);
+            result.setMessage("修改失败，角色只能是 管理员 或 健康管家");
+            return result;
+        }
+        Long roleId = "管理员".equals(user.getRole()) ? 1L : 2L;
+        if(user.getRole().equals("管理员")){
             // 根据userid将nursing_record表中的del_flag字段设置为1
             nursingRecordMapper.updateNursingRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
             // 根据userid将outing_record表中的del_flag字段设置为1
@@ -223,7 +248,10 @@ public class UserServiceImpl implements UserService{
             checkoutRecordMapper.updateCheckoutRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
         }
         user0.setUserName(user.getUserName());
-        user0.setPassword(user.getPassword());
+        // 密码非空才更新，且必须加密存储；空则保留原密码
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user0.setPassword(hashPassword(user.getPassword()));
+        }
         user0.setRealName(user.getRealName());
         user0.setRoleId(roleId);
         user0.setPhone(user.getPhone());

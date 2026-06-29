@@ -1,4 +1,6 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.ThreadService;
+import com.eldercare.system.service.CommonService;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
 
-/** 通用服务实现 */
 @Component
 public class CommonServiceImpl implements CommonService {
 

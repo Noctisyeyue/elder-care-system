@@ -1,4 +1,5 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.CaregiverService;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -11,7 +12,7 @@ import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.caregiver.results.HomeResult;
 import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverItem;
 import com.eldercare.system.po.customer.customerresult.CustomerNoCaregiverListResult;
-import com.eldercare.system.po.user.JWTUtil;
+import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.po.user.UserList;
 import com.eldercare.system.po.caregiver.results.CaregiverResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** 健康管家服务实现 */
 @Service
 public class CaregiverServiceImpl implements CaregiverService {
 

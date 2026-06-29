@@ -1,6 +1,8 @@
 package com.eldercare.system.exception;
 
 import com.eldercare.system.util.ApiResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,11 +13,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     /**
      * 业务异常 → 返回对应 code 和 message
      */
     @ExceptionHandler(BusinessException.class)
     public ApiResult<Void> handleBusinessException(BusinessException e) {
+        log.warn("业务异常: {}", e.getMessage());
         return ApiResult.fail(e.getCode(), e.getMessage());
     }
 
@@ -28,14 +33,16 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .reduce((a, b) -> a + "; " + b)
                 .orElse("参数校验失败");
+        log.warn("参数校验失败: {}", message);
         return ApiResult.fail(400, message);
     }
 
     /**
-     * 未预料的异常 → 兜底，返回 500
+     * 未预料的异常 → 打日志，前端只返回通用提示
      */
     @ExceptionHandler(Exception.class)
     public ApiResult<Void> handleException(Exception e) {
-        return ApiResult.fail(500, "服务器内部错误: " + e.getMessage());
+        log.error("服务器内部错误", e);
+        return ApiResult.fail(500, "服务器内部错误，请稍后重试");
     }
 }

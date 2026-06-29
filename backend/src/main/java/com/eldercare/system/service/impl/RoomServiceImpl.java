@@ -1,4 +1,5 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.RoomService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eldercare.system.entity.Bed;
@@ -16,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** 房间服务实现 */
 @Service
 public class RoomServiceImpl implements RoomService{
     @Autowired

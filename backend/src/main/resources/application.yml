@@ -34,7 +34,7 @@ spring:
       cache-null-values: false
 
   main:
-    allow-circular-references: true
+    allow-circular-references: false
 
   # 邮件服务（可选，后续按需启用）
   mail:

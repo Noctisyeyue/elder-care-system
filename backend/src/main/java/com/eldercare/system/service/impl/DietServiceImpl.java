@@ -1,4 +1,5 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.DietService;
 
 import com.aliyuncs.exceptions.ClientException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-/** 膳食服务实现 */
 @Service
 public class DietServiceImpl implements DietService{
     @Autowired
@@ -572,7 +572,7 @@ public class DietServiceImpl implements DietService{
 
     @Override
     public ApiResult uploadImg(MultipartFile file, String name) {
-        ApiResult result = new ApiResult();
+        ApiResult  result = new ApiResult();
         try {
             String originalFilename = file.getOriginalFilename();
             String extendName = originalFilename.substring(originalFilename.lastIndexOf("."));

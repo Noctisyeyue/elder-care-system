@@ -1,4 +1,5 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.NursingService;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -9,7 +10,7 @@ import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.nursing.params.*;
 import com.eldercare.system.po.nursing.result.*;
-import com.eldercare.system.po.user.JWTUtil;
+import com.eldercare.system.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** 护理服务实现 */
 @Service
 public class NursingServiceImpl implements NursingService{
     @Autowired

@@ -1,5 +1,6 @@
-package com.eldercare.system.service;
 
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.BedService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eldercare.system.entity.Bed;
 import com.eldercare.system.entity.BedRecord;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-/** 床位服务实现 */
 @Service
 public class BedServiceImpl implements BedService{
     @Autowired

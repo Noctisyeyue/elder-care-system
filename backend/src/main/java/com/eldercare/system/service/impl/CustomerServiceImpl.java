@@ -1,4 +1,6 @@
-package com.eldercare.system.service;
+package com.eldercare.system.service.impl;
+import com.eldercare.system.service.RedisService;
+import com.eldercare.system.service.CustomerService;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,7 +15,7 @@ import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.po.customer.customerparams.*;
 import com.eldercare.system.po.customer.customerresult.*;
-import com.eldercare.system.po.user.JWTUtil;
+import com.eldercare.system.util.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,6 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/** 客户服务实现 */
 @Slf4j
 @Service
 public class CustomerServiceImpl implements CustomerService{
@@ -234,7 +235,7 @@ public class CustomerServiceImpl implements CustomerService{
         if (param.getRoomNumber() != null && !param.getRoomNumber().isEmpty()
                 && param.getBedNumber() != null && !param.getBedNumber().isEmpty()) {
             Map<String, Object> bedParams = new HashMap<>();
-            //去掉bedNumber中的"号床"字
+            //去掉bedNumber中的“号床”字
             param.setBedNumber(param.getBedNumber().replace("号床", ""));
             bedParams.put("bedNo", param.getBedNumber());
             bedParams.put("roomNo", param.getRoomNumber());
@@ -402,7 +403,7 @@ public class CustomerServiceImpl implements CustomerService{
                     case "未提交" -> "3";
                     default -> "4";
                 };
-        //获取房间号和床号格式为"1001-1"，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
+        //获取房间号和床号格式为“1001-1”，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
         String[] bedNumber = params.get("bedNumber").toString().split("-");
         //转成Long
         Long roomNo = Long.parseLong(bedNumber[0]);
@@ -514,7 +515,7 @@ public class CustomerServiceImpl implements CustomerService{
                     case "未提交" -> "3";
                     default -> "4";
                 };
-        //获取房间号和床号格式为"1001-1"，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
+        //获取房间号和床号格式为“1001-1”，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
         String[] bedNumber = params.get("bedNumber").toString().split("-");
         //转成Long
         Long roomNo = Long.parseLong(bedNumber[0]);
@@ -715,7 +716,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public ApiResult outingApply(OutingParam param, String token) {
-        //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为"已提交"
+        //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为“已提交”
         ApiResult result = new ApiResult();
         OutingRecord outingRecord = new OutingRecord();
         String username ;
@@ -834,7 +835,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public ApiResult cancelOuting(Long id) {
-        //将状态改为已撤销(approvalStatus:"已提交"->"已撤销")
+        //将状态改为已撤销(approvalStatus:“已提交”->“已撤销”)
         //如果status是2改成3
         ApiResult result = new ApiResult();
         try {
@@ -903,7 +904,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public ApiResult cancelCheckout(Long id) {
-        //将状态改为已撤销(approvalStatus:"已提交"->"已撤销")
+        //将状态改为已撤销(approvalStatus:“已提交”->“已撤销”)
         //如果status是2改成3
         ApiResult result = new ApiResult();
         try {

@@ -15,15 +15,17 @@ public class RedisService {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    private static final String TOKEN_KEY_PREFIX = "AUTH:TOKEN:";
+
     /**
-     * 将 token 存入 Redis，key=用户名，value=token
+     * 将 token 存入 Redis，key=AUTH:TOKEN:{username}
      *
      * @param username   用户名
      * @param token      令牌
-     * @param expireTime 过期时间（秒）
+     * @param expireTime 过期时间（毫秒），与 yml 中 elder-care.jwt.ttl 一致
      */
     public void setToken(String username, String token, long expireTime) {
-        redisTemplate.opsForValue().set(username, token, expireTime, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(TOKEN_KEY_PREFIX + username, token, expireTime, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -33,7 +35,7 @@ public class RedisService {
      * @return token 字符串，不存在则返回 null
      */
     public String getToken(String username) {
-        return redisTemplate.opsForValue().get(username);
+        return redisTemplate.opsForValue().get(TOKEN_KEY_PREFIX + username);
     }
 
     /**
@@ -42,7 +44,7 @@ public class RedisService {
      * @param username 用户名
      */
     public void deleteToken(String username) {
-        redisTemplate.delete(username);
+        redisTemplate.delete(TOKEN_KEY_PREFIX + username);
     }
 
     /**
@@ -52,6 +54,6 @@ public class RedisService {
      * @return true=存在
      */
     public boolean hasToken(String username) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(username));
+        return Boolean.TRUE.equals(redisTemplate.hasKey(TOKEN_KEY_PREFIX + username));
     }
 }
