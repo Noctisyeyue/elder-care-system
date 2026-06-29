@@ -44,6 +44,10 @@ public class JWTInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
+        // 放行 CORS 跨域预检请求（OPTIONS 不带 token，必须直接通过）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
         // 取出 Authorization 头，去掉 "Bearer " 前缀
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
