@@ -109,7 +109,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getCustomerList, getCheckOutList, approveCheckOut } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 // 查询表单数据
 const searchForm = reactive({
@@ -136,7 +136,7 @@ const drawerVisible = ref(false)
 
 // 获取客户信息列表
 const fetchCustomerInfo = async () => {
-  const response = await get('/customer/list', {
+  const response = await getCustomerList({
     pageNum: searchForm.pageNum,
     pageSize: searchForm.pageSize,
     customerName: searchForm.customerName, // 用于模糊查询
@@ -147,7 +147,7 @@ const fetchCustomerInfo = async () => {
 
 // 获取退住申请列表
 const fetchCheckoutApplications = async () => {
-  const response = await get('/customer/checkout/list', {
+  const response = await getCheckOutList({
     pageNum: searchForm.pageNum,
     pageSize: searchForm.pageSize,
     customerName: searchForm.customerName, // 用于模糊查询
@@ -194,7 +194,7 @@ const confirmApprove = async (action) => {
     },
   ).then(async () => {
     try {
-      const response = await post(`/customer/checkout/approve/${currentApplication.value.id}`, {
+      const response = await approveCheckOut(currentApplication.value.id, {
         approvalStatus: action === 'pass' ? '通过' : '不通过',
         checkOutType: currentApplication.value.checkOutType,
         bedNumber: currentApplication.value.bedNumber,

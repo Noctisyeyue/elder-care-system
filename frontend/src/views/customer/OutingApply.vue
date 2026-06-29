@@ -116,7 +116,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getMyCustomers, applyOuting } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
@@ -209,7 +209,7 @@ const loading = ref(false)
 const fetchMyCustomers = async () => {
   loading.value = true
   try {
-    const response = await get('/customer/myCustomers', {
+    const response = await getMyCustomers({
       pageNum: searchForm.pageNum,
       pageSize: searchForm.pageSize,
       customerName: searchForm.customerName,
@@ -254,7 +254,7 @@ const submitOutingApplication = async () => {
   try {
     await outingFormRef.value.validate()
 
-    const response = await post('/customer/outing/apply', {
+    const response = await applyOuting({
       customerId: outingForm.customerId,
       customerName: outingForm.customerName,
       outingReason: outingForm.outingReason,

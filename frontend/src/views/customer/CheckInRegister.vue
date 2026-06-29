@@ -56,7 +56,7 @@
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button type="text" @click="editCustomer(scope.row)">修改</el-button>
-          <el-button type="text" style="color: red" @click="deleteCustomer(scope.row)">删除</el-button>
+          <el-button type="text" style="color: red" @click="handleDeleteCustomer(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -228,7 +228,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post, put, del } from '@/utils/request'
+import { getCustomerList, registerCustomer, updateCustomer, deleteCustomer, releaseCustomerBed } from '@/api/customer'
+import { getRoomOptions, getRoomBeds, updateBedStatus } from '@/api/room'
 import { Search } from '@element-plus/icons-vue'
 // 搜索表单数据
 const searchForm = reactive({
@@ -404,16 +405,16 @@ const editCustomer = (row) => {
   customerFormRef.value?.clearValidate()// 获取当前房间的床位
 }
 
-const deleteCustomer = (row) => {
+const handleDeleteCustomer = (row) => {
   ElMessageBox.confirm(`确定要删除客户 ${row.customerName} 吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   })
     .then(async () => {
-      await del(`/customer/${row.id}`)
-      await put(`/room/${row.roomNumber}/bed/${row.bedNumber}/status`, { status: 'free' })
-      await del(`/customer/${row.id}/bed/${row.bedNumber}`)
+      await deleteCustomer(row.id)
+      await updateBedStatus(row.roomNumber, row.bedNumber, 'free')
+      await releaseCustomerBed(row.id, row.bedNumber)
       ElMessage.success('删除成功！')
       queryCustomers()
     })
@@ -437,9 +438,9 @@ const handleTabChange = (name) => {
   queryCustomers()
 }
 
-const getRoomOptions = async () => {
+const fetchRoomOptions = async () => {
   try {
-    const res = await get('/room/options')
+    const res = await getRoomOptions()
     roomOptions.value = res
   } catch (error) {
     console.error('获取房间选项失败：', error)
@@ -450,7 +451,7 @@ const getAvailableBeds = async (roomNumber) => {
   // 清空当前的床位号选择
   customerForm.bedNumber = '';
   try {
-    const res = await get(`/room/${roomNumber}/beds`)
+    const res = await getRoomBeds(roomNumber)
     bedOptions.value = (res || []).map(bed => ({
       ...bed,
       label: bed.label ? bed.label : `${bed.value}号床`,
@@ -486,7 +487,7 @@ const submitForm = () => {
       try {
         if (isEdit.value) {
           // 修改操作
-          await put(`/customer/update/${customerForm.id}`, customerForm)
+          await updateCustomer(customerForm.id, customerForm)
           ElMessage.success('修改成功！')
         } else {
           // 登记操作
@@ -495,7 +496,7 @@ const submitForm = () => {
           }else{
             customerForm.customerType='1'
           }
-          await post('/customer/register', customerForm)
+          await registerCustomer(customerForm)
           ElMessage.success('登记成功！')
         }
         dialogVisible.value = false
@@ -552,9 +553,9 @@ const deleteSelectedCustomers = () => {
   })
     .then(async () => {
       for (const row of multipleSelection.value) {
-        await del(`/customer/${row.id}`)
-        await put(`/room/${row.roomNumber}/bed/${row.bedNumber}/status`, { status: 'free' })
-        await del(`/customer/${row.id}/bed/${row.bedNumber}`)
+        await deleteCustomer(row.id)
+        await updateBedStatus(row.roomNumber, row.bedNumber, 'free')
+        await releaseCustomerBed(row.id, row.bedNumber)
       }
       ElMessage.success('批量删除成功！')
       queryCustomers()

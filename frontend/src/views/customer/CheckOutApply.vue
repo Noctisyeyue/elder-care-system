@@ -113,7 +113,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getMyCustomers, applyCheckOut } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
@@ -178,7 +178,7 @@ const loading = ref(false)
 const fetchMyCustomers = async () => {
   loading.value = true
   try {
-    const response = await get('/customer/myCustomers', {
+    const response = await getMyCustomers({
       pageNum: searchForm.pageNum,
       pageSize: searchForm.pageSize,
       customerName: searchForm.customerName,
@@ -220,7 +220,7 @@ const submitCheckOutApplication = async () => {
   try {
     await checkOutFormRef.value.validate()
 
-    const response = await post('/customer/checkout/apply', {
+    const response = await applyCheckOut({
       customerId: checkOutForm.customerId,
       customerName: checkOutForm.customerName,
       checkOutType: checkOutForm.checkOutType,

@@ -82,7 +82,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post } from '@/utils/request'
+import { getMyCheckOutApplications } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
@@ -137,7 +137,7 @@ const loading = ref(false)
 const fetchCheckOutList = async () => {
   loading.value = true
   try {
-    const response = await get('/customer/checkout/myApplications', {
+    const response = await getMyCheckOutApplications({
       pageNum: searchForm.pageNum,
       pageSize: searchForm.pageSize,
       customerName: searchForm.customerName,
@@ -193,7 +193,7 @@ const cancelApplication = async (row) => {
       type: 'warning',
     })
 
-    const response = await post(`/customer/checkout/cancel/${row.id}`)
+    const response = await cancelCheckOut(row.id)
     ElMessage.success('申请撤销成功')
     fetchCheckOutList() // 刷新列表
   } catch (error) {

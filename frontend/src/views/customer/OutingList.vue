@@ -122,7 +122,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { get, post, put } from '@/utils/request'
+import { getMyOutingApplications, cancelOuting, returnOuting } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 
@@ -226,7 +226,7 @@ const loading = ref(false)
 const fetchOutingList = async () => {
   loading.value = true
   try {
-    const response = await get('/customer/outing/myApplications', {
+    const response = await getMyOutingApplications({
       pageNum: searchForm.pageNum,
       pageSize: searchForm.pageSize,
       customerName: searchForm.customerName,
@@ -285,7 +285,7 @@ const submitReturnTime = async () => {
   try {
     await returnFormRef.value.validate()
 
-    const response = await put(`/customer/outing/return/${returnForm.id}`, {
+    const response = await returnOuting(returnForm.id, {
       actualReturnDate: returnForm.actualReturnDate,
     })
 
@@ -311,7 +311,7 @@ const cancelApplication = async (row) => {
       type: 'warning',
     })
 
-    const response = await post(`/customer/outing/cancel/${row.id}`)
+    const response = await cancelOuting(row.id)
     ElMessage.success('申请撤销成功')
     fetchOutingList() // 刷新列表
   } catch (error) {
