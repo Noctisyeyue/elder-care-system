@@ -40,6 +40,9 @@ import CaregiverHomeView from '@/views/home/CaregiverHome.vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 
+/**
+ * 应用路由实例。
+ */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -146,7 +149,10 @@ const router = createRouter({
     },
   ],
 })
-// 路由守卫，这块暂时无法生效，因为没有配置meta
+
+/**
+ * 全局路由守卫。
+ */
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   userStore.loadFromStorage()

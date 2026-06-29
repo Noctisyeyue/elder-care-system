@@ -3,6 +3,7 @@ import type { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+/** 后端业务接口请求实例。 */
 const service = axios.create({
   baseURL: 'http://localhost:8080/api',
   timeout: 10000,
@@ -10,6 +11,8 @@ const service = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+/** LLM 流式接口请求实例。 */
 const LLMService = axios.create({
   baseURL: 'http://localhost:8000',
   timeout: 10000,
@@ -17,14 +20,14 @@ const LLMService = axios.create({
     'Content-Type': 'application/json',
   },
 })
-let isErrorMessageShown = false // 全局变量，用于控制错误提示是否已经显示
-// 请求拦截器
+
+/** 是否已显示错误提示，避免短时间内重复弹窗。 */
+let isErrorMessageShown = false
+
 service.interceptors.request.use(
   (config) => {
-    // 获取本地存储的 token
     const token = sessionStorage.getItem('token')
     if (token) {
-      // 添加 token 到请求头
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
@@ -35,37 +38,29 @@ service.interceptors.request.use(
   },
 )
 
-// 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
-    // 返回格式为 { code, data, message }
     const res = response.data
 
-    // 示例：根据业务状态码判断请求是否成功
     if (res.code !== 200) {
       if (!isErrorMessageShown) {
         ElMessage.error(res.message || '请求失败')
-        isErrorMessageShown = true // 标记错误提示已显示
+        isErrorMessageShown = true
         setTimeout(() => {
-          isErrorMessageShown = false // 一段时间后重置状态
-        }, 3000) // 例如3秒后允许再次显示错误提示
+          isErrorMessageShown = false
+        }, 3000)
       }
 
-      // 特殊状态码处理
       if (res.code === 401) {
-        // 未登录状态，跳转到登录页
         router.push('/login')
       }
 
-      // 返回 reject 使请求进入 catch 流程
       return Promise.reject(new Error(res.message || '请求失败'))
     }
 
-    // 请求成功，返回数据
-    return res.data // 只返回核心数据部分
+    return res.data
   },
   (error: AxiosError) => {
-    // 处理 HTTP 错误
     if (error.response) {
       const { status } = error.response
 
@@ -84,7 +79,6 @@ service.interceptors.response.use(
           ElMessage.error(`请求错误: ${status}`)
       }
     } else if (error.message) {
-      // 处理网络错误（如超时）
       if (error.message.includes('timeout')) {
         ElMessage.error('请求超时')
       } else {
@@ -96,6 +90,14 @@ service.interceptors.response.use(
   },
 )
 
+/**
+ * 发送 GET 请求。
+ *
+ * @param url 请求地址
+ * @param params 查询参数
+ * @param config Axios 请求配置
+ * @returns 响应数据
+ */
 export function get<T = unknown>(
   url: string,
   params?: Record<string, unknown>,
@@ -104,6 +106,14 @@ export function get<T = unknown>(
   return service.get(url, { params, ...config })
 }
 
+/**
+ * 发送 POST 请求。
+ *
+ * @param url 请求地址
+ * @param data 请求体数据
+ * @param config Axios 请求配置
+ * @returns 响应数据
+ */
 export function post<T = unknown>(
   url: string,
   data?: unknown,
@@ -112,6 +122,14 @@ export function post<T = unknown>(
   return service.post(url, data, config)
 }
 
+/**
+ * 发送 PUT 请求。
+ *
+ * @param url 请求地址
+ * @param data 请求体数据
+ * @param config Axios 请求配置
+ * @returns 响应数据
+ */
 export function put<T = unknown>(
   url: string,
   data?: unknown,
@@ -120,10 +138,27 @@ export function put<T = unknown>(
   return service.put(url, data, config)
 }
 
+/**
+ * 发送 DELETE 请求。
+ *
+ * @param url 请求地址
+ * @param config Axios 请求配置
+ * @returns 响应数据
+ */
 export function del<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
   return service.delete(url, config)
 }
 
+/**
+ * 发送 LLM 流式 POST 请求。
+ *
+ * @param url 请求地址
+ * @param data 请求体数据
+ * @param onChunk 流式片段回调
+ * @param onComplete 完成回调
+ * @param onError 错误回调
+ * @returns 无返回值
+ */
 export async function streamPost(
   url: string,
   data?: unknown,
@@ -157,25 +192,21 @@ export async function streamPost(
     const reader = response.body.getReader()
     const decoder = new TextDecoder('utf-8')
 
-    // console.log('开始读取流式响应...')
     let totalChunks = 0
 
     while (true) {
       const { done, value } = await reader.read()
       if (done) {
-        // console.log('流式读取完成')
         break
       }
 
       const chunk = decoder.decode(value, { stream: true })
       if (chunk) {
         totalChunks++
-        // console.log(`收到第 ${totalChunks} 个chunk:`, chunk)
         onChunk?.(chunk)
       }
     }
 
-    // console.log(`总共收到 ${totalChunks} 个chunks`)
     onComplete?.()
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
