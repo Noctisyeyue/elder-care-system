@@ -3,7 +3,7 @@ package com.eldercare.system.service;
 import com.eldercare.system.email.LoginParam;
 import com.eldercare.system.email.R;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.common.result.Notification;
+import com.eldercare.system.vo.common.NotificationVO;
 
 /** 通用服务接口 */
 public interface CommonService {
@@ -38,5 +38,5 @@ public interface CommonService {
      * @param date 日期字符串
      * @return 通知信息
      */
-    ApiResult<Notification> getNotification(String date);
+    ApiResult<NotificationVO> getNotification(String date);
 }

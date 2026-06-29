@@ -8,10 +8,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.dto.bed.BedSwapRequest;
-import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
-import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
-import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
-import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
+import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
+import com.eldercare.system.dto.caregiver.PurchasedItemsRequest;
+import com.eldercare.system.vo.caregiver.PurchasedItemsListVO;
+import com.eldercare.system.vo.caregiver.PurchasedItemsVO;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.dto.customer.*;
 import com.eldercare.system.vo.customer.*;
@@ -679,10 +679,10 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 已购护理项目分页列表响应
      */
     @Override
-    public ApiResult<PurchasedItemsListResult> purchasedItems(PurchasedItemsRequest request) {
-        ApiResult<PurchasedItemsListResult> result = new ApiResult<>();
+    public ApiResult<PurchasedItemsListVO> purchasedItems(PurchasedItemsRequest request) {
+        ApiResult<PurchasedItemsListVO> result = new ApiResult<>();
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
-        List<PurchasedItemsResult> items = customerMapper.listPurchasedItems(
+        List<PurchasedItemsVO> items = customerMapper.listPurchasedItems(
                 request.getCustomerId(),
                 pageStart,
                 request.getPageSize(),
@@ -690,13 +690,13 @@ public class CustomerServiceImpl implements CustomerService{
         );
         if(items.isEmpty()){
             result.setCode(200);
-            result.setData(new PurchasedItemsListResult(new ArrayList<>(), 0));
+            result.setData(new PurchasedItemsListVO(new ArrayList<>(), 0));
             result.setMessage("数据为空");
             return result;
         }
         try {
             int total = customerMapper.countPurchasedItems(request.getCustomerId(),request.getItemName());
-            PurchasedItemsListResult response = new PurchasedItemsListResult(items, total);
+            PurchasedItemsListVO response = new PurchasedItemsListVO(items, total);
 
             result.setData(response);
             result.setCode(200);

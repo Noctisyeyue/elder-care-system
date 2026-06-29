@@ -11,8 +11,8 @@ import com.eldercare.system.mapper.*;
 import com.eldercare.system.po.ListResult;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.vo.customer.CustomerVO;
-import com.eldercare.system.po.diet.params.*;
-import com.eldercare.system.po.diet.result.*;
+import com.eldercare.system.dto.diet.*;
+import com.eldercare.system.vo.diet.*;
 import com.eldercare.system.po.user.ImgUploadUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +65,11 @@ public class DietServiceImpl implements DietService{
      * @return 膳食日历列表
      */
     @Override
-    public ApiResult<List<DietCalendarResult>> monthList(DietCalendarMonthListParams params) {
+    public ApiResult<List<DietCalendarVO>> monthList(DietCalendarMonthListRequest params) {
         // 获取指定月份的膳食日历
         // 变量准备
-        ApiResult<List<DietCalendarResult>> result = new ApiResult<>();
-        List<DietCalendarResult> data = new ArrayList<>();
+        ApiResult<List<DietCalendarVO>> result = new ApiResult<>();
+        List<DietCalendarVO> data = new ArrayList<>();
         String month = params.getMonth() < 10? "0" + params.getMonth() : String.valueOf(params.getMonth());
         String date = params.getYear() + "-" + month + "%";
         // 数据库查询
@@ -90,10 +90,10 @@ public class DietServiceImpl implements DietService{
         for(DietCalendar dietCalendar : dietCalendars){
             // 查找套餐
             // 创建结果对象
-            DietCalendarResult dietCalendarResult = new DietCalendarResult();
+            DietCalendarVO dietCalendarResult = new DietCalendarVO();
             dietCalendarResult.setCalendarId(dietCalendar.getDietCalendarId());
             dietCalendarResult.setDate(dietCalendar.getDate());
-            List<SetMealResult> setMealResults = new ArrayList<>();
+            List<SetMealVO> setMealResults = new ArrayList<>();
             List<SetMeal> setMeals;
             // 根据膳食日历id查找套餐
             try {
@@ -107,7 +107,7 @@ public class DietServiceImpl implements DietService{
             for(SetMeal setMeal : setMeals){
                 // 查找套餐记录
                 // 创建结果对象
-                SetMealResult setMealResult = new SetMealResult();
+                SetMealVO setMealResult = new SetMealVO();
                 setMealResult.setSetMealId(setMeal.getSetMealId());
                 setMealResult.setName(setMeal.getSetMealName());
                 setMealResult.setPork(setMeal.getPork());
@@ -127,11 +127,11 @@ public class DietServiceImpl implements DietService{
                 // 遍历查询结果
                 for (SetMealRecord setMealRecord : setMealRecords) {
                     // 获取套餐记录对应菜品
-                    ApiResult<List<DishResult>> timeResult;
+                    ApiResult<List<DishVO>> timeResult;
                     switch (setMealRecord.getTime()){
                         case "0":
                             timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                            List<DishResult> breakfast = timeResult.getData();
+                            List<DishVO> breakfast = timeResult.getData();
                             if(timeResult.getCode() != 200){
                                 result.setCode(500);
                                 result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -140,7 +140,7 @@ public class DietServiceImpl implements DietService{
                         break;
                         case "1":
                             timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                            List<DishResult> lunch = timeResult.getData();
+                            List<DishVO> lunch = timeResult.getData();
                             if(timeResult.getCode() != 200){
                                 result.setCode(500);
                                 result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -149,7 +149,7 @@ public class DietServiceImpl implements DietService{
                         break;
                         case "2":
                             timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                            List<DishResult> dinner = timeResult.getData();
+                            List<DishVO> dinner = timeResult.getData();
                             if(timeResult.getCode() != 200){
                                 result.setCode(500);
                                 result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -176,10 +176,10 @@ public class DietServiceImpl implements DietService{
      * @param setMealRecord 套餐餐次记录
      * @return 菜品列表
      */
-    private ApiResult<List<DishResult>> selectDishBysetMealRecordIdAndTime(SetMealRecord setMealRecord){
-        ApiResult<List<DishResult>> result = new ApiResult<>();
+    private ApiResult<List<DishVO>> selectDishBysetMealRecordIdAndTime(SetMealRecord setMealRecord){
+        ApiResult<List<DishVO>> result = new ApiResult<>();
         List<Dish> dbDishes;
-        List<DishResult> data = new ArrayList<>();
+        List<DishVO> data = new ArrayList<>();
         try {
             dbDishes = dishMapper.selectDishBysetMealRecordIdAndTime(setMealRecord.getSetMealRecordId(), setMealRecord.getTime());
         } catch (Exception e) {
@@ -188,7 +188,7 @@ public class DietServiceImpl implements DietService{
             throw e;
         }
         for (Dish dish : dbDishes){
-            DishResult dishResult = new DishResult();
+            DishVO dishResult = new DishVO();
             dishResult.setDishId(dish.getDishId());
             dishResult.setName(dish.getDishName());
             dishResult.setCategory(dish.getDishType());
@@ -211,11 +211,11 @@ public class DietServiceImpl implements DietService{
      * @return 可选菜品列表
      */
     @Override
-    public ApiResult<List<DishResult>> timeDishOptions(String time, String pork) {
+    public ApiResult<List<DishVO>> timeDishOptions(String time, String pork) {
         // 获取所有可用菜品
         // 变量准备
-        ApiResult<List<DishResult>> result = new ApiResult<>();
-        List<DishResult> data = new ArrayList<>();
+        ApiResult<List<DishVO>> result = new ApiResult<>();
+        List<DishVO> data = new ArrayList<>();
         // 数据库查询
         List<Dish> dbDishes;
         QueryWrapper<Dish> dishQueryWrapper = new QueryWrapper<>();
@@ -233,7 +233,7 @@ public class DietServiceImpl implements DietService{
             throw e;
         }
         for (Dish dish : dbDishes){
-            DishResult dishResult = new DishResult();
+            DishVO dishResult = new DishVO();
             dishResult.setDishId(dish.getDishId());
             dishResult.setName(dish.getDishName());
             data.add(dishResult);
@@ -252,12 +252,12 @@ public class DietServiceImpl implements DietService{
      * @return 菜品分页列表
      */
     @Override
-    public ApiResult<DishListResult> dishList(DishListParams params) {
+    public ApiResult<DishListVO> dishList(DishListRequest params) {
         // 按菜品名获取菜品列表
         // 变量准备
-        ApiResult<DishListResult> result = new ApiResult<>();
-        DishListResult data = new DishListResult();
-        List<DishResult> list = new ArrayList<>();
+        ApiResult<DishListVO> result = new ApiResult<>();
+        DishListVO data = new DishListVO();
+        List<DishVO> list = new ArrayList<>();
         // 数据库查询
         List<Dish> dbDishes;
         QueryWrapper<Dish> dishQueryWrapper = new QueryWrapper<>();
@@ -277,7 +277,7 @@ public class DietServiceImpl implements DietService{
         }
         // 将数据包装成前端所需数据格式
         for (Dish dish : dbDishes){
-            DishResult dishResult = new DishResult();
+            DishVO dishResult = new DishVO();
             dishResult.setDishId(dish.getDishId());
             if(dish.getImg() != null)
                 dishResult.setImg(dish.getImg());
@@ -320,7 +320,7 @@ public class DietServiceImpl implements DietService{
      */
     @SneakyThrows
     @Override
-    public ApiResult addDish(DishParams params) {
+    public ApiResult addDish(DishRequest params) {
         // 添加菜品
         // 变量准备
         ApiResult result = new ApiResult();
@@ -382,7 +382,7 @@ public class DietServiceImpl implements DietService{
      */
     @SneakyThrows
     @Override
-    public ApiResult updateDish(DishParams params) {
+    public ApiResult updateDish(DishRequest params) {
         // 修改菜品
         // 变量准备
         ApiResult result = new ApiResult();
@@ -445,7 +445,7 @@ public class DietServiceImpl implements DietService{
      * @return 删除处理结果
      */
     @Override
-    public ApiResult removeDish(RemoveDishParams params) {
+    public ApiResult removeDish(RemoveDishRequest params) {
         // 删除菜品
         // 变量准备
         ApiResult result = new ApiResult();
@@ -488,12 +488,12 @@ public class DietServiceImpl implements DietService{
      * @return 客户膳食分页列表
      */
     @Override
-    public ApiResult<ListResult<CustomerDishListResult>> customerList(CustomerListParams params) {
+    public ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params) {
         // 获取客户菜品列表列表
         // 变量准备
-        ApiResult<ListResult<CustomerDishListResult>> result = new ApiResult<>();
-        ListResult<CustomerDishListResult> data = new ListResult<>();
-        List<CustomerDishListResult> list = new ArrayList<>();
+        ApiResult<ListResult<CustomerDishListVO>> result = new ApiResult<>();
+        ListResult<CustomerDishListVO> data = new ListResult<>();
+        List<CustomerDishListVO> list = new ArrayList<>();
         List<Customer> customers;
         // 数据库查询
         QueryWrapper<Customer> customerQueryWrapper = new QueryWrapper<>();
@@ -523,20 +523,20 @@ public class DietServiceImpl implements DietService{
         }
         // 遍历查询结果
         for (Customer customer : customers){
-            CustomerDishListResult customerDishListResult = new CustomerDishListResult();
+            CustomerDishListVO customerDishListResult = new CustomerDishListVO();
             customerDishListResult.setCustomerId(customer.getCustomerId());
             customerDishListResult.setCustomerName(customer.getCustomerName());
             customerDishListResult.setAge(customer.getAge());
             customerDishListResult.setNation(customer.getNation());
             customerDishListResult.setGender(customer.getGender());
             // 获取早餐
-            List<DishResult> breakfast = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "0");
+            List<DishVO> breakfast = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "0");
             customerDishListResult.setBreakfast(breakfast);
             // 获取午餐
-            List<DishResult> lunch = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "1");
+            List<DishVO> lunch = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "1");
             customerDishListResult.setLunch(lunch);
             // 获取晚餐
-            List<DishResult> dinner = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "2");
+            List<DishVO> dinner = selectDishByCustomerIdAndDateAndTime(customer.getCustomerId(), params.getDate(), "2");
             customerDishListResult.setDinner(dinner);
             list.add(customerDishListResult);
         }
@@ -558,11 +558,11 @@ public class DietServiceImpl implements DietService{
      * @param time 餐次编码
      * @return 菜品列表
      */
-    private List<DishResult> selectDishByCustomerIdAndDateAndTime(Long customerId, String date, String time) {
+    private List<DishVO> selectDishByCustomerIdAndDateAndTime(Long customerId, String date, String time) {
         // 获取指定客户指定日期指定时间段内的菜品
         // 变量准备
         List<Dish> timeDishes;
-        List<DishResult> result = new ArrayList<>();
+        List<DishVO> result = new ArrayList<>();
         // 数据库查询
         try {
             timeDishes = dishMapper.selectDishByCustomerIdAndDateAndTime(customerId, date, time);
@@ -573,7 +573,7 @@ public class DietServiceImpl implements DietService{
             return result;
         }
         for (Dish dish : timeDishes){
-            DishResult dishResult = new DishResult();
+            DishVO dishResult = new DishVO();
             dishResult.setDishId(dish.getDishId());
             dishResult.setName(dish.getDishName());
             String category = switch (dish.getDishType()){
@@ -597,11 +597,11 @@ public class DietServiceImpl implements DietService{
      * @return 可用菜品列表
      */
     @Override
-    public ApiResult<List<DishResult>> availableDishes(String time, String pork) {
+    public ApiResult<List<DishVO>> availableDishes(String time, String pork) {
         // 获取可用的膳食列表
         // 变量准备
-        ApiResult<List<DishResult>> result = new ApiResult<>();
-        List<DishResult> data = new ArrayList<>();
+        ApiResult<List<DishVO>> result = new ApiResult<>();
+        List<DishVO> data = new ArrayList<>();
         List<Dish> dishes;
         // 数据库查询
         try {
@@ -621,7 +621,7 @@ public class DietServiceImpl implements DietService{
             }
         }
         for (Dish dish : dishes){
-            DishResult dishResult = new DishResult();
+            DishVO dishResult = new DishVO();
             dishResult.setDishId(dish.getDishId());
             dishResult.setName(dish.getDishName());
             String category = switch (dish.getDishType()){
@@ -687,12 +687,12 @@ public class DietServiceImpl implements DietService{
      * @return 套餐分页列表
      */
     @Override
-    public ApiResult<ListResult<SetMealResult>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize) {
+    public ApiResult<ListResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize) {
         // 获取套餐列表
         // 变量准备
-        ApiResult<ListResult<SetMealResult>> result = new ApiResult<>();
-        ListResult<SetMealResult> data = new ListResult<>();
-        List<SetMealResult> setMealResults = new ArrayList<>();
+        ApiResult<ListResult<SetMealVO>> result = new ApiResult<>();
+        ListResult<SetMealVO> data = new ListResult<>();
+        List<SetMealVO> setMealResults = new ArrayList<>();
         List<SetMeal> setMeals;
         Long total;
         // 数据库查询
@@ -722,7 +722,7 @@ public class DietServiceImpl implements DietService{
         total = setMealMapper.selectCount(queryWrapper);
         // 遍历查询结果
         for (SetMeal setMeal : setMeals){
-            SetMealResult setMealResult = new SetMealResult();
+            SetMealVO setMealResult = new SetMealVO();
             setMealResult.setSetMealId(setMeal.getSetMealId());
             setMealResult.setName(setMeal.getSetMealName());
             String hui = switch (setMeal.getPork()) {
@@ -747,11 +747,11 @@ public class DietServiceImpl implements DietService{
             }
             // 遍历查询结果
             for (SetMealRecord setMealRecord : setMealRecords) {
-                ApiResult<List<DishResult>> timeResult;
+                ApiResult<List<DishVO>> timeResult;
                 switch (setMealRecord.getTime()) {
                     case "0":
                         timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                        List<DishResult> breakfast = timeResult.getData();
+                        List<DishVO> breakfast = timeResult.getData();
                         if(timeResult.getCode() != 200){
                             result.setCode(500);
                             result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -760,7 +760,7 @@ public class DietServiceImpl implements DietService{
                         break;
                     case "1":
                         timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                        List<DishResult> lunch = timeResult.getData();
+                        List<DishVO> lunch = timeResult.getData();
                         if(timeResult.getCode() != 200){
                             result.setCode(500);
                             result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -769,7 +769,7 @@ public class DietServiceImpl implements DietService{
                         break;
                     case "2":
                         timeResult = selectDishBysetMealRecordIdAndTime(setMealRecord);
-                        List<DishResult> dinner = timeResult.getData();
+                        List<DishVO> dinner = timeResult.getData();
                         if(timeResult.getCode() != 200){
                             result.setCode(500);
                             result.setMessage("查找套餐记录对应菜品数据库错误");
@@ -797,7 +797,7 @@ public class DietServiceImpl implements DietService{
      * @return 保存处理结果
      */
     @Override
-    public ApiResult saveDietCalendar(DietCalendarSaveParams params) {
+    public ApiResult saveDietCalendar(DietCalendarSaveRequest params) {
         // 变量准备
         ApiResult result = new ApiResult();
         DietCalendarSetMealMapping huiDietCalendarSetMealMapping = new DietCalendarSetMealMapping();
@@ -1004,7 +1004,7 @@ public class DietServiceImpl implements DietService{
      * @return 保存处理结果
      */
     @Override
-    public ApiResult saveSetMealDishes(SaveSetMealDishesParams params) {
+    public ApiResult saveSetMealDishes(SaveSetMealDishesRequest params) {
         // 保存套餐中的菜品
         // 变量准备
         ApiResult result = new ApiResult();
@@ -1060,7 +1060,7 @@ public class DietServiceImpl implements DietService{
      * @return 保存处理结果
      */
     @Override
-    public ApiResult saveCustomerSetMeal(SaveCustomerSetMealParams params) {
+    public ApiResult saveCustomerSetMeal(SaveCustomerSetMealRequest params) {
         // 保存客户套餐
         // 变量准备
         ApiResult result = new ApiResult();

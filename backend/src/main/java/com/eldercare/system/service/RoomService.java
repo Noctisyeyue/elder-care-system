@@ -1,7 +1,7 @@
 package com.eldercare.system.service;
 
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.room.RoomResult;
+import com.eldercare.system.vo.room.RoomResultVO;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public interface RoomService {
      *
      * @return 房间选项列表
      */
-    ApiResult<List<RoomResult>> options();
+    ApiResult<List<RoomResultVO>> options();
 
     /**
      * 更新指定床位状态

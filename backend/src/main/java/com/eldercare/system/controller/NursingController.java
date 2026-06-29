@@ -3,8 +3,8 @@ package com.eldercare.system.controller;
 import com.eldercare.system.entity.NursingItemRecord;
 import com.eldercare.system.entity.NursingRecord;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.nursing.params.*;
-import com.eldercare.system.po.nursing.result.*;
+import com.eldercare.system.dto.nursing.*;
+import com.eldercare.system.vo.nursing.*;
 import com.eldercare.system.service.NursingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,48 +24,48 @@ public class NursingController {
 
     @Operation(summary = "获取护理级别列表")
     @GetMapping("/level/list")
-    public ApiResult<LevelListResult> levelList(LevelListParams params){
+    public ApiResult<LevelListVO> levelList(LevelListRequest params){
         return nursingService.getNursingLevelList(params);
     }
 
     @Operation(summary = "添加护理级别")
     @PostMapping("/level/add")
-    public ApiResult addLevel(@RequestBody LevelParams params){
+    public ApiResult addLevel(@RequestBody LevelRequest params){
         return nursingService.addLevel(params);
     }
 
     @Operation(summary = "修改护理级别信息")
     @PutMapping("/level/update")
-    public ApiResult updateLevel(@RequestBody LevelParams params){
+    public ApiResult updateLevel(@RequestBody LevelRequest params){
         return nursingService.updateLevel(params);
     }
 
     @Operation(summary = "获取某个护理级别的护理项目列表")
     @GetMapping("/level/item/list")
-    public ApiResult<ItemListResult> levelItemList(LevelItemListParams params){
+    public ApiResult<ItemListVO> levelItemList(LevelItemListRequest params){
         return nursingService.getNursingItemListByNursingLevelId(params);
     }
 
     @Operation(summary = "将某个护理项目从某个护理级别中移除")
     @PostMapping("/level/item/remove")
-    public ApiResult removeLevelItem(@RequestBody LevelItemParams params){
+    public ApiResult removeLevelItem(@RequestBody LevelItemRequest params){
         return nursingService.removeLevelItem(params);
     }
 
     @Operation(summary = "将某个护理项目添加到某个护理级别中")
     @PostMapping("/level/item/add")
-    public ApiResult addLevelItem(@RequestBody LevelItemParams params){
+    public ApiResult addLevelItem(@RequestBody LevelItemRequest params){
         return nursingService.addLevelItem(params);
     }
 
     @PostMapping("/level/item/save")
-    public ApiResult saveLevelItems(@RequestBody LevelItemsParams params){
+    public ApiResult saveLevelItems(@RequestBody LevelItemsRequest params){
         return nursingService.saveLevelItems(params);
     }
 
     @Operation(summary = "获取护理项目列表")
     @GetMapping("/item/list")
-    public ApiResult<ItemListResult> itemList(ItemListParams params){
+    public ApiResult<ItemListVO> itemList(ItemListRequest params){
         return nursingService.getNursingItemList(params);
     }
 
@@ -77,43 +77,43 @@ public class NursingController {
 
     @Operation(summary = "添加护理项目")
     @PostMapping("/item/add")
-    public ApiResult addItem(@RequestBody ItemAddParams params){
+    public ApiResult addItem(@RequestBody ItemAddRequest params){
         return nursingService.addItem(params);
     }
 
     @Operation(summary = "修改护理项目")
     @PutMapping("/item/update")
-    public ApiResult updateItem(@RequestBody ItemParams params){
+    public ApiResult updateItem(@RequestBody ItemRequest params){
         return nursingService.updateItem(params);
     }
 
     @Operation(summary = "获取某个客户的护理项目记录列表")
     @GetMapping("/customer/items")
-    public ApiResult<List<ItemRecordResult>> getCustomerItems(Long customerId){
+    public ApiResult<List<ItemRecordVO>> getCustomerItems(Long customerId){
         return nursingService.getCustomerItems(customerId);
     }
 
     @Operation(summary = "添加客户的护理项目记录")
     @PostMapping("/customer/add")
-    public ApiResult addCustomerItemRecords(@RequestBody AddItemRecordsParams params){
+    public ApiResult addCustomerItemRecords(@RequestBody AddItemRecordsRequest params){
         return nursingService.addCustomerItemRecords(params);
     }
 
     @Operation(summary = "删除客户的护理项目记录")
     @PostMapping("/customer/remove")
-    public ApiResult removeCustomerItemRecords(@RequestBody AddItemRecordsParams params){
+    public ApiResult removeCustomerItemRecords(@RequestBody AddItemRecordsRequest params){
         return nursingService.removeCustomerItemRecords(params);
     }
 
     @Operation(summary = "获取某个客户的护理级别对应的护理项目列表")
     @GetMapping("/customerLevel/item/list")
-    public ApiResult<ItemListResult> customerLevelItemList(CustomerLevelItemListParams params){
+    public ApiResult<ItemListVO> customerLevelItemList(CustomerLevelItemListRequest params){
         return nursingService.customerLevelItemList(params);
     }
 
     @Operation(summary = "获取某个客户的护理记录")
     @GetMapping("/record/list")
-    public ApiResult<NursingRecordListResult> getCustomerItemRecords(NursingRecordListParams params){
+    public ApiResult<NursingRecordListVO> getCustomerItemRecords(NursingRecordListRequest params){
         return nursingService.getCustomerItemRecords(params);
     }
 
@@ -131,14 +131,14 @@ public class NursingController {
 
     @Operation(summary = "修改某个客户的护理记录")
     @PostMapping("/renew")
-    public ApiResult renew(@RequestBody RenewParams params){
+    public ApiResult renew(@RequestBody RenewRequest params){
         return nursingService.renew(params);
     }
 
     // 添加护理记录
     @Operation(summary = "添加某个客户的护理记录")
     @PostMapping("/record/add")
-    public ApiResult addRecord(@RequestBody NursingRecordParam record,@RequestHeader(value = "Authorization", required = false) String token){
+    public ApiResult addRecord(@RequestBody NursingRecordRequest record,@RequestHeader(value = "Authorization", required = false) String token){
         return nursingService.addRecord(record,token);
     }
 }

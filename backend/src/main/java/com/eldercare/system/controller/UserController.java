@@ -1,9 +1,12 @@
 package com.eldercare.system.controller;
 
 import com.eldercare.system.entity.User;
-import com.eldercare.system.po.user.*;
+import com.eldercare.system.po.user.PasswordUtil;
+import com.eldercare.system.po.user.ImgUploadUtil;
+import com.eldercare.system.dto.user.*;
+import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.user.result.RoleNumResult;
+import com.eldercare.system.vo.user.RoleNumVO;
 import com.eldercare.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,19 +27,19 @@ public class UserController {
     // 登录
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public ApiResult<LoginResponse> login(@RequestBody UserLogin user) {
+    public ApiResult<LoginResponseVO> login(@RequestBody UserLoginRequest user) {
         return userService.login(user);
     }
     // 查询用户
     @Operation(summary = "查询用户列表")
     @GetMapping("/list")
-    public ApiResult<UserListResult> list( UserList user) {
+    public ApiResult<UserListResultVO> list( UserListRequest user) {
         return userService.list(user);
     }
     // 增加用户
     @Operation(summary = "增加用户")
     @PostMapping("/add")
-    public ApiResult add(@RequestBody UserAdd user) {
+    public ApiResult add(@RequestBody UserAddRequest user) {
         return userService.add(user);
     }
     // 删除用户
@@ -49,7 +52,7 @@ public class UserController {
     // 修改用户
     @Operation(summary = "修改用户信息")
     @PostMapping("/update")
-    public ApiResult update(@RequestBody UserAdd user) {
+    public ApiResult update(@RequestBody UserAddRequest user) {
         return userService.update(user);
     }
 
@@ -62,7 +65,7 @@ public class UserController {
 
     @Operation(summary = "获取各角色用户数量")
     @GetMapping("/roleNum")
-    public ApiResult<List<RoleNumResult>> roleNum() {
+    public ApiResult<List<RoleNumVO>> roleNum() {
         return userService.roleNum();
     }
     //上传头像

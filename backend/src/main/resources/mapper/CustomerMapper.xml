@@ -204,7 +204,7 @@
             AND c.customer_type = '1'
         </where>
     </select>
-    <select id="listPurchasedItems" resultType="com.eldercare.system.po.caregiver.results.PurchasedItemsResult">
+    <select id="listPurchasedItems" resultType="com.eldercare.system.vo.caregiver.PurchasedItemsVO">
         SELECT
         p.nursing_item_record_id AS id,
         c.customer_name AS customerName,

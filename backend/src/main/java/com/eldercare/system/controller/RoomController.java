@@ -2,7 +2,7 @@ package com.eldercare.system.controller;
 
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.vo.bed.PairVO;
-import com.eldercare.system.po.room.RoomResult;
+import com.eldercare.system.vo.room.RoomResultVO;
 import com.eldercare.system.service.BedService;
 import com.eldercare.system.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +24,7 @@ public class RoomController {
     //  获取房间所有房间
     @Operation(summary = "获取房间所有房间")
     @GetMapping("/options")
-    public ApiResult<List<RoomResult>> options(){
+    public ApiResult<List<RoomResultVO>> options(){
         return roomService.options();
     }
 

@@ -1,7 +1,7 @@
 package com.eldercare.system.service;
 
-import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
-import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
+import com.eldercare.system.dto.caregiver.PurchasedItemsRequest;
+import com.eldercare.system.vo.caregiver.PurchasedItemsListVO;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.dto.customer.*;
 import com.eldercare.system.vo.customer.*;
@@ -104,7 +104,7 @@ public interface CustomerService {
      * @param request 查询参数
      * @return 已购项目列表
      */
-    ApiResult<PurchasedItemsListResult> purchasedItems(PurchasedItemsRequest request);
+    ApiResult<PurchasedItemsListVO> purchasedItems(PurchasedItemsRequest request);
 
     /**
      * 判断客户是否已购买指定护理项目

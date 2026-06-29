@@ -3,7 +3,7 @@ package com.eldercare.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.Customer;
 import com.eldercare.system.entity.NursingItemRecord;
-import com.eldercare.system.po.caregiver.results.PurchasedItemsResult;
+import com.eldercare.system.vo.caregiver.PurchasedItemsVO;
 import com.eldercare.system.vo.customer.CustomerCheckOutVO;
 import com.eldercare.system.vo.customer.CustomerVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
@@ -39,7 +39,7 @@ public interface CustomerMapper extends BaseMapper<Customer> {
                                                        @Param("pageStart") int pageStart,
                                                        @Param("pageSize") int pageSize);
 
-    List<PurchasedItemsResult> listPurchasedItems(@Param("customerId")  Long customerId,
+    List<PurchasedItemsVO> listPurchasedItems(@Param("customerId")  Long customerId,
                                                   @Param("pageStart")  int pageStart,
                                                   @Param("pageSize")  int pageSize,
                                                   @Param("itemName")  String itemName);

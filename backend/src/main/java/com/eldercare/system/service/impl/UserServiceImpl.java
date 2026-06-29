@@ -11,9 +11,12 @@ import com.eldercare.system.config.JwtProperties;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.po.user.PasswordUtil;
-import com.eldercare.system.po.user.*;
+import com.eldercare.system.po.user.PasswordUtil;
+import com.eldercare.system.po.user.ImgUploadUtil;
+import com.eldercare.system.dto.user.*;
+import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.user.result.RoleNumResult;
+import com.eldercare.system.vo.user.RoleNumVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,11 +85,11 @@ public class UserServiceImpl implements UserService{
      * @return 登录结果
      */
     @Override
-    public ApiResult<LoginResponse> login(UserLogin user) {
+    public ApiResult<LoginResponseVO> login(UserLoginRequest user) {
         //根据用户名密码查询用户
         String token ;
-        ApiResult<LoginResponse> result = new ApiResult<>();
-        LoginResponse loginResponse = new LoginResponse();
+        ApiResult<LoginResponseVO> result = new ApiResult<>();
+        LoginResponseVO loginResponse = new LoginResponseVO();
         QueryWrapper qw = new QueryWrapper();
         qw.eq("user_name", user.getUserName());
         qw.eq("role_id", user.getRoleId());
@@ -125,7 +128,7 @@ public class UserServiceImpl implements UserService{
      * @return 操作结果
      */
     @Override
-    public ApiResult add(UserAdd user) {
+    public ApiResult add(UserAddRequest user) {
         ApiResult result = new ApiResult();
         // 角色：护工=2，医生=3，护士=4
         Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
@@ -166,8 +169,8 @@ public class UserServiceImpl implements UserService{
      * @return 用户列表
      */
     @Override
-    public ApiResult<UserListResult> list(UserList user) {
-        ApiResult<UserListResult> result = new ApiResult<>();
+    public ApiResult<UserListResultVO> list(UserListRequest user) {
+        ApiResult<UserListResultVO> result = new ApiResult<>();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.like(user.getUserName() != null, "real_name", user.getUserName());
         queryWrapper.eq("del_flag", "0");
@@ -177,10 +180,10 @@ public class UserServiceImpl implements UserService{
         queryWrapper.orderByDesc("user_id");
         List<User> users = userMapper.selectList(queryWrapper);
         // 将User类型的users转换为UserResult类型的users
-        List<UserResult> userResults =new java.util.ArrayList<>();
+        List<UserResultVO> userResults =new java.util.ArrayList<>();
         Long index = 1L;
         for (User user0 : users) {
-            UserResult userResult = new UserResult();
+            UserResultVO userResult = new UserResultVO();
             userResult.setUserName(user0.getUserName());
             userResult.setRealName(user0.getRealName());
             userResult.setPhone(user0.getPhone());
@@ -203,7 +206,7 @@ public class UserServiceImpl implements UserService{
             queryWrapper2.ne("role_id","1");
             Long count = userMapper.selectCount(queryWrapper2);
             int total = count == null ? 0 : count.intValue();
-            result.setData(new UserListResult(userResults,total));
+            result.setData(new UserListResultVO(userResults,total));
             result.setCode(200);
             result.setMessage("查询成功");
 
@@ -267,7 +270,7 @@ public class UserServiceImpl implements UserService{
      * @return 操作结果
      */
     @Override
-    public ApiResult update(UserAdd user) {
+    public ApiResult update(UserAddRequest user) {
         ApiResult result = new ApiResult();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_name", user.getUserName());
@@ -341,11 +344,11 @@ public class UserServiceImpl implements UserService{
      * @return 角色人数统计
      */
     @Override
-    public ApiResult<List<RoleNumResult>> roleNum() {
+    public ApiResult<List<RoleNumVO>> roleNum() {
         // 获取各个角色用户数量
         // 变量准备
-        ApiResult<List<RoleNumResult>> result = new ApiResult<>();
-        List<RoleNumResult> data = new ArrayList<>();
+        ApiResult<List<RoleNumVO>> result = new ApiResult<>();
+        List<RoleNumVO> data = new ArrayList<>();
         List<Role> roles;
         // 数据库查询
         // 获取所有角色名称
@@ -361,7 +364,7 @@ public class UserServiceImpl implements UserService{
         }
         // 获取各个角色用户数量
         for (Role role : roles) {
-            RoleNumResult roleNumResult = new RoleNumResult();
+            RoleNumVO roleNumResult = new RoleNumVO();
             roleNumResult.setName(role.getRoleName());
             QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
             userQueryWrapper.eq("del_flag", "0");

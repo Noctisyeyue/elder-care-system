@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.nursing.params.*;
-import com.eldercare.system.po.nursing.result.*;
+import com.eldercare.system.dto.nursing.*;
+import com.eldercare.system.vo.nursing.*;
 import com.eldercare.system.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,12 +53,12 @@ public class NursingServiceImpl implements NursingService{
      * @return 护理级别分页列表
      */
     @Override
-    public ApiResult<LevelListResult> getNursingLevelList(LevelListParams params) {
+    public ApiResult<LevelListVO> getNursingLevelList(LevelListRequest params) {
         // 获取项目级别列表
         // 变量准备
-        ApiResult<LevelListResult> result = new ApiResult<>();
-        LevelListResult data = new LevelListResult();
-        List<LevelResult> levelResults = new ArrayList<>();
+        ApiResult<LevelListVO> result = new ApiResult<>();
+        LevelListVO data = new LevelListVO();
+        List<LevelVO> levelResults = new ArrayList<>();
         List<NursingLevel> nursingLevels;
         Long total;
         IPage<NursingLevel> page = new Page<>(params.getPageNum(), params.getPageSize());
@@ -90,7 +90,7 @@ public class NursingServiceImpl implements NursingService{
         }
         // 将数据包装成前端所需数据格式
         for(NursingLevel nursingLevel : nursingLevels){
-            LevelResult levelResult = new LevelResult();
+            LevelVO levelResult = new LevelVO();
             levelResult.setId(nursingLevel.getNursingLevelId());
             levelResult.setLevel(nursingLevel.getNursingLevelName());
             levelResult.setStatus(params.getStatus());
@@ -112,7 +112,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 新增处理结果
      */
     @Override
-    public ApiResult addLevel(LevelParams params) {
+    public ApiResult addLevel(LevelRequest params) {
         // 添加项目级别
         // 变量准备
         ApiResult result = new ApiResult();
@@ -161,7 +161,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 更新处理结果
      */
     @Override
-    public ApiResult updateLevel(LevelParams params) {
+    public ApiResult updateLevel(LevelRequest params) {
         // 修改项目级别
         // 变量准备
         ApiResult result = new ApiResult();
@@ -210,12 +210,12 @@ public class NursingServiceImpl implements NursingService{
      * @return 护理项目分页列表
      */
     @Override
-    public ApiResult<ItemListResult> getNursingItemList(ItemListParams params) {
+    public ApiResult<ItemListVO> getNursingItemList(ItemListRequest params) {
         // 获取项目记录列表
         // 变量准备
-        ApiResult<ItemListResult> result = new ApiResult<>();
-        ItemListResult data = new ItemListResult();
-        List<ItemResult> list = new ArrayList<>();
+        ApiResult<ItemListVO> result = new ApiResult<>();
+        ItemListVO data = new ItemListVO();
+        List<ItemVO> list = new ArrayList<>();
         List<NursingItem> nursingItems;
         Long total;
         // 数据库查询
@@ -239,7 +239,7 @@ public class NursingServiceImpl implements NursingService{
         total = nursingItemMapper.selectCount(queryWrapper);
         // 封装数据
         for (NursingItem nursingItem : nursingItems) {
-            ItemResult itemResult = new ItemResult();
+            ItemVO itemResult = new ItemVO();
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());
@@ -271,12 +271,12 @@ public class NursingServiceImpl implements NursingService{
      * @return 护理项目分页列表
      */
     @Override
-    public ApiResult<ItemListResult> getNursingItemListByNursingLevelId(LevelItemListParams params) {
+    public ApiResult<ItemListVO> getNursingItemListByNursingLevelId(LevelItemListRequest params) {
         // 根据护理层级id查询护理项目
         // 变量准备
-        ApiResult<ItemListResult> result = new ApiResult<>();
-        ItemListResult data = new ItemListResult();
-        List<ItemResult> list = new ArrayList<>();
+        ApiResult<ItemListVO> result = new ApiResult<>();
+        ItemListVO data = new ItemListVO();
+        List<ItemVO> list = new ArrayList<>();
         List<NursingItem> dbNursingItems;
         Long total;
         Integer pageStart = (params.getPageNum() - 1) * params.getPageSize();
@@ -297,7 +297,7 @@ public class NursingServiceImpl implements NursingService{
         }
         // 将数据包装成前端所需数据格式
         for (NursingItem nursingItem : dbNursingItems) {
-            ItemResult itemResult = new ItemResult();
+            ItemVO itemResult = new ItemVO();
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());
@@ -323,7 +323,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 移除处理结果
      */
     @Override
-    public ApiResult removeLevelItem(LevelItemParams params) {
+    public ApiResult removeLevelItem(LevelItemRequest params) {
         // 删除护理级别中的护理项目
         // 变量准备
         ApiResult result = new ApiResult();
@@ -380,7 +380,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 添加处理结果
      */
     @Override
-    public ApiResult addLevelItem(LevelItemParams params) {
+    public ApiResult addLevelItem(LevelItemRequest params) {
         // 添加护理级别中的护理项目
         // 变量准备
         ApiResult result = new ApiResult();
@@ -462,7 +462,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 新增处理结果
      */
     @Override
-    public ApiResult addItem(ItemAddParams params) {
+    public ApiResult addItem(ItemAddRequest params) {
         // 添加护理项目
         // 变量准备
         ApiResult result = new ApiResult();
@@ -500,7 +500,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 更新处理结果
      */
     @Override
-    public ApiResult updateItem(ItemParams params) {
+    public ApiResult updateItem(ItemRequest params) {
         // 修改护理项目
         // 变量准备
         ApiResult result = new ApiResult();
@@ -548,11 +548,11 @@ public class NursingServiceImpl implements NursingService{
      * @return 客户护理项目列表
      */
     @Override
-    public ApiResult<List<ItemRecordResult>> getCustomerItems(Long customerId) {
+    public ApiResult<List<ItemRecordVO>> getCustomerItems(Long customerId) {
         // 获取客户的护理项目
         // 变量准备
-        ApiResult<List<ItemRecordResult>> result = new ApiResult<>();
-        List<ItemRecordResult> data = new ArrayList<>();
+        ApiResult<List<ItemRecordVO>> result = new ApiResult<>();
+        List<ItemRecordVO> data = new ArrayList<>();
         List<NursingItemRecord> dbItems;
         // 数据库查询
         try{
@@ -564,7 +564,7 @@ public class NursingServiceImpl implements NursingService{
         }
         // 将数据包装成前端所需数据格式
         for (NursingItemRecord itemRecord : dbItems) {
-            ItemRecordResult itemRecordResult = new ItemRecordResult();
+            ItemRecordVO itemRecordResult = new ItemRecordVO();
             itemRecordResult.setId(itemRecord.getNursingItemRecordId());
             itemRecordResult.setCode(itemRecord.getNursingItemCode());
             itemRecordResult.setName(itemRecord.getNursingItemName());
@@ -590,7 +590,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 添加处理结果
      */
     @Override
-    public ApiResult addCustomerItemRecords(AddItemRecordsParams params) {
+    public ApiResult addCustomerItemRecords(AddItemRecordsRequest params) {
         // 添加客户护理项目记录
         // 变量准备
         ApiResult result = new ApiResult();
@@ -622,7 +622,7 @@ public class NursingServiceImpl implements NursingService{
             throw e;
         }
         // 获取护理项目信息并添加护理项目记录
-        for (ItemRecordAddParams itemRecordAddParam : params.getItems()){
+        for (ItemRecordAddRequest itemRecordAddParam : params.getItems()){
             NursingItem nursingItem;
             NursingItemRecord nursingItemRecord = new NursingItemRecord();
             // 获取护理项目信息
@@ -671,7 +671,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 移除处理结果
      */
     @Override
-    public ApiResult removeCustomerItemRecords(AddItemRecordsParams params) {
+    public ApiResult removeCustomerItemRecords(AddItemRecordsRequest params) {
         // 删除护理项目记录
         // 变量准备
         ApiResult result = new ApiResult();
@@ -716,12 +716,12 @@ public class NursingServiceImpl implements NursingService{
      * @return 护理记录分页列表
      */
     @Override
-    public ApiResult<NursingRecordListResult> getCustomerItemRecords(NursingRecordListParams params) {
+    public ApiResult<NursingRecordListVO> getCustomerItemRecords(NursingRecordListRequest params) {
         // 根据客户id查询护理记录
         // 变量准备
-        ApiResult<NursingRecordListResult> result = new ApiResult<>();
-        NursingRecordListResult data = new NursingRecordListResult();
-        List<RecordResult> recordList = new ArrayList<>();
+        ApiResult<NursingRecordListVO> result = new ApiResult<>();
+        NursingRecordListVO data = new NursingRecordListVO();
+        List<RecordVO> recordList = new ArrayList<>();
         List<NursingRecord> dbNursingRecords;
         Integer total;
         Integer pageStart = (params.getPageNum()-1)*params.getPageSize();
@@ -744,7 +744,7 @@ public class NursingServiceImpl implements NursingService{
         }
         // 将数据包装成前端所需数据格式
         for (NursingRecord nursingRecord : dbNursingRecords){
-            RecordResult recordResult = new RecordResult();
+            RecordVO recordResult = new RecordVO();
             User staff;
             // 获取员工信息
             try {
@@ -828,7 +828,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 续费处理结果
      */
     @Override
-    public ApiResult renew(RenewParams params) {
+    public ApiResult renew(RenewRequest params) {
         ApiResult result = new ApiResult();
         //根据客户ID护理项目ID确定record,修改到期时间与购买次数
         try {
@@ -851,7 +851,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 添加处理结果
      */
     @Override
-    public ApiResult addRecord(NursingRecordParam record, String token) {
+    public ApiResult addRecord(NursingRecordRequest record, String token) {
         ApiResult result = new ApiResult();
         //从token中获取用户id
         NursingRecord nursingRecord = new NursingRecord();
@@ -909,7 +909,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 保存处理结果
      */
     @Override
-    public ApiResult saveLevelItems(LevelItemsParams params) {
+    public ApiResult saveLevelItems(LevelItemsRequest params) {
         // 添加护理级别中的护理项目
         // 变量准备
         ApiResult result = new ApiResult();
@@ -968,12 +968,12 @@ public class NursingServiceImpl implements NursingService{
      * @return 护理项目分页列表
      */
     @Override
-    public ApiResult<ItemListResult> customerLevelItemList(CustomerLevelItemListParams params) {
+    public ApiResult<ItemListVO> customerLevelItemList(CustomerLevelItemListRequest params) {
         // 获取客户护理级别的护理项目列表
         // 变量准备
-        ApiResult<ItemListResult> result = new ApiResult<>();
-        ItemListResult data = new ItemListResult();
-        List<ItemResult> list = new ArrayList<>();
+        ApiResult<ItemListVO> result = new ApiResult<>();
+        ItemListVO data = new ItemListVO();
+        List<ItemVO> list = new ArrayList<>();
         List<NursingItem> dbNursingItems;
         Long total;
         Integer pageStart = (params.getPageNum()-1)*params.getPageSize();
@@ -996,7 +996,7 @@ public class NursingServiceImpl implements NursingService{
         }
         // 将数据包装成前端所需数据格式
         for (NursingItem nursingItem : dbNursingItems){
-            ItemResult itemResult = new ItemResult();
+            ItemVO itemResult = new ItemVO();
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());

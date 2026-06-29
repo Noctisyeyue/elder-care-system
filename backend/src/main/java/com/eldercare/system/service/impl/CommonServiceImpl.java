@@ -8,7 +8,7 @@ import com.eldercare.system.entity.*;
 import com.eldercare.system.email.*;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.common.result.Notification;
+import com.eldercare.system.vo.common.NotificationVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -182,11 +182,11 @@ public class CommonServiceImpl implements CommonService {
      * @return 通知信息
      */
     @Override
-    public ApiResult<Notification> getNotification(String date) {
+    public ApiResult<NotificationVO> getNotification(String date) {
         // 获取通知信息
         // 变量准备
-        ApiResult<Notification> result = new ApiResult<>();
-        Notification data = new Notification();
+        ApiResult<NotificationVO> result = new ApiResult<>();
+        NotificationVO data = new NotificationVO();
         DietCalendar dietCalendar;
         // 数据库查询
         // 查询是否配置膳食

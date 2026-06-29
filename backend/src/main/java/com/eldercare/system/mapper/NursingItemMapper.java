@@ -2,7 +2,7 @@ package com.eldercare.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.NursingItem;
-import com.eldercare.system.po.nursing.params.RenewParams;
+import com.eldercare.system.dto.nursing.RenewRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ public interface NursingItemMapper extends BaseMapper<NursingItem> {
 
     void removeByItemId(long id);
 
-    void renew(RenewParams params);
+    void renew(RenewRequest params);
 
     List<NursingItem> selectByCustomerId(Long customerId, String name, Integer pageStart, Integer pageSize, String status);
 

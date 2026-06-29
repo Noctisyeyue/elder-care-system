@@ -3,8 +3,8 @@ package com.eldercare.system.service;
 import com.eldercare.system.entity.SetMeal;
 import com.eldercare.system.po.ListResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.diet.params.*;
-import com.eldercare.system.po.diet.result.*;
+import com.eldercare.system.dto.diet.*;
+import com.eldercare.system.vo.diet.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface DietService {
      * @param params 月份查询参数
      * @return 膳食日历列表
      */
-    ApiResult<List<DietCalendarResult>> monthList(DietCalendarMonthListParams params);
+    ApiResult<List<DietCalendarVO>> monthList(DietCalendarMonthListRequest params);
 
     /**
      * 查询指定餐次和忌口类型的菜品选项
@@ -27,7 +27,7 @@ public interface DietService {
      * @param pork 忌口类型
      * @return 菜品选项列表
      */
-    ApiResult<List<DishResult>> timeDishOptions(String time, String pork);
+    ApiResult<List<DishVO>> timeDishOptions(String time, String pork);
 
     /**
      * 分页查询菜品列表
@@ -35,7 +35,7 @@ public interface DietService {
      * @param params 菜品查询参数
      * @return 菜品列表
      */
-    ApiResult<DishListResult> dishList(DishListParams params);
+    ApiResult<DishListVO> dishList(DishListRequest params);
 
     /**
      * 新增菜品
@@ -43,7 +43,7 @@ public interface DietService {
      * @param params 菜品参数
      * @return 操作结果
      */
-    ApiResult addDish(DishParams params);
+    ApiResult addDish(DishRequest params);
 
     /**
      * 修改菜品
@@ -51,7 +51,7 @@ public interface DietService {
      * @param params 菜品参数
      * @return 操作结果
      */
-    ApiResult updateDish(DishParams params);
+    ApiResult updateDish(DishRequest params);
 
     /**
      * 删除菜品
@@ -59,7 +59,7 @@ public interface DietService {
      * @param params 菜品删除参数
      * @return 操作结果
      */
-    ApiResult removeDish(RemoveDishParams params);
+    ApiResult removeDish(RemoveDishRequest params);
 
     /**
      * 查询客户膳食分配列表
@@ -67,7 +67,7 @@ public interface DietService {
      * @param params 客户查询参数
      * @return 客户膳食分配列表
      */
-    ApiResult<ListResult<CustomerDishListResult>> customerList(CustomerListParams params);
+    ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params);
 
     /**
      * 查询可选菜品
@@ -76,7 +76,7 @@ public interface DietService {
      * @param pork 忌口类型
      * @return 可选菜品列表
      */
-    ApiResult<List<DishResult>> availableDishes(String time, String pork);
+    ApiResult<List<DishVO>> availableDishes(String time, String pork);
 
     /**
      * 上传菜品图片
@@ -97,7 +97,7 @@ public interface DietService {
      * @param pageSize    每页大小
      * @return 套餐列表
      */
-    ApiResult<ListResult<SetMealResult>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize);
+    ApiResult<ListResult<SetMealVO>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize);
 
     /**
      * 保存膳食日历
@@ -105,7 +105,7 @@ public interface DietService {
      * @param params 膳食日历保存参数
      * @return 操作结果
      */
-    ApiResult saveDietCalendar(DietCalendarSaveParams params);
+    ApiResult saveDietCalendar(DietCalendarSaveRequest params);
 
     /**
      * 修改套餐
@@ -129,7 +129,7 @@ public interface DietService {
      * @param params 套餐菜品配置参数
      * @return 操作结果
      */
-    ApiResult saveSetMealDishes(SaveSetMealDishesParams params);
+    ApiResult saveSetMealDishes(SaveSetMealDishesRequest params);
 
     /**
      * 保存客户套餐分配
@@ -137,7 +137,7 @@ public interface DietService {
      * @param params 客户套餐分配参数
      * @return 操作结果
      */
-    ApiResult saveCustomerSetMeal(SaveCustomerSetMealParams params);
+    ApiResult saveCustomerSetMeal(SaveCustomerSetMealRequest params);
 
     /**
      * 查询指定日期的套餐列表

@@ -3,7 +3,7 @@ package com.eldercare.system.controller;
 import com.eldercare.system.email.LoginParam;
 import com.eldercare.system.email.R;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.common.result.Notification;
+import com.eldercare.system.vo.common.NotificationVO;
 import com.eldercare.system.service.CommonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,7 +43,7 @@ public class CommonController {
 
     @Operation(summary = "获取通知信息")
     @GetMapping("/notification")
-    public ApiResult<Notification> getNotification(String date){
+    public ApiResult<NotificationVO> getNotification(String date){
         return commonService.getNotification(date);
     }
 

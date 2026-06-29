@@ -1,8 +1,11 @@
 package com.eldercare.system.service;
 
-import com.eldercare.system.po.user.*;
+import com.eldercare.system.po.user.PasswordUtil;
+import com.eldercare.system.po.user.ImgUploadUtil;
+import com.eldercare.system.dto.user.*;
+import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.user.result.RoleNumResult;
+import com.eldercare.system.vo.user.RoleNumVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -16,7 +19,7 @@ public interface UserService {
      * @param user 登录参数
      * @return 登录结果
      */
-    ApiResult<LoginResponse> login(UserLogin user);
+    ApiResult<LoginResponseVO> login(UserLoginRequest user);
 
     /**
      * 新增用户
@@ -24,7 +27,7 @@ public interface UserService {
      * @param user 用户新增参数
      * @return 操作结果
      */
-    ApiResult add(UserAdd user);
+    ApiResult add(UserAddRequest user);
 
     /**
      * 分页查询用户列表
@@ -32,7 +35,7 @@ public interface UserService {
      * @param user 查询参数
      * @return 用户列表
      */
-    ApiResult<UserListResult> list(UserList user);
+    ApiResult<UserListResultVO> list(UserListRequest user);
 
     /**
      * 批量删除用户
@@ -48,7 +51,7 @@ public interface UserService {
      * @param user 用户修改参数
      * @return 操作结果
      */
-    ApiResult update(UserAdd user);
+    ApiResult update(UserAddRequest user);
 
     /**
      * 统计用户数量
@@ -62,7 +65,7 @@ public interface UserService {
      *
      * @return 角色人数统计
      */
-    ApiResult<List<RoleNumResult>> roleNum();
+    ApiResult<List<RoleNumVO>> roleNum();
 
     /**
      * 根据邮箱判断用户是否存在

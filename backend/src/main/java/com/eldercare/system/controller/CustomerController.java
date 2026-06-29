@@ -1,7 +1,7 @@
 package com.eldercare.system.controller;
 
-import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
-import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
+import com.eldercare.system.dto.caregiver.PurchasedItemsRequest;
+import com.eldercare.system.vo.caregiver.PurchasedItemsListVO;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.dto.customer.*;
 import com.eldercare.system.vo.customer.*;
@@ -84,7 +84,7 @@ public class CustomerController {
 
     @Operation(summary = "查询客户已购买护理项目列表")
     @GetMapping("/purchasedItems")
-    public ApiResult<PurchasedItemsListResult> purchasedItems(PurchasedItemsRequest request) {
+    public ApiResult<PurchasedItemsListVO> purchasedItems(PurchasedItemsRequest request) {
         return customerService.purchasedItems(request);
     }
 

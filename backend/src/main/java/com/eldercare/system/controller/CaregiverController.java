@@ -1,12 +1,12 @@
 package com.eldercare.system.controller;
 
-import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
-import com.eldercare.system.po.caregiver.params.setCustomersRequest;
-import com.eldercare.system.po.caregiver.results.CaregiverListResult;
+import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
+import com.eldercare.system.dto.caregiver.SetCustomersRequest;
+import com.eldercare.system.vo.caregiver.CaregiverListVO;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.caregiver.results.HomeResult;
+import com.eldercare.system.vo.caregiver.HomeVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
-import com.eldercare.system.po.user.UserList;
+import com.eldercare.system.dto.user.UserListRequest;
 import com.eldercare.system.service.CaregiverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +27,7 @@ public class CaregiverController {
     // 查询健康管家列表
     @Operation(summary = "查询健康管家列表")
     @GetMapping("/list")
-    public ApiResult<CaregiverListResult> list(UserList user) {
+    public ApiResult<CaregiverListVO> list(UserListRequest user) {
         return caregiverService.list(user);
     }
 
@@ -50,7 +50,7 @@ public class CaregiverController {
     // 批量给健康管家设置客户
     @Operation(summary = "批量给健康管家设置客户")
     @PostMapping("/setCustomers")
-    public ApiResult setCustomers(@RequestBody setCustomersRequest body) {
+    public ApiResult setCustomers(@RequestBody SetCustomersRequest body) {
         Long caregiverId = body.getCaregiverId();
         ApiResult result = new ApiResult();
         result.setCode(200);
@@ -80,7 +80,7 @@ public class CaregiverController {
     // 获取首页统计信息
     @Operation(summary = "获取首页统计信息")
     @GetMapping("/homeStats")
-    public ApiResult<HomeResult> homeStats(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ApiResult<HomeVO> homeStats(@RequestHeader(value = "Authorization", required = false) String token) {
         return caregiverService.homeStats(token);
     }
 }

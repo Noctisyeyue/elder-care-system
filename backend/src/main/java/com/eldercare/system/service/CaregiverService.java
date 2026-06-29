@@ -1,11 +1,11 @@
 package com.eldercare.system.service;
 
-import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
-import com.eldercare.system.po.caregiver.results.CaregiverListResult;
+import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
+import com.eldercare.system.vo.caregiver.CaregiverListVO;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.caregiver.results.HomeResult;
+import com.eldercare.system.vo.caregiver.HomeVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
-import com.eldercare.system.po.user.UserList;
+import com.eldercare.system.dto.user.UserListRequest;
 
 /** 健康管家服务接口 */
 public interface CaregiverService {
@@ -16,7 +16,7 @@ public interface CaregiverService {
      * @param user 查询参数
      * @return 健康管家列表
      */
-    ApiResult<CaregiverListResult> list(UserList user);
+    ApiResult<CaregiverListVO> list(UserListRequest user);
 
     /**
      * 查询健康管家服务对象列表
@@ -58,5 +58,5 @@ public interface CaregiverService {
      * @param token 登录令牌
      * @return 首页统计数据
      */
-    ApiResult<HomeResult> homeStats(String token);
+    ApiResult<HomeVO> homeStats(String token);
 }

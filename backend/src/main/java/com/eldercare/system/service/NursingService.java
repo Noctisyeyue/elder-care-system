@@ -2,8 +2,8 @@ package com.eldercare.system.service;
 
 import com.eldercare.system.entity.NursingRecord;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.nursing.params.*;
-import com.eldercare.system.po.nursing.result.*;
+import com.eldercare.system.dto.nursing.*;
+import com.eldercare.system.vo.nursing.*;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface NursingService {
      * @param params 查询参数
      * @return 护理级别列表
      */
-    ApiResult<LevelListResult> getNursingLevelList(LevelListParams params);
+    ApiResult<LevelListVO> getNursingLevelList(LevelListRequest params);
 
     /**
      * 新增护理级别
@@ -24,7 +24,7 @@ public interface NursingService {
      * @param params 护理级别参数
      * @return 操作结果
      */
-    ApiResult addLevel(LevelParams params);
+    ApiResult addLevel(LevelRequest params);
 
     /**
      * 修改护理级别
@@ -32,7 +32,7 @@ public interface NursingService {
      * @param params 护理级别参数
      * @return 操作结果
      */
-    ApiResult updateLevel(LevelParams params);
+    ApiResult updateLevel(LevelRequest params);
 
     /**
      * 分页查询护理项目列表
@@ -40,7 +40,7 @@ public interface NursingService {
      * @param params 查询参数
      * @return 护理项目列表
      */
-    ApiResult<ItemListResult> getNursingItemList(ItemListParams params);
+    ApiResult<ItemListVO> getNursingItemList(ItemListRequest params);
 
     /**
      * 查询护理级别关联的护理项目
@@ -48,7 +48,7 @@ public interface NursingService {
      * @param params 查询参数
      * @return 护理项目列表
      */
-    ApiResult<ItemListResult> getNursingItemListByNursingLevelId(LevelItemListParams params);
+    ApiResult<ItemListVO> getNursingItemListByNursingLevelId(LevelItemListRequest params);
 
     /**
      * 移除护理级别关联项目
@@ -56,7 +56,7 @@ public interface NursingService {
      * @param params 级别项目参数
      * @return 操作结果
      */
-    ApiResult removeLevelItem(LevelItemParams params);
+    ApiResult removeLevelItem(LevelItemRequest params);
 
     /**
      * 新增护理级别关联项目
@@ -64,7 +64,7 @@ public interface NursingService {
      * @param params 级别项目参数
      * @return 操作结果
      */
-    ApiResult addLevelItem(LevelItemParams params);
+    ApiResult addLevelItem(LevelItemRequest params);
 
     /**
      * 删除护理项目
@@ -80,7 +80,7 @@ public interface NursingService {
      * @param params 护理项目新增参数
      * @return 操作结果
      */
-    ApiResult addItem(ItemAddParams params);
+    ApiResult addItem(ItemAddRequest params);
 
     /**
      * 修改护理项目
@@ -88,7 +88,7 @@ public interface NursingService {
      * @param params 护理项目参数
      * @return 操作结果
      */
-    ApiResult updateItem(ItemParams params);
+    ApiResult updateItem(ItemRequest params);
 
     /**
      * 查询客户已购护理项目
@@ -96,7 +96,7 @@ public interface NursingService {
      * @param customerId 客户ID
      * @return 护理项目记录列表
      */
-    ApiResult<List<ItemRecordResult>> getCustomerItems(Long customerId);
+    ApiResult<List<ItemRecordVO>> getCustomerItems(Long customerId);
 
     /**
      * 为客户新增护理项目记录
@@ -104,7 +104,7 @@ public interface NursingService {
      * @param params 项目记录参数
      * @return 操作结果
      */
-    ApiResult addCustomerItemRecords(AddItemRecordsParams params);
+    ApiResult addCustomerItemRecords(AddItemRecordsRequest params);
 
     /**
      * 移除客户护理项目记录
@@ -112,7 +112,7 @@ public interface NursingService {
      * @param params 项目记录参数
      * @return 操作结果
      */
-    ApiResult removeCustomerItemRecords(AddItemRecordsParams params);
+    ApiResult removeCustomerItemRecords(AddItemRecordsRequest params);
 
     /**
      * 查询客户护理执行记录
@@ -120,7 +120,7 @@ public interface NursingService {
      * @param customerId 查询参数
      * @return 护理执行记录列表
      */
-    ApiResult<NursingRecordListResult> getCustomerItemRecords(NursingRecordListParams customerId);
+    ApiResult<NursingRecordListVO> getCustomerItemRecords(NursingRecordListRequest customerId);
 
     /**
      * 删除护理执行记录
@@ -144,7 +144,7 @@ public interface NursingService {
      * @param params 续费参数
      * @return 操作结果
      */
-    ApiResult renew(RenewParams params);
+    ApiResult renew(RenewRequest params);
 
     /**
      * 查询客户护理级别项目列表
@@ -152,7 +152,7 @@ public interface NursingService {
      * @param params 查询参数
      * @return 护理项目列表
      */
-    ApiResult<ItemListResult> customerLevelItemList(CustomerLevelItemListParams params);
+    ApiResult<ItemListVO> customerLevelItemList(CustomerLevelItemListRequest params);
 
     /**
      * 新增护理执行记录
@@ -161,7 +161,7 @@ public interface NursingService {
      * @param token  登录令牌
      * @return 操作结果
      */
-    ApiResult addRecord(NursingRecordParam record, String token);
+    ApiResult addRecord(NursingRecordRequest record, String token);
 
     /**
      * 保存护理级别项目配置
@@ -169,5 +169,5 @@ public interface NursingService {
      * @param params 级别项目配置参数
      * @return 操作结果
      */
-    ApiResult saveLevelItems(LevelItemsParams params);
+    ApiResult saveLevelItems(LevelItemsRequest params);
 }

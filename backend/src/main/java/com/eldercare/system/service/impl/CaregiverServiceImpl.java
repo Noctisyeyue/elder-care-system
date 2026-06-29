@@ -5,16 +5,16 @@ import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
-import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
-import com.eldercare.system.po.caregiver.results.ApplicationStatus;
-import com.eldercare.system.po.caregiver.results.CaregiverListResult;
+import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
+import com.eldercare.system.vo.caregiver.ApplicationStatusVO;
+import com.eldercare.system.vo.caregiver.CaregiverListVO;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.caregiver.results.HomeResult;
+import com.eldercare.system.vo.caregiver.HomeVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverListVO;
 import com.eldercare.system.util.JWTUtil;
-import com.eldercare.system.po.user.UserList;
-import com.eldercare.system.po.caregiver.results.CaregiverResult;
+import com.eldercare.system.dto.user.UserListRequest;
+import com.eldercare.system.vo.caregiver.CaregiverVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +57,8 @@ public class CaregiverServiceImpl implements CaregiverService {
      * @return 健康管家列表
      */
     @Override
-    public ApiResult<CaregiverListResult> list(UserList request) {
-        ApiResult<CaregiverListResult> result = new ApiResult<>();
+    public ApiResult<CaregiverListVO> list(UserListRequest request) {
+        ApiResult<CaregiverListVO> result = new ApiResult<>();
 
         // 1. 构建查询条件
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -73,9 +73,9 @@ public class CaregiverServiceImpl implements CaregiverService {
         List<User> caregivers = userMapper.selectList(queryWrapper);
 
         // 3. 数据转换
-        List<CaregiverResult> caregiverResults = new ArrayList<>();
+        List<CaregiverVO> caregiverResults = new ArrayList<>();
         for (User caregiver : caregivers) {
-            CaregiverResult item = new CaregiverResult();
+            CaregiverVO item = new CaregiverVO();
             item.setId(caregiver.getUserId());
             item.setName(caregiver.getRealName());
             item.setPhone(caregiver.getPhone());
@@ -96,7 +96,7 @@ public class CaregiverServiceImpl implements CaregiverService {
         int total = Math.toIntExact(userMapper.selectCount(countQueryWrapper));
 
         // 5. 组装返回值
-        CaregiverListResult response = new CaregiverListResult(caregiverResults, total);
+        CaregiverListVO response = new CaregiverListVO(caregiverResults, total);
         result.setData(response);
         if (!caregiverResults.isEmpty()) {
             result.setCode(200);
@@ -246,14 +246,14 @@ public class CaregiverServiceImpl implements CaregiverService {
      * @return 首页统计数据
      */
     @Override
-    public ApiResult<HomeResult> homeStats(String token) {
+    public ApiResult<HomeVO> homeStats(String token) {
         // 获取健康管理员首页数据
         // 变量准备
-        ApiResult<HomeResult> result = new ApiResult<>();
-        HomeResult data = new HomeResult();
+        ApiResult<HomeVO> result = new ApiResult<>();
+        HomeVO data = new HomeVO();
         data.setCounts(new ArrayList<>());
-        ApplicationStatus outingApplicationstatus = new ApplicationStatus();
-        ApplicationStatus checkOutApplicationstatus = new ApplicationStatus();
+        ApplicationStatusVO outingApplicationstatus = new ApplicationStatusVO();
+        ApplicationStatusVO checkOutApplicationstatus = new ApplicationStatusVO();
         Long userId;
         Long dailyCarecount;
         Long yesterdayCarecount;

@@ -3,8 +3,8 @@ package com.eldercare.system.controller;
 import com.eldercare.system.entity.SetMeal;
 import com.eldercare.system.po.ListResult;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.diet.params.*;
-import com.eldercare.system.po.diet.result.*;
+import com.eldercare.system.dto.diet.*;
+import com.eldercare.system.vo.diet.*;
 import com.eldercare.system.service.DietService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,19 +24,19 @@ public class DietController {
 
     @Operation(summary = "获取某个月内每天的套餐配置信息")
     @GetMapping("/monthList")
-    public ApiResult<List<DietCalendarResult>> monthList(DietCalendarMonthListParams params){
+    public ApiResult<List<DietCalendarVO>> monthList(DietCalendarMonthListRequest params){
         return dietService.monthList(params);
     }
 
     @Operation(summary = "保存某天的套餐配置信息")
     @PostMapping("/saveDietCalendar")
-    public ApiResult saveDietCalendar(@RequestBody DietCalendarSaveParams params){
+    public ApiResult saveDietCalendar(@RequestBody DietCalendarSaveRequest params){
         return dietService.saveDietCalendar(params);
     }
 
     @Operation(summary = "获取套餐信息列表")
     @GetMapping("/setMeal/list")
-    public ApiResult<ListResult<SetMealResult>> setMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize){
+    public ApiResult<ListResult<SetMealVO>> setMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize){
         return dietService.getSetMealList(status, pork, setMealName, pageNum, pageSize);
     }
 
@@ -60,55 +60,55 @@ public class DietController {
 
     @Operation(summary = "获取某个时间段的可选菜品列表")
     @GetMapping("/timeFoodOptions")
-    public ApiResult<List<DishResult>> timeDishOptions(String time, String pork){
+    public ApiResult<List<DishVO>> timeDishOptions(String time, String pork){
         return dietService.timeDishOptions(time, pork);
     }
 
     @Operation(summary = "获取菜品信息列表")
     @GetMapping("/foodList")
-    public ApiResult<DishListResult> dishList(DishListParams params){
+    public ApiResult<DishListVO> dishList(DishListRequest params){
         return dietService.dishList(params);
     }
 
     @Operation(summary = "添加菜品")
     @PostMapping("/addFood")
-    public ApiResult addDish(@RequestBody DishParams params){
+    public ApiResult addDish(@RequestBody DishRequest params){
         return dietService.addDish(params);
     }
 
     @Operation(summary = "修改菜品")
     @PutMapping("/updateFood")
-    public ApiResult updateDish(@RequestBody DishParams params){
+    public ApiResult updateDish(@RequestBody DishRequest params){
         return dietService.updateDish(params);
     }
 
     @Operation(summary = "删除菜品")
     @PostMapping("/deleteFood")
-    public ApiResult removeDish(@RequestBody RemoveDishParams params){
+    public ApiResult removeDish(@RequestBody RemoveDishRequest params){
         return dietService.removeDish(params);
     }
 
     @Operation(summary = "获取客户菜品列表")
     @GetMapping("/customerList")
-    public ApiResult<ListResult<CustomerDishListResult>> customerList(CustomerListParams params){
+    public ApiResult<ListResult<CustomerDishListVO>> customerList(CustomerListRequest params){
         return dietService.customerList(params);
     }
 
     @Operation(summary = "保存客户套餐配置")
     @PostMapping("/saveCustomerSetMeal")
-    public ApiResult saveCustomerSetMeal(@RequestBody SaveCustomerSetMealParams params){
+    public ApiResult saveCustomerSetMeal(@RequestBody SaveCustomerSetMealRequest params){
         return dietService.saveCustomerSetMeal(params);
     }
 
     @Operation(summary = "获取可用的菜品列表")
     @GetMapping("/availableDishes")
-    public ApiResult<List<DishResult>> availableDishes(String time,String pork){
+    public ApiResult<List<DishVO>> availableDishes(String time,String pork){
         return dietService.availableDishes(time,pork);
     }
 
     @Operation(summary = "保存套餐菜品配置")
     @PostMapping("/saveSetMealDishes")
-    public ApiResult saveSetMealDishes(@RequestBody SaveSetMealDishesParams params){
+    public ApiResult saveSetMealDishes(@RequestBody SaveSetMealDishesRequest params){
         return dietService.saveSetMealDishes(params);
     }
 
