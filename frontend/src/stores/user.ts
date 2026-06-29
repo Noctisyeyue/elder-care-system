@@ -14,28 +14,30 @@ export const useUserStore = defineStore('user', {
       this.role = role
       this.userName = userName
       this.email = email
-      localStorage.setItem('token', token)
-      localStorage.setItem('userRole', role)
-      localStorage.setItem('userName', userName)
-      localStorage.setItem('userEmail', email)
+      sessionStorage.setItem('token', token)
+      sessionStorage.setItem('userRole', role)
+      sessionStorage.setItem('userName', userName)
+      sessionStorage.setItem('userEmail', email)
     },
     logout() {
       this.token = ''
       this.role = ''
       this.userName = ''
       this.email = ''
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('userRole')
+      sessionStorage.removeItem('userName')
+      sessionStorage.removeItem('userEmail')
       localStorage.removeItem('token')
       localStorage.removeItem('userRole')
       localStorage.removeItem('userName')
       localStorage.removeItem('userEmail')
-      localStorage.clear()
-      sessionStorage.clear()
     },
     loadFromStorage() {
-      this.token = localStorage.getItem('token') || ''
-      this.role = localStorage.getItem('userRole') || ''
-      this.userName = localStorage.getItem('userName') || ''
-      this.email = localStorage.getItem('userEmail') || ''
+      this.token = sessionStorage.getItem('token') || ''
+      this.role = sessionStorage.getItem('userRole') || ''
+      this.userName = sessionStorage.getItem('userName') || ''
+      this.email = sessionStorage.getItem('userEmail') || ''
     },
   },
   getters: {

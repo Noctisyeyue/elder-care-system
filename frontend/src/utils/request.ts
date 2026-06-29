@@ -22,7 +22,7 @@ let isErrorMessageShown = false // 全局变量，用于控制错误提示是否
 service.interceptors.request.use(
   (config) => {
     // 获取本地存储的 token
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     if (token) {
       // 添加 token 到请求头
       config.headers.Authorization = `Bearer ${token}`
@@ -132,7 +132,7 @@ export async function streamPost(
   onError?: (error: Error) => void,
 ): Promise<void> {
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     const response = await fetch(`${LLMService.defaults.baseURL}${url}`, {
       method: 'POST',
       headers: {
