@@ -1,9 +1,9 @@
-package com.eldercare.system.po.bed.params;
+package com.eldercare.system.dto.bed;
 
 import lombok.Data;
 
 @Data
-public class ListParams {
+public class BedListRequest {
     /*
     customerName: string, // 客户姓名 (模糊查询)
     checkInDate: string,  // 入住日期 (格式: YYYY-MM-DD)

@@ -1,9 +1,9 @@
-package com.eldercare.system.po.bed.result;
+package com.eldercare.system.vo.bed;
 
 import lombok.Data;
 
 @Data
-public class BedResult {
+public class BedVO {
     /*
     "id": 1,           // 床位记录的唯一标识符
     "customerName": "毛兰英",

@@ -1,7 +1,7 @@
 package com.eldercare.system.controller;
 
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.bed.result.Pair;
+import com.eldercare.system.vo.bed.PairVO;
 import com.eldercare.system.po.room.RoomResult;
 import com.eldercare.system.service.BedService;
 import com.eldercare.system.service.RoomService;
@@ -32,7 +32,7 @@ public class RoomController {
     @Operation(summary = "获取指定房间的可用床位")
 
     @GetMapping("/{roomNumber}/beds")
-    public ApiResult<List<Pair>> freeBeds(@PathVariable String roomNumber){
+    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber){
         return bedService.selectFreeBeds(roomNumber);
     }
     //更新床位信息，将床位状态更新为空闲free

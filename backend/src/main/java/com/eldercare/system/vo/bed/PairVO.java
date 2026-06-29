@@ -1,10 +1,10 @@
-package com.eldercare.system.po.bed.result;
+package com.eldercare.system.vo.bed;
 
 
 import lombok.Data;
 
 @Data
-public class Pair {
+public class PairVO {
     private String value;
     private String label;
 }

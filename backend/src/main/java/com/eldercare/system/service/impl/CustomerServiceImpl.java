@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
-import com.eldercare.system.po.bed.params.SwapParams;
+import com.eldercare.system.dto.bed.BedSwapRequest;
 import com.eldercare.system.po.caregiver.params.CustomersByCareIdRequest;
 import com.eldercare.system.po.caregiver.params.PurchasedItemsRequest;
 import com.eldercare.system.po.caregiver.results.PurchasedItemsListResult;
@@ -225,7 +225,7 @@ public class CustomerServiceImpl implements CustomerService{
             result.setMessage("客户不存在");
             return result;
         }else {
-            SwapParams params = new SwapParams();
+            BedSwapRequest params = new BedSwapRequest();
             //根据床id和history=1查找床位记录的id
             Long bedRecordId = bedRecordMapper.selectBedRecordIdByBedIdAndHistory(existingCustomer.getBedId(), "1");
             //根据existingCustomer.getBedId()查床的房间号和床号

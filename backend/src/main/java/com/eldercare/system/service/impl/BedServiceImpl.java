@@ -10,9 +10,9 @@ import com.eldercare.system.mapper.BedRecordMapper;
 import com.eldercare.system.mapper.CustomerMapper;
 import com.eldercare.system.mapper.RoomMapper;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.bed.params.ListParams;
-import com.eldercare.system.po.bed.params.SwapParams;
-import com.eldercare.system.po.bed.result.*;
+import com.eldercare.system.dto.bed.BedListRequest;
+import com.eldercare.system.dto.bed.BedSwapRequest;
+import com.eldercare.system.vo.bed.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,11 +47,11 @@ public class BedServiceImpl implements BedService{
      * @return 床位示意图数据
      */
     @Override
-    public ApiResult<List<MapResult>> getMap(String floor) {
+    public ApiResult<List<BedMapVO>> getMap(String floor) {
         // 按层获取床位示意图
         // 变量准备
-        ApiResult<List<MapResult>> result = new ApiResult<>();
-        List<MapResult> list = new ArrayList<>();
+        ApiResult<List<BedMapVO>> result = new ApiResult<>();
+        List<BedMapVO> list = new ArrayList<>();
         List<Map<String, Object>> dbRooms;
         // 数据库查询
         // 按楼层查询房间
@@ -71,7 +71,7 @@ public class BedServiceImpl implements BedService{
         }
         // 按房间编号查询床
         for(Map room : dbRooms){
-            List<BedResult> details = new ArrayList<>();
+            List<BedVO> details = new ArrayList<>();
             List<Map<String, Object>> dbBeds;
             try {
                 dbBeds = bedMapper.selectBedsByRoom(room.get("room_id"));
@@ -81,7 +81,7 @@ public class BedServiceImpl implements BedService{
                 throw e;
             }
             // 包装单个房间数据
-            MapResult mapResult = new MapResult();
+            BedMapVO mapResult = new BedMapVO();
             mapResult.setRoomNumber(String.valueOf(room.get("room_no")));
             List<Bed> bedList = new ArrayList<>();
             for(Map bed : dbBeds){
@@ -89,7 +89,7 @@ public class BedServiceImpl implements BedService{
                 bedData.setBedNo(String.valueOf(bed.get("bed_no")));
                 bedData.setStatus(String.valueOf(bed.get("status")));
                 bedList.add(bedData);
-                BedResult detail = new BedResult();
+                BedVO detail = new BedVO();
                 Customer customer;
                 QueryWrapper<Customer> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("bed_id", bed.get("bed_id"));
@@ -133,12 +133,12 @@ public class BedServiceImpl implements BedService{
      * @return 床位使用列表
      */
     @Override
-    public ApiResult<ListResult> getList(ListParams params) {
+    public ApiResult<BedListVO> getList(BedListRequest params) {
         // 按条件获取床位使用信息列表
         // 变量准备
-        ApiResult<ListResult> result = new ApiResult<>();
-        ListResult data = new ListResult();
-        List<BedResult> list = new ArrayList<>();
+        ApiResult<BedListVO> result = new ApiResult<>();
+        BedListVO data = new BedListVO();
+        List<BedVO> list = new ArrayList<>();
         List<Map<String, Object>> dbBeds;
         // 若传入参数有入住日期
         if(!(Objects.equals(params.getCheckInDate(), "") || params.getCheckInDate() == null)){
@@ -157,7 +157,7 @@ public class BedServiceImpl implements BedService{
             }
             // 包装单个床数据
             for (Map<String, Object> bed : dbBeds){
-                BedResult bedResult = new BedResult();
+                BedVO bedResult = new BedVO();
                 bedResult.setId((Long) bed.get("bed_record_id"));
                 bedResult.setCustomerName(String.valueOf(bed.get("customer_name")));
                 bedResult.setGender(String.valueOf(bed.get("gender")));
@@ -190,7 +190,7 @@ public class BedServiceImpl implements BedService{
             // 包装单个床数据
             if (dbBeds != null) {
                 for (Map<String, Object> bed : dbBeds){
-                    BedResult bedResult = new BedResult();
+                    BedVO bedResult = new BedVO();
                     bedResult.setId((Long) bed.get("bed_record_id"));
                     bedResult.setCustomerName(String.valueOf(bed.get("customer_name")));
                     bedResult.setGender(String.valueOf(bed.get("gender")));
@@ -213,7 +213,7 @@ public class BedServiceImpl implements BedService{
         int totalItems = list.size();
         int fromIndex = (params.getPageNum() - 1) * params.getPageSize();
         int toIndex = Math.min(fromIndex + params.getPageSize(), totalItems);
-        List<BedResult> page = list.subList(fromIndex,toIndex);
+        List<BedVO> page = list.subList(fromIndex,toIndex);
         // 数据包装并返回
         data.setList(page);
         data.setTotal(totalItems);
@@ -267,11 +267,11 @@ public class BedServiceImpl implements BedService{
      * @return 空闲房间列表
      */
     @Override
-    public ApiResult<List<FreeRoomsResult>> selectFreeRooms() {
+    public ApiResult<List<FreeRoomVO>> selectFreeRooms() {
         // 获取有空闲床位的房间
         // 变量准备
-        ApiResult<List<FreeRoomsResult>> result = new ApiResult<>();// 返回结果
-        List<FreeRoomsResult> data = new ArrayList<>();
+        ApiResult<List<FreeRoomVO>> result = new ApiResult<>();// 返回结果
+        List<FreeRoomVO> data = new ArrayList<>();
         List<String> floorList;
         List<Map<String, Object>> dbFreeRooms;// 数据库查询结果
         // 数据库查询
@@ -284,7 +284,7 @@ public class BedServiceImpl implements BedService{
             throw e;
         }
         for (String floor : floorList){
-            FreeRoomsResult freeRoomsResult = new FreeRoomsResult();
+            FreeRoomVO freeRoomsResult = new FreeRoomVO();
             freeRoomsResult.setLabel(floor);
             freeRoomsResult.setOptions(new ArrayList<>());
             data.add(freeRoomsResult);
@@ -301,9 +301,9 @@ public class BedServiceImpl implements BedService{
         for (Map<String, Object> room : dbFreeRooms) {
             for(String floor : floorList){
                 if (room.get("floor").equals(floor)){
-                    for(FreeRoomsResult freeRoomsResult : data){
+                    for(FreeRoomVO freeRoomsResult : data){
                         if (freeRoomsResult.getLabel().equals(floor)){
-                            Pair pair = new Pair();
+                            PairVO pair = new PairVO();
                             pair.setValue((String) room.get("room_no"));
                             pair.setLabel(room.get("room_no") + "房间");
                             freeRoomsResult.getOptions().add(pair);
@@ -326,11 +326,11 @@ public class BedServiceImpl implements BedService{
      * @return 空闲床位列表
      */
     @Override
-    public ApiResult<List<Pair>> selectFreeBeds(String roomNumber) {
+    public ApiResult<List<PairVO>> selectFreeBeds(String roomNumber) {
         // 获取指定房间的空闲床位
         // 变量准备
-        ApiResult<List<Pair>> result = new ApiResult<>();
-        List<Pair> data = new ArrayList<>();
+        ApiResult<List<PairVO>> result = new ApiResult<>();
+        List<PairVO> data = new ArrayList<>();
         List<Map<String, Object>> dbFreeBeds;
         // 数据库查询
         try {
@@ -342,7 +342,7 @@ public class BedServiceImpl implements BedService{
         }
         // 封装数据
         for (Map<String, Object> bed : dbFreeBeds) {
-            Pair pair = new Pair();
+            PairVO pair = new PairVO();
             pair.setValue((String) bed.get("bed_no"));
             pair.setLabel(bed.get("bed_no") + "号床");
             data.add(pair);
@@ -361,7 +361,7 @@ public class BedServiceImpl implements BedService{
      * @return 操作结果
      */
     @Override
-    public ApiResult swap(SwapParams params) {
+    public ApiResult swap(BedSwapRequest params) {
         // 修改旧床信息
         // 变量准备
         ApiResult result = new ApiResult();

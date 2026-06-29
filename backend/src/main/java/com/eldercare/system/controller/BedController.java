@@ -1,9 +1,9 @@
 package com.eldercare.system.controller;
 
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.bed.params.SwapParams;
-import com.eldercare.system.po.bed.result.*;
-import com.eldercare.system.po.bed.params.ListParams;
+import com.eldercare.system.dto.bed.BedSwapRequest;
+import com.eldercare.system.vo.bed.*;
+import com.eldercare.system.dto.bed.BedListRequest;
 import com.eldercare.system.service.BedService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,13 +35,13 @@ public class BedController {
 //    })
     @Operation(summary = "获取某一层的床位示意图信息")
     @GetMapping("/map")
-    public ApiResult<List<MapResult>> map(String floor){
+    public ApiResult<List<BedMapVO>> map(String floor){
         return bedService.getMap(floor);
     }
 
     @Operation(summary = "获取正在使用床位的客户信息")
     @GetMapping("/list")
-    public ApiResult<ListResult> list(ListParams params){
+    public ApiResult<BedListVO> list(BedListRequest params){
         return bedService.getList(params);
     }
 
@@ -53,19 +53,19 @@ public class BedController {
 
     @Operation(summary = "获取所有有空闲床位的房间")
     @GetMapping("/freeRooms")
-    public ApiResult<List<FreeRoomsResult>> freeRooms(){
+    public ApiResult<List<FreeRoomVO>> freeRooms(){
         return bedService.selectFreeRooms();
     }
 
     @Operation(summary = "获取某个房间的所有空闲床位信息")
     @GetMapping("/freeBeds/{roomNumber}")
-    public ApiResult<List<Pair>> freeBeds(@PathVariable String roomNumber){
+    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber){
         return bedService.selectFreeBeds(roomNumber);
     }
 
     @Operation(summary = "使客户进行床位调换")
     @PostMapping("/swap")
-    public ApiResult swap(@RequestBody SwapParams params){
+    public ApiResult swap(@RequestBody BedSwapRequest params){
         return bedService.swap(params);
     }
 

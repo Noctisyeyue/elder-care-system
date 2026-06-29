@@ -1,9 +1,9 @@
 package com.eldercare.system.service;
 
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.po.bed.params.ListParams;
-import com.eldercare.system.po.bed.params.SwapParams;
-import com.eldercare.system.po.bed.result.*;
+import com.eldercare.system.dto.bed.BedListRequest;
+import com.eldercare.system.dto.bed.BedSwapRequest;
+import com.eldercare.system.vo.bed.*;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ public interface BedService {
      * @param floor 楼层
      * @return 床位示意图数据
      */
-    ApiResult<List<MapResult>> getMap(String floor);
+    ApiResult<List<BedMapVO>> getMap(String floor);
 
     /**
      * 分页查询床位列表
@@ -25,7 +25,7 @@ public interface BedService {
      * @param params 查询参数
      * @return 床位列表
      */
-    ApiResult<ListResult> getList(ListParams params);
+    ApiResult<BedListVO> getList(BedListRequest params);
 
     /**
      * 修改床位使用结束日期
@@ -41,7 +41,7 @@ public interface BedService {
      *
      * @return 空闲房间列表
      */
-    ApiResult<List<FreeRoomsResult>> selectFreeRooms();
+    ApiResult<List<FreeRoomVO>> selectFreeRooms();
 
     /**
      * 查询指定房间的空闲床位
@@ -49,7 +49,7 @@ public interface BedService {
      * @param roomNumber 房间号
      * @return 空闲床位列表
      */
-    ApiResult<List<Pair>> selectFreeBeds(String roomNumber);
+    ApiResult<List<PairVO>> selectFreeBeds(String roomNumber);
 
     /**
      * 交换客户床位
@@ -57,7 +57,7 @@ public interface BedService {
      * @param params 床位交换参数
      * @return 操作结果
      */
-    ApiResult swap(SwapParams params);
+    ApiResult swap(BedSwapRequest params);
 
     /**
      * 查询楼层列表

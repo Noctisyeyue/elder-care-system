@@ -1,9 +1,9 @@
-package com.eldercare.system.po.bed.params;
+package com.eldercare.system.dto.bed;
 
 import lombok.Data;
 
 @Data
-public class SwapParams {
+public class BedSwapRequest {
     /*
     oldBedId: number;        // 旧床位记录的ID
     oldBedEndDate: string;   // 旧床位结束日期，格式：YYYY-MM-DD

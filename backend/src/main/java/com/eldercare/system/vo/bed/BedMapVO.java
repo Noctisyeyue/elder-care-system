@@ -1,4 +1,4 @@
-package com.eldercare.system.po.bed.result;
+package com.eldercare.system.vo.bed;
 
 import com.eldercare.system.entity.Bed;
 import lombok.Data;
@@ -6,8 +6,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class MapResult {
+public class BedMapVO {
     private String roomNumber;
     private List<Bed> beds;
-    private List<BedResult> details;
+    private List<BedVO> details;
 }
