@@ -88,14 +88,14 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// 查询表单数据
+/** 查询表单。 */
 const searchForm = reactive({
   customerName: '',
   pageNum: 1,
   pageSize: 10,
 })
 
-// 退住申请列表数据
+/** 退住申请列表。 */
 const checkOutList = ref([
   {
     id: 1,
@@ -133,7 +133,11 @@ const checkOutList = ref([
 const total = ref(0)
 const loading = ref(false)
 
-// 获取退住申请列表
+/**
+ * 查询退住申请列表。
+ *
+ * @returns 无返回值
+ */
 const fetchCheckOutList = async () => {
   loading.value = true
   try {
@@ -152,19 +156,33 @@ const fetchCheckOutList = async () => {
   }
 }
 
-// 处理查询
+/**
+ * 执行查询。
+ *
+ * @returns 无返回值
+ */
 const handleSearch = () => {
   searchForm.pageNum = 1
   fetchCheckOutList()
 }
 
-// 分页变化
+/**
+ * 处理分页变化。
+ *
+ * @param page 页码
+ * @returns 无返回值
+ */
 const handlePageChange = (page) => {
   searchForm.pageNum = page
   fetchCheckOutList()
 }
 
-// 获取状态标签类型
+/**
+ * 获取状态标签类型。
+ *
+ * @param status 审批状态
+ * @returns 标签类型
+ */
 const getStatusType = (status) => {
   switch (status) {
     case '已提交':
@@ -178,13 +196,25 @@ const getStatusType = (status) => {
   }
 }
 
-// 格式化日期，只显示年月日
+/**
+ * 格式化日期。
+ *
+ * @param row 行数据
+ * @param column 列信息
+ * @param cellValue 单元格值
+ * @returns 格式化后的日期
+ */
 const formatDate = (row, column, cellValue) => {
   if (!cellValue) return ''
   return cellValue.split(' ')[0]
 }
 
-// 撤销申请
+/**
+ * 撤销申请。
+ *
+ * @param row 退住申请行数据
+ * @returns 无返回值
+ */
 const cancelApplication = async (row) => {
   try {
     await ElMessageBox.confirm('确定要撤销此退住申请吗？', '确认撤销', {
@@ -195,7 +225,7 @@ const cancelApplication = async (row) => {
 
     const response = await cancelCheckOut(row.id)
     ElMessage.success('申请撤销成功')
-    fetchCheckOutList() // 刷新列表
+    fetchCheckOutList()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('撤销申请失败:', error)
@@ -208,12 +238,20 @@ const cancelApplication = async (row) => {
   }
 }
 
-// 返回上一页
+/**
+ * 返回上一页。
+ *
+ * @returns 无返回值
+ */
 const goBack = () => {
   router.push('/customer/checkOutApply')
 }
 
-// 页面加载时获取数据
+/**
+ * 页面初始化时加载退住申请列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchCheckOutList()
 })

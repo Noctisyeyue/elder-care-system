@@ -128,14 +128,14 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// 查询表单数据
+/** 查询表单。 */
 const searchForm = reactive({
   customerName: '',
   pageNum: 1,
   pageSize: 10,
 })
 
-// 外出申请列表数据
+/** 外出申请列表。 */
 const outingList = ref([
   {
     id: 1,
@@ -188,13 +188,13 @@ const outingList = ref([
 ])
 const total = ref(0)
 
-// 回院时间表单数据
+/** 回院时间表单。 */
 const returnForm = reactive({
   id: '',
   actualReturnDate: '',
 })
 
-// 表单验证规则
+/** 回院时间校验规则。 */
 const returnRules = {
   actualReturnDate: [
     { required: true, message: '请选择实际回院时间', trigger: 'change' },
@@ -217,12 +217,16 @@ const returnRules = {
   ],
 }
 
-// 对话框相关
+/** 回院弹窗状态。 */
 const returnDialogVisible = ref(false)
 const returnFormRef = ref()
 const loading = ref(false)
 
-// 获取外出申请列表
+/**
+ * 查询外出申请列表。
+ *
+ * @returns 无返回值
+ */
 const fetchOutingList = async () => {
   loading.value = true
   try {
@@ -241,19 +245,33 @@ const fetchOutingList = async () => {
   }
 }
 
-// 处理查询
+/**
+ * 执行查询。
+ *
+ * @returns 无返回值
+ */
 const handleSearch = () => {
   searchForm.pageNum = 1
   fetchOutingList()
 }
 
-// 分页变化
+/**
+ * 处理分页变化。
+ *
+ * @param page 页码
+ * @returns 无返回值
+ */
 const handlePageChange = (page) => {
   searchForm.pageNum = page
   fetchOutingList()
 }
 
-// 获取状态标签类型
+/**
+ * 获取状态标签类型。
+ *
+ * @param status 审批状态
+ * @returns 标签类型
+ */
 const getStatusType = (status) => {
   switch (status) {
     case '已提交':
@@ -267,20 +285,36 @@ const getStatusType = (status) => {
   }
 }
 
-// 格式化日期，只显示年月日
+/**
+ * 格式化日期。
+ *
+ * @param row 行数据
+ * @param column 列信息
+ * @param cellValue 单元格值
+ * @returns 格式化后的日期
+ */
 const formatDate = (row, column, cellValue) => {
   if (!cellValue) return ''
   return cellValue.split(' ')[0]
 }
 
-// 显示登记回院时间对话框
+/**
+ * 打开回院时间弹窗。
+ *
+ * @param row 外出申请行数据
+ * @returns 无返回值
+ */
 const showReturnDialog = (row) => {
   returnForm.id = row.id
   returnForm.actualReturnDate = ''
   returnDialogVisible.value = true
 }
 
-// 提交回院时间
+/**
+ * 提交回院时间。
+ *
+ * @returns 无返回值
+ */
 const submitReturnTime = async () => {
   try {
     await returnFormRef.value.validate()
@@ -291,7 +325,7 @@ const submitReturnTime = async () => {
 
     ElMessage.success('回院时间登记成功')
     returnDialogVisible.value = false
-    fetchOutingList() // 刷新列表
+    fetchOutingList()
   } catch (error) {
     console.error('登记回院时间失败:', error)
     if (error.message) {
@@ -302,7 +336,12 @@ const submitReturnTime = async () => {
   }
 }
 
-// 撤销申请
+/**
+ * 撤销申请。
+ *
+ * @param row 外出申请行数据
+ * @returns 无返回值
+ */
 const cancelApplication = async (row) => {
   try {
     await ElMessageBox.confirm('确定要撤销这个外出申请吗？', '确认撤销', {
@@ -313,7 +352,7 @@ const cancelApplication = async (row) => {
 
     const response = await cancelOuting(row.id)
     ElMessage.success('申请撤销成功')
-    fetchOutingList() // 刷新列表
+    fetchOutingList()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('撤销申请失败:', error)
@@ -326,12 +365,20 @@ const cancelApplication = async (row) => {
   }
 }
 
-// 返回上一页
+/**
+ * 返回上一页。
+ *
+ * @returns 无返回值
+ */
 const goBack = () => {
   router.push('/customer/outApply')
 }
 
-// 页面加载时获取数据
+/**
+ * 页面初始化时加载外出申请列表。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchOutingList()
 })

@@ -121,19 +121,23 @@ const searchForm = reactive({
 const customerInfoList = ref([])
 const customerInfoTotal = ref(0)
 
-// 外出申请列表数据
+/** 外出申请列表。 */
 const outingApplicationList = ref([])
 const outingApplicationTotal = ref(0)
 
-// 审批对话框相关
+/** 审批弹窗状态。 */
 const dialogVisible = ref(false)
 const currentApplication = ref(null)
 const approvalAction = ref('pass')
 
-// 抽屉可见性
+/** 抽屉是否显示。 */
 const drawerVisible = ref(false)
 
-// 获取客户信息列表
+/**
+ * 查询客户列表。
+ *
+ * @returns 无返回值
+ */
 const fetchCustomerInfo = async () => {
   const response = await getCustomerList({
     pageNum: searchForm.pageNum,
@@ -144,7 +148,11 @@ const fetchCustomerInfo = async () => {
   customerInfoTotal.value = response.total || 0
 }
 
-// 获取外出申请列表
+/**
+ * 查询外出申请列表。
+ *
+ * @returns 无返回值
+ */
 const fetchOutingApplications = async () => {
   const response = await getOutingList({
     pageNum: searchForm.pageNum,
@@ -155,32 +163,56 @@ const fetchOutingApplications = async () => {
   outingApplicationTotal.value = response.total || 0
 }
 
-// 处理查询
+/**
+ * 执行查询。
+ *
+ * @returns 无返回值
+ */
 const handleSearch = () => {
   searchForm.pageNum = 1
   fetchCustomerInfo()
   fetchOutingApplications()
 }
 
-// 客户信息分页变化
+/**
+ * 处理客户列表分页变化。
+ *
+ * @param page 页码
+ * @returns 无返回值
+ */
 const handleCustomerInfoPageChange = (page) => {
   searchForm.pageNum = page
   fetchCustomerInfo()
 }
 
-// 外出申请分页变化
+/**
+ * 处理外出申请分页变化。
+ *
+ * @param page 页码
+ * @returns 无返回值
+ */
 const handleOutingApplicationPageChange = (page) => {
   searchForm.pageNum = page
   fetchOutingApplications()
 }
 
-// 打开审批对话框
+/**
+ * 打开审批弹窗。
+ *
+ * @param row 外出申请行数据
+ * @returns 无返回值
+ */
 const handleApprove = (row) => {
   currentApplication.value = row
   dialogVisible.value = true
 }
 
-// 确认审批
+/**
+ * 确认审批结果。
+ *
+ * @param action 审批动作
+ * @returns 无返回值
+ */
 const confirmApprove = async (action) => {
   approvalAction.value = action
   ElMessageBox.confirm(
@@ -198,22 +230,29 @@ const confirmApprove = async (action) => {
         bedNumber: currentApplication.value.bedNumber,
       })
       ElMessage.success('审批成功')
-      // 审批成功后刷新列表
       fetchOutingApplications()
-      fetchCustomerInfo() // 更新客户信息中的床位状态
+      fetchCustomerInfo()
     } finally {
       dialogVisible.value = false
     }
   })
 }
 
-// 显示外出申请抽屉
+/**
+ * 显示外出申请抽屉。
+ *
+ * @returns 无返回值
+ */
 const showOutingApplications = () => {
   drawerVisible.value = true
-  fetchOutingApplications() // 每次打开抽屉时刷新数据
+  fetchOutingApplications()
 }
 
-// 页面加载时获取数据
+/**
+ * 页面初始化时加载客户和申请数据。
+ *
+ * @returns 无返回值
+ */
 onMounted(() => {
   fetchCustomerInfo()
   fetchOutingApplications()
