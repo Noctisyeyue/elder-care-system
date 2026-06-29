@@ -95,7 +95,12 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
-import { get, post, del } from '@/utils/request'
+import {
+  getUserList,
+  addUser,
+  updateUser,
+  deleteUsers,
+} from '@/api/user'
 import { Search } from '@element-plus/icons-vue'
 const searchForm = reactive({ userName: '' })
 const userList = ref([
@@ -156,7 +161,7 @@ const selectedUsers = ref([])
 // }
 function handleSearch() {
   // searchForm.userName 为空时，查询所有用户；有值时，按姓名筛选
-  get('/user/list', {
+  getUserList({
     userName: searchForm.userName,
     pageNum: currentPage.value,
     pageSize: pageSize.value,
@@ -195,7 +200,7 @@ function handleSave() {
       if (dialogTitle.value === '添加用户') {
         // 密码默认设置为手机号后6位
         const password = form.phone.slice(-6)
-        post('/user/add', {
+        addUser({
           ...form,
           password,
         }).then(() => {
@@ -205,7 +210,7 @@ function handleSave() {
         })
       } else {
         // 调用编辑接口
-        post('/user/update', form).then(() => {
+        updateUser(form).then(() => {
           ElMessage.success('编辑成功')
           handleSearch() // 重新加载列表
           dialogVisible.value = false
@@ -222,7 +227,7 @@ function handleDelete(row) {
     type: 'warning',
   })
     .then(() => {
-      post('/user/del', { userNames: [row.userName] }).then(() => {
+      deleteUsers([row.userName]).then(() => {
         ElMessage.success('删除成功')
         handleSearch() // 重新加载列表
       })
@@ -243,7 +248,7 @@ function handleBatchDelete() {
     type: 'warning',
   })
     .then(() => {
-      post('/user/del', { userNames }).then(() => {
+      deleteUsers(userNames).then(() => {
         ElMessage.success('批量删除成功')
         handleSearch()
         selectedUsers.value = []
