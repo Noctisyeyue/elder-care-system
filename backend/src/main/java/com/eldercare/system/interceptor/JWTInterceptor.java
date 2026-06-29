@@ -19,12 +19,27 @@ import java.util.Map;
 @Slf4j
 public class JWTInterceptor implements HandlerInterceptor {
 
+    /** Redis 服务，用于读取服务端保存的登录令牌 */
     private final RedisService redisService;
 
+    /**
+     * 创建 JWT 鉴权拦截器
+     *
+     * @param redisService Redis 服务
+     */
     public JWTInterceptor(RedisService redisService) {
         this.redisService = redisService;
     }
 
+    /**
+     * 请求进入 Controller 前校验 JWT 令牌
+     *
+     * @param request  HTTP 请求
+     * @param response HTTP 响应
+     * @param handler  当前处理器
+     * @return true=校验通过，false=拦截请求
+     * @throws Exception 写入响应失败时抛出
+     */
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,

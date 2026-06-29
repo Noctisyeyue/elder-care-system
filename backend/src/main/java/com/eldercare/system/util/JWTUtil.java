@@ -14,8 +14,11 @@ import java.util.Map;
  */
 public class JWTUtil {
 
+    /** JWT 签名密钥 */
     private static String SECRET = "elder-care-system-jwt-secret-key-2026";
-    private static long TTL = 72000000; // 默认 20 小时（毫秒）
+
+    /** JWT 过期时间，默认 20 小时，单位毫秒 */
+    private static long TTL = 72000000;
 
     /**
      * 启动时从 yml 配置注入密钥和过期时间

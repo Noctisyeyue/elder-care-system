@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * 业务异常 → 返回对应 code 和 message
+     *
+     * @param e 业务异常
+     * @return 统一响应结果
      */
     @ExceptionHandler(BusinessException.class)
     public ApiResult<Void> handleBusinessException(BusinessException e) {
@@ -26,6 +30,9 @@ public class GlobalExceptionHandler {
 
     /**
      * 参数校验失败 → 汇总所有字段错误信息返回
+     *
+     * @param e 参数校验异常
+     * @return 统一响应结果
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResult<Void> handleValidationException(MethodArgumentNotValidException e) {
@@ -39,6 +46,9 @@ public class GlobalExceptionHandler {
 
     /**
      * 未预料的异常 → 打日志，前端只返回通用提示
+     *
+     * @param e 未处理异常
+     * @return 统一响应结果
      */
     @ExceptionHandler(Exception.class)
     public ApiResult<Void> handleException(Exception e) {

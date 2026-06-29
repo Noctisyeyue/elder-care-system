@@ -36,6 +36,18 @@ spring:
   main:
     allow-circular-references: false
 
+  # Spring AI（LLM 对话，需自行替换 api-key）
+  ai:
+    openai:
+      api-key: your-deepseek-api-key
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.8
+      embedding:
+        enabled: false
+
   # 邮件服务（可选，后续按需启用）
   mail:
     protocol: smtp

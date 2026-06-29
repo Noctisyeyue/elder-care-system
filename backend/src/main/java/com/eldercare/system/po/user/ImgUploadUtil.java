@@ -18,16 +18,16 @@ import java.io.ByteArrayInputStream;
 @Slf4j
 @Component
 public class ImgUploadUtil {
-    @Value("${costmaster.alioss.endpoint}")
+    @Value("${elder-care.alioss.endpoint}")
     private String endpoint;
 
-    @Value("${costmaster.alioss.access-key-id}")
+    @Value("${elder-care.alioss.access-key-id}")
     private String accessKeyId;
 
-    @Value("${costmaster.alioss.access-key-secret}")
+    @Value("${elder-care.alioss.access-key-secret}")
     private String accessKeySecret;
 
-    @Value("${costmaster.alioss.bucket-name}")
+    @Value("${elder-care.alioss.bucket-name}")
     private String bucketName;
     //阿里云oss
     public String upload(byte[] bytes, String objectName, String contentType) throws com.aliyuncs.exceptions.ClientException {

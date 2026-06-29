@@ -96,13 +96,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public ApiResult add(UserAdd user) {
         ApiResult result = new ApiResult();
-        // 角色只允许"管理员"或"健康管家"，其他值直接拒绝
-        if (!"管理员".equals(user.getRole()) && !"健康管家".equals(user.getRole())) {
-            result.setCode(500);
-            result.setMessage("添加失败，角色只能是 管理员 或 健康管家");
-            return result;
-        }
-        Long roleId = "管理员".equals(user.getRole()) ? 1L : 2L;
+        // 角色：护工=2，医生=3，护士=4
+        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
         // 查询是否已存在相同用户名
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_name", user.getUserName());
@@ -159,7 +154,9 @@ public class UserServiceImpl implements UserService{
             // 根据 roleId 映射角色名称
             switch (user0.getRoleId().intValue()) {
                 case 1 -> userResult.setRole("管理员");
-                case 2 -> userResult.setRole("健康管家");
+                case 2 -> userResult.setRole("护工");
+                case 3 -> userResult.setRole("医生");
+                case 4 -> userResult.setRole("护士");
             }
             userResults.add(userResult);
         }
@@ -232,14 +229,8 @@ public class UserServiceImpl implements UserService{
             result.setMessage("修改失败，未找到用户");
             return result;
         }
-        // 角色只允许"管理员"或"健康管家"，其他值直接拒绝
-        if (!"管理员".equals(user.getRole()) && !"健康管家".equals(user.getRole())) {
-            result.setCode(500);
-            result.setMessage("修改失败，角色只能是 管理员 或 健康管家");
-            return result;
-        }
-        Long roleId = "管理员".equals(user.getRole()) ? 1L : 2L;
-        if(user.getRole().equals("管理员")){
+        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
+        if(!user.getRole().equals("护工")){
             // 根据userid将nursing_record表中的del_flag字段设置为1
             nursingRecordMapper.updateNursingRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
             // 根据userid将outing_record表中的del_flag字段设置为1

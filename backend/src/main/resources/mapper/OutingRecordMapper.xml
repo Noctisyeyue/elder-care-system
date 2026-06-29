@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.eldercare.system.mapper.OutingRecordMapper">
 
-    <select id="selectMyApplications" resultType="com.eldercare.system.entity.MyApplicationItem">
+    <select id="selectMyApplications" resultType="com.eldercare.system.po.customer.customerresult.MyApplicationItem">
         SELECT
             outing_record_id AS id,
             u.customer_name AS customerName,

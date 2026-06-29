@@ -7,10 +7,12 @@
 USE elder_care_system;
 
 -- -----------------------------------------------------------
--- 角色表：管理系统内置角色，只保留管理员和健康管家
+-- 角色表：管理系统内置角色（管理员/护工/医生/护士）
 -- -----------------------------------------------------------
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (1, '管理员', 'ADMIN');
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (2, '健康管家', 'CAREGIVER');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (1, '管理员', 'admin');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (2, '护工', 'caregiver');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (3, '医生', 'doctor');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (4, '护士', 'nurse');
 
 INSERT INTO `bed` VALUES (1, '1', 'used', 1, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `bed` VALUES (2, '2', 'used', 1, '0', NULL, NULL, NULL, NULL);

@@ -5,9 +5,12 @@ package com.eldercare.system.exception;
  */
 public class BusinessException extends RuntimeException {
 
+    /** 业务状态码 */
     private final Integer code;
 
     /**
+     * 创建指定状态码的业务异常
+     *
      * @param code    业务状态码
      * @param message 异常描述
      */
@@ -26,5 +29,10 @@ public class BusinessException extends RuntimeException {
         this.code = 500;
     }
 
+    /**
+     * 获取业务状态码
+     *
+     * @return 业务状态码
+     */
     public Integer getCode() { return code; }
 }

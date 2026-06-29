@@ -14,11 +14,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    /** Redis 服务，用于 JWT 拦截器校验登录令牌 */
     @Autowired
     private RedisService redisService;
 
     /**
      * 允许所有来源跨域请求，允许携带 Cookie
+     *
+     * @param registry CORS 配置注册器
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -32,6 +35,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 注册 JWT 拦截器，拦截所有请求，排除登录、验证码、Swagger 等公开接口
+     *
+     * @param registry 拦截器注册器
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

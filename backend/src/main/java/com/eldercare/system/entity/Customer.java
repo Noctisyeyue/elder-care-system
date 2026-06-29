@@ -63,7 +63,7 @@ public class Customer extends BaseEntity {
     /** 客户类型（0自理老人 1护理老人） */
     private String customerType;
 
-    /** 健康管家的用户ID */
+    /** 护工的用户id */
     private Long userId;
 
     /** 身心状况 */
