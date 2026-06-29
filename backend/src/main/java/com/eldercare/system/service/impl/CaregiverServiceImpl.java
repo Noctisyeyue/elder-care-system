@@ -24,20 +24,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 健康管家服务实现
+ */
 @Service
 public class CaregiverServiceImpl implements CaregiverService {
 
+    /** 用户 Mapper */
     @Autowired
     private UserMapper userMapper;
+
+    /** 客户 Mapper */
     @Autowired
     private CustomerMapper customerMapper;
+
+    /** 护理记录 Mapper */
     @Autowired
     private NursingRecordMapper nursingRecordMapper;
+
+    /** 外出记录 Mapper */
     @Autowired
     private OutingRecordMapper outingRecordMapper;
+
+    /** 退住记录 Mapper */
     @Autowired
     private CheckOutRecordMapper checkOutRecordMapper;
 
+    /**
+     * 分页查询健康管家列表
+     *
+     * @param request 查询参数
+     * @return 健康管家列表
+     */
     @Override
     public ApiResult<CaregiverListResult> list(UserList request) {
         ApiResult<CaregiverListResult> result = new ApiResult<>();
@@ -91,6 +109,12 @@ public class CaregiverServiceImpl implements CaregiverService {
         return result;
     }
 
+    /**
+     * 查询健康管家服务对象列表
+     *
+     * @param request 查询参数
+     * @return 客户列表
+     */
     @Override
     public ApiResult<CustomerNoCaregiverListResult> listCustomers(CustomersByCareIdRequest request) {
         ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
@@ -129,6 +153,13 @@ public class CaregiverServiceImpl implements CaregiverService {
         return result;
     }
 
+    /**
+     * 为健康管家添加服务对象
+     *
+     * @param caregiverId 健康管家用户ID
+     * @param customerId  客户ID
+     * @return 操作结果
+     */
     @Override
     public ApiResult addCustomer(Long caregiverId, Long customerId) {
         ApiResult result = new ApiResult();
@@ -154,6 +185,13 @@ public class CaregiverServiceImpl implements CaregiverService {
         return result;
     }
 
+    /**
+     * 移除健康管家的服务对象
+     *
+     * @param caregiverId 健康管家用户ID
+     * @param customerId  客户ID
+     * @return 操作结果
+     */
     @Override
     public ApiResult removeCustomer(Long caregiverId, Long customerId) {
         ApiResult result = new ApiResult();
@@ -178,6 +216,12 @@ public class CaregiverServiceImpl implements CaregiverService {
         return result;
     }
 
+    /**
+     * 移除健康管家的全部服务对象
+     *
+     * @param caregiverId 健康管家用户ID
+     * @return 操作结果
+     */
     @Override
     public ApiResult removeAllCustomers(Long caregiverId) {
         //查询客户表所有user_id=caregiverId的客户，将其user_id设为null
@@ -195,6 +239,12 @@ public class CaregiverServiceImpl implements CaregiverService {
         return result;
     }
 
+    /**
+     * 查询健康管家首页统计数据
+     *
+     * @param token 登录令牌
+     * @return 首页统计数据
+     */
     @Override
     public ApiResult<HomeResult> homeStats(String token) {
         // 获取健康管理员首页数据

@@ -26,25 +26,44 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+/**
+ * 膳食管理业务实现。
+ */
 public class DietServiceImpl implements DietService{
+    /** 膳食日历数据访问对象。 */
     @Autowired
     private DietCalendarMapper dietCalendarMapper;
+    /** 膳食日历套餐关系数据访问对象。 */
     @Autowired
     private DietCalendarSetMealMappingMapper dietCalendarSetMealMappingMapper;
+    /** 菜品数据访问对象。 */
     @Autowired
     private DishMapper dishMapper;
+    /** 套餐数据访问对象。 */
     @Autowired
     private SetMealMapper setMealMapper;
+    /** 客户套餐关系数据访问对象。 */
     @Autowired
     private SetMealCustomerMappingMapper setMealCustomerMappingMapper;
+    /** 套餐餐次记录数据访问对象。 */
     @Autowired
     private SetMealRecordMapper setMealRecordMapper;
+    /** 套餐餐次菜品关系数据访问对象。 */
     @Autowired
     private SetMealRecordDishMappingMapper setMealRecordDishMappingMapper;
+    /** 客户数据访问对象。 */
     @Autowired
     private CustomerMapper customerMapper;
+    /** 图片上传工具。 */
     @Autowired
     private ImgUploadUtil imgUploadUtil;
+
+    /**
+     * 查询指定月份的膳食日历。
+     *
+     * @param params 月份查询参数
+     * @return 膳食日历列表
+     */
     @Override
     public ApiResult<List<DietCalendarResult>> monthList(DietCalendarMonthListParams params) {
         // 获取指定月份的膳食日历
@@ -151,6 +170,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 根据套餐餐次记录查询菜品列表。
+     *
+     * @param setMealRecord 套餐餐次记录
+     * @return 菜品列表
+     */
     private ApiResult<List<DishResult>> selectDishBysetMealRecordIdAndTime(SetMealRecord setMealRecord){
         ApiResult<List<DishResult>> result = new ApiResult<>();
         List<Dish> dbDishes;
@@ -178,6 +203,13 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 查询指定餐次可选菜品。
+     *
+     * @param time 餐次编码
+     * @param pork 清真标识
+     * @return 可选菜品列表
+     */
     @Override
     public ApiResult<List<DishResult>> timeDishOptions(String time, String pork) {
         // 获取所有可用菜品
@@ -213,6 +245,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 分页查询菜品列表。
+     *
+     * @param params 菜品查询参数
+     * @return 菜品分页列表
+     */
     @Override
     public ApiResult<DishListResult> dishList(DishListParams params) {
         // 按菜品名获取菜品列表
@@ -274,6 +312,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 新增菜品。
+     *
+     * @param params 菜品保存参数
+     * @return 新增处理结果
+     */
     @SneakyThrows
     @Override
     public ApiResult addDish(DishParams params) {
@@ -330,6 +374,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 更新菜品。
+     *
+     * @param params 菜品更新参数
+     * @return 更新处理结果
+     */
     @SneakyThrows
     @Override
     public ApiResult updateDish(DishParams params) {
@@ -388,6 +438,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 删除菜品。
+     *
+     * @param params 菜品删除参数
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult removeDish(RemoveDishParams params) {
         // 删除菜品
@@ -425,6 +481,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 分页查询客户膳食分配列表。
+     *
+     * @param params 客户膳食查询参数
+     * @return 客户膳食分页列表
+     */
     @Override
     public ApiResult<ListResult<CustomerDishListResult>> customerList(CustomerListParams params) {
         // 获取客户菜品列表列表
@@ -488,6 +550,14 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 查询客户在指定日期和餐次的菜品。
+     *
+     * @param customerId 客户ID
+     * @param date 日期
+     * @param time 餐次编码
+     * @return 菜品列表
+     */
     private List<DishResult> selectDishByCustomerIdAndDateAndTime(Long customerId, String date, String time) {
         // 获取指定客户指定日期指定时间段内的菜品
         // 变量准备
@@ -519,6 +589,13 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 查询可用于套餐配置的菜品。
+     *
+     * @param time 餐次编码
+     * @param pork 清真标识
+     * @return 可用菜品列表
+     */
     @Override
     public ApiResult<List<DishResult>> availableDishes(String time, String pork) {
         // 获取可用的膳食列表
@@ -570,6 +647,13 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 上传菜品图片。
+     *
+     * @param file 图片文件
+     * @param name 菜品名称
+     * @return 上传处理结果
+     */
     @Override
     public ApiResult uploadImg(MultipartFile file, String name) {
         ApiResult  result = new ApiResult();
@@ -592,6 +676,16 @@ public class DietServiceImpl implements DietService{
         }
     }
 
+    /**
+     * 分页查询套餐列表。
+     *
+     * @param status 套餐状态
+     * @param pork 清真标识
+     * @param setMealName 套餐名称
+     * @param pageNum 页码
+     * @param pageSize 每页数量
+     * @return 套餐分页列表
+     */
     @Override
     public ApiResult<ListResult<SetMealResult>> getSetMealList(String status, String pork, String setMealName, Integer pageNum, Integer pageSize) {
         // 获取套餐列表
@@ -696,6 +790,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 保存指定日期的膳食日历配置。
+     *
+     * @param params 膳食日历保存参数
+     * @return 保存处理结果
+     */
     @Override
     public ApiResult saveDietCalendar(DietCalendarSaveParams params) {
         // 变量准备
@@ -785,6 +885,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 新增或更新套餐。
+     *
+     * @param setMeal 套餐信息
+     * @return 保存处理结果
+     */
     @Override
     public ApiResult updateSetMeal(SetMeal setMeal) {
         // 添加或修改套餐
@@ -851,6 +957,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 删除套餐。
+     *
+     * @param setMealId 套餐ID
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult removeSetMeal(Long setMealId) {
         // 删除套餐
@@ -885,6 +997,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 保存套餐中的菜品配置。
+     *
+     * @param params 套餐菜品保存参数
+     * @return 保存处理结果
+     */
     @Override
     public ApiResult saveSetMealDishes(SaveSetMealDishesParams params) {
         // 保存套餐中的菜品
@@ -935,6 +1053,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 保存客户套餐分配。
+     *
+     * @param params 客户套餐保存参数
+     * @return 保存处理结果
+     */
     @Override
     public ApiResult saveCustomerSetMeal(SaveCustomerSetMealParams params) {
         // 保存客户套餐
@@ -973,6 +1097,12 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 查询指定日期的套餐列表。
+     *
+     * @param date 日期
+     * @return 套餐列表
+     */
     @Override
     public ApiResult<List<SetMeal>> getDailyList(String date) {
         // 获取某日套餐
@@ -1007,6 +1137,15 @@ public class DietServiceImpl implements DietService{
         return result;
     }
 
+    /**
+     * 保存套餐餐次与菜品的映射关系。
+     *
+     * @param setMealId 套餐ID
+     * @param dishIds 菜品ID列表
+     * @param time 餐次编码
+     * @param result 复用的响应对象
+     * @return 保存处理结果
+     */
     private ApiResult saveSetMealDishMapping(Long setMealId, List<Long> dishIds, String time, ApiResult result){
         // 添加套餐中的菜品映射
         for (Long dishId : dishIds){

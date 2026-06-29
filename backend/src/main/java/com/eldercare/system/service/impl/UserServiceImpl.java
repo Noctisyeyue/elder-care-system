@@ -27,23 +27,41 @@ import java.util.UUID;
 
 import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
 
+/**
+ * 用户服务实现
+ */
 @Service
 public class UserServiceImpl implements UserService{
+
+    /** 用户 Mapper */
     @Autowired
     private UserMapper userMapper;
+
+    /** Redis 服务 */
     @Autowired
     private RedisService redisService;
+
+    /** 角色 Mapper */
     @Autowired
     private RoleMapper roleMapper;
+
+    /** 护理记录 Mapper */
     @Autowired
     private NursingRecordMapper nursingRecordMapper;
+
+    /** 外出记录 Mapper */
     @Autowired
     private OutingRecordMapper outingRecordMapper;
+
+    /** 退住记录 Mapper */
     @Autowired
     private CheckOutRecordMapper checkoutRecordMapper;
 
+    /** 图片上传工具 */
     @Autowired
     private ImgUploadUtil imgUploadUtil;
+
+    /** JWT 配置属性 */
     @Autowired
     private JwtProperties jwtProperties;
 
@@ -56,6 +74,13 @@ public class UserServiceImpl implements UserService{
         Long ttl = jwtProperties.getTtl();
         return ttl != null && ttl > 0 ? ttl : 72000000L;
     }
+
+    /**
+     * 用户登录
+     *
+     * @param user 登录参数
+     * @return 登录结果
+     */
     @Override
     public ApiResult<LoginResponse> login(UserLogin user) {
         //根据用户名密码查询用户
@@ -93,6 +118,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 新增用户
+     *
+     * @param user 用户新增参数
+     * @return 操作结果
+     */
     @Override
     public ApiResult add(UserAdd user) {
         ApiResult result = new ApiResult();
@@ -128,7 +159,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
-    //  查询用户列表
+    /**
+     * 分页查询用户列表
+     *
+     * @param user 查询参数
+     * @return 用户列表
+     */
     @Override
     public ApiResult<UserListResult> list(UserList user) {
         ApiResult<UserListResult> result = new ApiResult<>();
@@ -180,6 +216,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 批量删除用户
+     *
+     * @param userNameList 用户名列表
+     * @return 操作结果
+     */
     @Override
     public ApiResult delete(List<String> userNameList) {
         ApiResult result = new ApiResult();
@@ -218,6 +260,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 修改用户信息
+     *
+     * @param user 用户修改参数
+     * @return 操作结果
+     */
     @Override
     public ApiResult update(UserAdd user) {
         ApiResult result = new ApiResult();
@@ -258,6 +306,11 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 统计用户数量
+     *
+     * @return 用户数量
+     */
     @Override
     public ApiResult<Long> count() {
         // 获取用户数量
@@ -282,6 +335,11 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 统计各角色用户数量
+     *
+     * @return 角色人数统计
+     */
     @Override
     public ApiResult<List<RoleNumResult>> roleNum() {
         // 获取各个角色用户数量
@@ -326,6 +384,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 根据邮箱判断用户是否存在
+     *
+     * @param email 邮箱地址
+     * @return true=用户存在，false=用户不存在
+     */
     @Override
     public boolean getUserByEmail(String email) {
         //如果在用户表中查到了邮箱，则返回true
@@ -335,7 +399,16 @@ public class UserServiceImpl implements UserService{
         return userMapper.selectOne(queryWrapper) != null;
     }
 
+    /** 本地上传目录 */
     private static final String UPLOAD_DIR = "uploads/";
+
+    /**
+     * 上传用户头像
+     *
+     * @param file  头像文件
+     * @param token 登录令牌
+     * @return 头像访问地址
+     */
     @Override
     public ApiResult<String> uploadFile(MultipartFile file,String token) {
         ApiResult<String> result = new ApiResult<>();
@@ -381,6 +454,12 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    /**
+     * 获取当前用户头像
+     *
+     * @param token 登录令牌
+     * @return 头像访问地址
+     */
     @Override
     public ApiResult<String> getAvatar(String token) {
         ApiResult<String> result = new ApiResult<>();
@@ -423,6 +502,12 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 获取当前用户邮箱
+     *
+     * @param token 登录令牌
+     * @return 邮箱地址
+     */
     @Override
     public ApiResult<String> getEmail(String token) {
         ApiResult<String> result = new ApiResult<>();

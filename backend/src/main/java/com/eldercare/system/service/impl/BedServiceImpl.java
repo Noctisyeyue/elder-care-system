@@ -18,17 +18,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * 床位服务实现
+ */
 @Service
 public class BedServiceImpl implements BedService{
+
+    /** 床位 Mapper */
     @Autowired
     private BedMapper bedMapper;
+
+    /** 床位使用记录 Mapper */
     @Autowired
     private BedRecordMapper bedRecordMapper;
+
+    /** 房间 Mapper */
     @Autowired
     private RoomMapper roomMapper;
+
+    /** 客户 Mapper */
     @Autowired
     private CustomerMapper customerMapper;
 
+    /**
+     * 查询床位示意图数据
+     *
+     * @param floor 楼层
+     * @return 床位示意图数据
+     */
     @Override
     public ApiResult<List<MapResult>> getMap(String floor) {
         // 按层获取床位示意图
@@ -109,6 +126,12 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 分页查询床位使用列表
+     *
+     * @param params 查询参数
+     * @return 床位使用列表
+     */
     @Override
     public ApiResult<ListResult> getList(ListParams params) {
         // 按条件获取床位使用信息列表
@@ -200,6 +223,13 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 修改床位使用结束日期
+     *
+     * @param id     床位使用记录ID
+     * @param params 修改参数
+     * @return 操作结果
+     */
     @Override
     public ApiResult updateUsageEndDateById(Long id, Map<String,String> params) {
         // 修改使用结束日期
@@ -231,6 +261,11 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 查询有空闲床位的房间
+     *
+     * @return 空闲房间列表
+     */
     @Override
     public ApiResult<List<FreeRoomsResult>> selectFreeRooms() {
         // 获取有空闲床位的房间
@@ -284,6 +319,12 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 查询指定房间的空闲床位
+     *
+     * @param roomNumber 房间号
+     * @return 空闲床位列表
+     */
     @Override
     public ApiResult<List<Pair>> selectFreeBeds(String roomNumber) {
         // 获取指定房间的空闲床位
@@ -313,6 +354,12 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 交换客户床位
+     *
+     * @param params 床位交换参数
+     * @return 操作结果
+     */
     @Override
     public ApiResult swap(SwapParams params) {
         // 修改旧床信息
@@ -418,6 +465,11 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 查询楼层列表
+     *
+     * @return 楼层列表
+     */
     @Override
     public ApiResult<List<String>> floorList() {
         // 获取楼层列表
@@ -438,6 +490,11 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 统计空闲床位数量
+     *
+     * @return 空闲床位数量
+     */
     @Override
     public ApiResult<Long> freeBedCount() {
         // 获取空床数量
@@ -462,6 +519,11 @@ public class BedServiceImpl implements BedService{
         return result;
     }
 
+    /**
+     * 统计床位总数
+     *
+     * @return 床位总数
+     */
     @Override
     public ApiResult<Long> BedCount() {
         // 获取总床数量

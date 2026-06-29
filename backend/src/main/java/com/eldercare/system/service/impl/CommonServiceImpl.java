@@ -20,27 +20,50 @@ import java.util.concurrent.TimeUnit;
 
 import static com.eldercare.system.po.user.PasswordUtil.hashPassword;
 
+/**
+ * 通用服务实现
+ */
 @Component
 public class CommonServiceImpl implements CommonService {
 
+    /** Redis 操作模板 */
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    /** 邮件发送线程服务 */
     @Autowired
     private ThreadService threadService;
+
+    /** 用户服务实现 */
     @Autowired
     private UserServiceImpl userService;
+
+    /** 用户 Mapper */
     @Autowired
     private UserMapper userMapper;
+
+    /** 膳食日历 Mapper */
     @Autowired
     private DietCalendarMapper dietCalendarMapper;
+
+    /** 膳食日历套餐关系 Mapper */
     @Autowired
     private DietCalendarSetMealMappingMapper dietCalendarSetMealMappingMapper;
+
+    /** 外出记录 Mapper */
     @Autowired
     private OutingRecordMapper outingRecordMapper;
+
+    /** 退住记录 Mapper */
     @Autowired
     private CheckOutRecordMapper checkOutRecordMapper;
 
+    /**
+     * 获取邮箱验证码请求权限码
+     *
+     * @param emailJson 邮箱参数 JSON
+     * @return 权限码响应
+     */
     @Override
     public R getRequestPermissionCode(String emailJson) {
         // 非空校验
@@ -64,6 +87,12 @@ public class CommonServiceImpl implements CommonService {
         return R.ok().data("permissionCode", permissionCode);
     }
 
+    /**
+     * 发送邮箱验证码
+     *
+     * @param loginParam 邮箱和权限码参数
+     * @return 发送结果
+     */
     @Override
     public R sendEmailCode(LoginParam loginParam) {
         if (loginParam == null) return R.error(HttpStatusEnum.PARAM_ILLEGAL);
@@ -105,6 +134,13 @@ public class CommonServiceImpl implements CommonService {
         redisTemplate.opsForValue().set(RedisConstant.EMAIL + email, code, RedisConstant.EXPIRE_FIVE_MINUTE, TimeUnit.SECONDS);
         return R.ok();
     }
+
+    /**
+     * 通过邮箱验证码找回密码
+     *
+     * @param loginParam 找回密码参数
+     * @return 找回密码结果
+     */
     @Override
     public R findPassword(LoginParam loginParam) {
         if (loginParam == null) return R.error(HttpStatusEnum.PARAM_ILLEGAL);
@@ -139,6 +175,12 @@ public class CommonServiceImpl implements CommonService {
         return this.userMapper.updateByEmail(email, hashPassword(password)) == 0 ? R.error(HttpStatusEnum.UNKNOWN_ERROR) : R.ok();
     }
 
+    /**
+     * 查询指定日期的通知信息
+     *
+     * @param date 日期字符串
+     * @return 通知信息
+     */
     @Override
     public ApiResult<Notification> getNotification(String date) {
         // 获取通知信息

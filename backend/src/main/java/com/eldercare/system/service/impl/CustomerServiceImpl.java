@@ -27,38 +27,62 @@ import java.util.*;
 
 @Slf4j
 @Service
+/**
+ * 客户管理业务实现。
+ */
 public class CustomerServiceImpl implements CustomerService{
+    /** 客户数据访问对象。 */
     @Autowired
     private CustomerMapper customerMapper;
+    /** 床位数据访问对象。 */
     @Autowired
     private BedMapper bedMapper;
+    /** 床位记录数据访问对象。 */
     @Autowired
     private BedRecordMapper bedRecordMapper;
+    /** Redis 缓存服务。 */
     @Autowired
     private RedisService redisService;
+    /** 用户数据访问对象。 */
     @Autowired
     private UserMapper  userMapper;
+    /** 房间业务服务。 */
     @Autowired
     private RoomServiceImpl roomService;
+    /** 房间数据访问对象。 */
     @Autowired
     private RoomMapper roomMapper;
+    /** 床位业务服务。 */
     @Autowired
     BedServiceImpl bedService ;
+    /** 健康管家业务服务。 */
     @Autowired
     private CaregiverServiceImpl caregiverServiceImpl;
+    /** 外出记录数据访问对象。 */
     @Autowired
     private OutingRecordMapper outingRecordMapper;
+    /** 退住记录数据访问对象。 */
     @Autowired
     private CheckOutRecordMapper checkOutRecordMapper;
+    /** 退住审批数据访问对象。 */
     @Autowired
     private CheckOutRecordMapper checkoutMapper;
+    /** 护理记录数据访问对象。 */
     @Autowired
     private NursingRecordMapper nursingRecordMapper;
+    /** 退住记录数据访问对象。 */
     @Autowired
     private CheckOutRecordMapper checkoutRecordMapper;
+    /** 客户套餐关系数据访问对象。 */
     @Autowired
     private SetMealCustomerMappingMapper setMealCustomerMappingMapper;
 
+    /**
+     * 分页查询客户列表。
+     *
+     * @param request 客户列表查询参数
+     * @return 客户分页列表响应
+     */
     @Override
     public ApiResult<CustomerListResult> list(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
@@ -91,6 +115,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 登记入住客户。
+     *
+     * @param param 客户登记参数
+     * @return 登记处理结果
+     */
     @Override
     public ApiResult register(CustomerRegisterParam param) {
         //创建一个返回值
@@ -177,6 +207,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 更新客户入住信息。
+     *
+     * @param id 客户ID
+     * @param param 客户更新参数
+     * @return 更新处理结果
+     */
     @Override
     public ApiResult update(Long id, CustomerRegisterParam param) {
         // 创建返回结果对象
@@ -271,6 +308,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 删除客户并释放关联床位。
+     *
+     * @param id 客户ID
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult delete(Long id) {
         ApiResult result = new ApiResult();
@@ -310,6 +353,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 删除客户床位使用记录。
+     *
+     * @param id 客户ID
+     * @param bedNumber 床位号
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult deleteBed(Long id, Long bedNumber) {
         ApiResult result = new ApiResult();
@@ -327,6 +377,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询退住申请列表。
+     *
+     * @param request 退住列表查询参数
+     * @return 退住申请分页列表响应
+     */
     @Override
     public ApiResult<CustomerCheckOutListResult> checkoutList(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
@@ -359,6 +415,14 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 审批客户退住申请。
+     *
+     * @param id 退住申请ID
+     * @param params 审批参数
+     * @param token 当前登录用户令牌
+     * @return 审批处理结果
+     */
     @Override
     public ApiResult approveCheckout(Long id, Map<String, Object> params, String token) {
         ApiResult result = new ApiResult();
@@ -447,6 +511,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询外出申请列表。
+     *
+     * @param request 外出列表查询参数
+     * @return 外出申请分页列表响应
+     */
     @Override
     public ApiResult<CustomerOutingListResult> outingList(CustomerListRequest request) {
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
@@ -479,6 +549,14 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 审批客户外出申请。
+     *
+     * @param id 外出申请ID
+     * @param params 审批参数
+     * @param token 当前登录用户令牌
+     * @return 审批处理结果
+     */
     @Override
     public ApiResult approveOuting(Long id, Map<String, Object> params, String token) {
         ApiResult result = new ApiResult();
@@ -556,6 +634,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询未分配健康管家的客户。
+     *
+     * @param request 客户列表查询参数
+     * @return 未分配健康管家的客户分页列表响应
+     */
     @Override
     public ApiResult<CustomerNoCaregiverListResult> listnoCaregiver(CustomerListRequest request) {
         ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
@@ -588,6 +672,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询客户已购买的护理项目。
+     *
+     * @param request 已购护理项目查询参数
+     * @return 已购护理项目分页列表响应
+     */
     @Override
     public ApiResult<PurchasedItemsListResult> purchasedItems(PurchasedItemsRequest request) {
         ApiResult<PurchasedItemsListResult> result = new ApiResult<>();
@@ -621,6 +711,13 @@ public class CustomerServiceImpl implements CustomerService{
 
     }
 
+    /**
+     * 判断客户是否已购买指定护理项目。
+     *
+     * @param customerId 客户ID
+     * @param itemId 护理项目ID
+     * @return 是否已购买的查询结果
+     */
     @Override
     public ApiResult isPurchased(Long customerId, Long itemId) {
         ApiResult result = new ApiResult();
@@ -645,6 +742,12 @@ public class CustomerServiceImpl implements CustomerService{
         }
     }
 
+    /**
+     * 批量购买客户护理项目。
+     *
+     * @param requests 护理项目购买请求列表
+     * @return 购买处理结果
+     */
     @Override
     public ApiResult<Map<String, Boolean>> buyItems(List<BuyItemRequest> requests) {
         ApiResult<Map<String, Boolean>> result = new ApiResult<>();
@@ -680,6 +783,13 @@ public class CustomerServiceImpl implements CustomerService{
         }
     }
 
+    /**
+     * 分页查询当前健康管家的服务客户。
+     *
+     * @param request 客户列表查询参数
+     * @param token 当前登录用户令牌
+     * @return 当前健康管家的服务客户分页列表响应
+     */
     @Override
     public ApiResult<CustomerNoCaregiverListResult> listMyCustomers(CustomerListRequest request, String token) {
         ApiResult<CustomerNoCaregiverListResult> result = new ApiResult<>();
@@ -714,6 +824,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 提交客户外出申请。
+     *
+     * @param param 外出申请参数
+     * @param token 当前登录用户令牌
+     * @return 外出申请处理结果
+     */
     @Override
     public ApiResult outingApply(OutingParam param, String token) {
         //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为“已提交”
@@ -766,6 +883,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询当前健康管家的外出申请。
+     *
+     * @param request 外出申请查询参数
+     * @param token 当前登录用户令牌
+     * @return 外出申请分页列表响应
+     */
     @Override
     public ApiResult<MyApplicationsResults> listmyApplications(CustomerListRequest request, String token) {
         ApiResult<MyApplicationsResults> result = new ApiResult<>();
@@ -811,6 +935,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 登记客户实际返回时间。
+     *
+     * @param id 外出记录ID
+     * @param actualReturnDate 实际返回日期
+     * @return 返回登记处理结果
+     */
     @Override
     public ApiResult returnOuting(Long id, String actualReturnDate) {
         ApiResult result = new ApiResult();
@@ -833,6 +964,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 撤销客户外出申请。
+     *
+     * @param id 外出申请ID
+     * @return 撤销处理结果
+     */
     @Override
     public ApiResult cancelOuting(Long id) {
         //将状态改为已撤销(approvalStatus:“已提交”->“已撤销”)
@@ -849,6 +986,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 提交客户退住申请。
+     *
+     * @param param 退住申请参数
+     * @param token 当前登录用户令牌
+     * @return 退住申请处理结果
+     */
     @Override
     public ApiResult checkApply(CheckoutParam param, String token) {
         ApiResult result = new ApiResult();
@@ -902,6 +1046,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 撤销客户退住申请。
+     *
+     * @param id 退住申请ID
+     * @return 撤销处理结果
+     */
     @Override
     public ApiResult cancelCheckout(Long id) {
         //将状态改为已撤销(approvalStatus:“已提交”->“已撤销”)
@@ -918,6 +1068,13 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 分页查询当前健康管家的退住申请。
+     *
+     * @param request 退住申请查询参数
+     * @param token 当前登录用户令牌
+     * @return 退住申请分页列表响应
+     */
     @Override
     public ApiResult<MyCheckoutApplicationsResults> listmyCheckoutApplications(CustomerListRequest request, String token) {
         ApiResult<MyCheckoutApplicationsResults> result = new ApiResult<>();
@@ -963,6 +1120,11 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 统计当前在住客户数量。
+     *
+     * @return 当前在住客户数量
+     */
     @Override
     public ApiResult<Long> count() {
         // 获取客户数量
@@ -987,6 +1149,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 统计指定月份新增客户数量。
+     *
+     * @param date 月份字符串
+     * @return 指定月份新增客户数量
+     */
     @Override
     public ApiResult<Long> monthCount(String date) {
         // 获取新增客户数量
@@ -1012,6 +1180,12 @@ public class CustomerServiceImpl implements CustomerService{
         return result;
     }
 
+    /**
+     * 统计指定年份每月新增客户数量。
+     *
+     * @param year 年份字符串
+     * @return 每月新增客户数量列表
+     */
     @Override
     public ApiResult<List<Long>> yearCount(String year) {
         // 获取新增客户数量

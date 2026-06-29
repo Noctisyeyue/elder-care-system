@@ -17,12 +17,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 房间服务实现
+ */
 @Service
 public class RoomServiceImpl implements RoomService{
+
+    /** 房间 Mapper */
     @Autowired
     private RoomMapper roomMapper;
+
+    /** 床位 Mapper */
     @Autowired
     private BedMapper bedMapper;
+
+    /**
+     * 查询房间选项列表
+     *
+     * @return 房间选项列表
+     */
     @Override
     public ApiResult<List<RoomResult>> options() {
         //查询数据库中的所有房间信息
@@ -44,6 +57,13 @@ public class RoomServiceImpl implements RoomService{
         return result;
     }
 
+    /**
+     * 更新指定床位状态为空闲
+     *
+     * @param roomNumber 房间号
+     * @param bedNumber  床位号
+     * @return 操作结果
+     */
     @Override
     public ApiResult updateBedStatus(Long roomNumber, Long bedNumber) {
         ApiResult result = new ApiResult<>();

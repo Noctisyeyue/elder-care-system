@@ -19,23 +19,39 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+/**
+ * 护理管理业务实现。
+ */
 public class NursingServiceImpl implements NursingService{
+    /** 护理级别数据访问对象。 */
     @Autowired
     private NursingLevelMapper nursingLevelMapper;
+    /** 护理项目数据访问对象。 */
     @Autowired
     private NursingItemMapper nursingItemMapper;
+    /** 护理级别项目关系数据访问对象。 */
     @Autowired
     private NursingLevelItemMappingMapper nursingLevelItemMappingMapper;
+    /** 客户护理项目记录数据访问对象。 */
     @Autowired
     private NursingItemRecordMapper nursingItemRecordMapper;
+    /** 护理执行记录数据访问对象。 */
     @Autowired
     private NursingRecordMapper nursingRecordMapper;
+    /** 客户数据访问对象。 */
     @Autowired
     private CustomerMapper customerMapper;
+    /** 用户数据访问对象。 */
     @Autowired
     private UserMapper userMapper;
 
 
+    /**
+     * 分页查询护理级别列表。
+     *
+     * @param params 护理级别查询参数
+     * @return 护理级别分页列表
+     */
     @Override
     public ApiResult<LevelListResult> getNursingLevelList(LevelListParams params) {
         // 获取项目级别列表
@@ -89,6 +105,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 新增护理级别。
+     *
+     * @param params 护理级别保存参数
+     * @return 新增处理结果
+     */
     @Override
     public ApiResult addLevel(LevelParams params) {
         // 添加项目级别
@@ -132,6 +154,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 更新护理级别。
+     *
+     * @param params 护理级别更新参数
+     * @return 更新处理结果
+     */
     @Override
     public ApiResult updateLevel(LevelParams params) {
         // 修改项目级别
@@ -175,6 +203,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 分页查询护理项目列表。
+     *
+     * @param params 护理项目查询参数
+     * @return 护理项目分页列表
+     */
     @Override
     public ApiResult<ItemListResult> getNursingItemList(ItemListParams params) {
         // 获取项目记录列表
@@ -230,6 +264,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 根据护理级别查询护理项目列表。
+     *
+     * @param params 护理级别项目查询参数
+     * @return 护理项目分页列表
+     */
     @Override
     public ApiResult<ItemListResult> getNursingItemListByNursingLevelId(LevelItemListParams params) {
         // 根据护理层级id查询护理项目
@@ -276,6 +316,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 移除护理级别中的护理项目。
+     *
+     * @param params 护理级别项目关系参数
+     * @return 移除处理结果
+     */
     @Override
     public ApiResult removeLevelItem(LevelItemParams params) {
         // 删除护理级别中的护理项目
@@ -327,6 +373,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 添加护理级别中的护理项目。
+     *
+     * @param params 护理级别项目关系参数
+     * @return 添加处理结果
+     */
     @Override
     public ApiResult addLevelItem(LevelItemParams params) {
         // 添加护理级别中的护理项目
@@ -369,6 +421,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 删除护理项目。
+     *
+     * @param id 护理项目ID
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult deleteItem(Long id) {
         // 删除护理项目
@@ -397,6 +455,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 新增护理项目。
+     *
+     * @param params 护理项目新增参数
+     * @return 新增处理结果
+     */
     @Override
     public ApiResult addItem(ItemAddParams params) {
         // 添加护理项目
@@ -429,6 +493,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 更新护理项目。
+     *
+     * @param params 护理项目更新参数
+     * @return 更新处理结果
+     */
     @Override
     public ApiResult updateItem(ItemParams params) {
         // 修改护理项目
@@ -471,6 +541,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 查询客户已购买的护理项目。
+     *
+     * @param customerId 客户ID
+     * @return 客户护理项目列表
+     */
     @Override
     public ApiResult<List<ItemRecordResult>> getCustomerItems(Long customerId) {
         // 获取客户的护理项目
@@ -507,6 +583,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 添加客户护理项目记录。
+     *
+     * @param params 客户护理项目记录参数
+     * @return 添加处理结果
+     */
     @Override
     public ApiResult addCustomerItemRecords(AddItemRecordsParams params) {
         // 添加客户护理项目记录
@@ -582,6 +664,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 移除客户护理项目记录。
+     *
+     * @param params 客户护理项目记录参数
+     * @return 移除处理结果
+     */
     @Override
     public ApiResult removeCustomerItemRecords(AddItemRecordsParams params) {
         // 删除护理项目记录
@@ -621,6 +709,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 分页查询客户护理执行记录。
+     *
+     * @param params 护理记录查询参数
+     * @return 护理记录分页列表
+     */
     @Override
     public ApiResult<NursingRecordListResult> getCustomerItemRecords(NursingRecordListParams params) {
         // 根据客户id查询护理记录
@@ -678,6 +772,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 删除护理执行记录。
+     *
+     * @param record 护理执行记录
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult removeRecord(NursingRecord record) {
         // 删除护理记录
@@ -697,6 +797,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 删除客户护理项目。
+     *
+     * @param itemId 客户护理项目记录ID
+     * @return 删除处理结果
+     */
     @Override
     public ApiResult removeCustomerItem(Long itemId) {
         // 删除护理项目
@@ -715,6 +821,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 续费客户护理项目。
+     *
+     * @param params 护理项目续费参数
+     * @return 续费处理结果
+     */
     @Override
     public ApiResult renew(RenewParams params) {
         ApiResult result = new ApiResult();
@@ -731,6 +843,13 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 添加护理执行记录。
+     *
+     * @param record 护理执行记录参数
+     * @param token 当前登录用户令牌
+     * @return 添加处理结果
+     */
     @Override
     public ApiResult addRecord(NursingRecordParam record, String token) {
         ApiResult result = new ApiResult();
@@ -783,6 +902,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 保存护理级别包含的护理项目。
+     *
+     * @param params 护理级别项目保存参数
+     * @return 保存处理结果
+     */
     @Override
     public ApiResult saveLevelItems(LevelItemsParams params) {
         // 添加护理级别中的护理项目
@@ -836,6 +961,12 @@ public class NursingServiceImpl implements NursingService{
         return result;
     }
 
+    /**
+     * 分页查询客户护理级别下的护理项目。
+     *
+     * @param params 客户护理级别项目查询参数
+     * @return 护理项目分页列表
+     */
     @Override
     public ApiResult<ItemListResult> customerLevelItemList(CustomerLevelItemListParams params) {
         // 获取客户护理级别的护理项目列表
