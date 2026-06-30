@@ -28,9 +28,9 @@
         <el-table-column prop="customerName" label="客户姓名" min-width="100" />
         <el-table-column prop="age" label="年龄" min-width="60" />
         <el-table-column prop="gender" label="性别" min-width="60" />
-        <el-table-column prop="buildingNumber" label="所属楼房" min-width="100" />
-        <el-table-column prop="roomNumber" label="房间号" min-width="80" />
-        <el-table-column prop="bedNumber" label="床号" min-width="60" />
+        <el-table-column prop="buildingNumber" label="楼号" width="90" />
+      <el-table-column prop="roomNumber" label="房间号" width="100" />
+      <el-table-column prop="bedNumber" label="床号" width="80" />
         <el-table-column prop="tel" label="联系电话" min-width="140" />
         <el-table-column prop="nursingLevel" label="护理级别" min-width="100" />
       </el-table>
@@ -65,7 +65,9 @@
         <el-table-column prop="approvalTime" label="审批时间" width="120"></el-table-column>
         <el-table-column prop="approvalPerson" label="审批人" width="90"></el-table-column>
         <el-table-column prop="approvalStatus" label="审批状态" width="90"></el-table-column>
-        <el-table-column prop="bedNumber" label="床位" width="90"></el-table-column>
+        <el-table-column prop="buildingNumber" label="楼号" width="90" />
+      <el-table-column prop="roomNumber" label="房间号" width="100" />
+      <el-table-column prop="bedNumber" label="床号" width="80" />
         <el-table-column label="操作" width="90">
           <template #default="{ row }">
             <el-button
@@ -227,6 +229,8 @@ const confirmApprove = async (action) => {
     try {
       const response = await approveOuting(currentApplication.value.id, {
         approvalStatus: action === 'pass' ? '通过' : '不通过',
+        buildingNumber: currentApplication.value.buildingNumber,
+        roomNumber: currentApplication.value.roomNumber,
         bedNumber: currentApplication.value.bedNumber,
       })
       ElMessage.success('审批成功')

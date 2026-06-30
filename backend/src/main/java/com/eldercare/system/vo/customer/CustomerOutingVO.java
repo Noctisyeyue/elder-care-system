@@ -17,5 +17,7 @@ public class CustomerOutingVO {
     private String actualReturnDate; // 实际返回时间
     private String approvalPerson; // 审批人
     private String approvalStatus; // 审批状态
-    private String bedNumber; // 床位号
+    private String buildingNumber; // 楼号
+    private String roomNumber; // 房间号
+    private String bedNumber; // 床号
 }

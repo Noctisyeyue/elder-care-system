@@ -2,7 +2,7 @@
 .idea/
 *.iml
 .vscode/
-
+backend/src/main/resources/application.yml
 # Maven
 backend/target/
 *.class

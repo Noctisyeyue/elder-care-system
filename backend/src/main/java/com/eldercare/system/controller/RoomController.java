@@ -24,22 +24,22 @@ public class RoomController {
     //  获取房间所有房间
     @Operation(summary = "获取房间所有房间")
     @GetMapping("/options")
-    public ApiResult<List<RoomResultVO>> options(){
-        return roomService.options();
+    public ApiResult<List<RoomResultVO>> options(@RequestParam String building){
+        return roomService.options(building);
     }
 
     //获取指定房间的可用床位
     @Operation(summary = "获取指定房间的可用床位")
 
     @GetMapping("/{roomNumber}/beds")
-    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber){
-        return bedService.selectFreeBeds(roomNumber);
+    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber, @RequestParam String building){
+        return bedService.selectFreeBeds(roomNumber, building);
     }
     //更新床位信息，将床位状态更新为空闲free
     @Operation(summary = "更新床位信息")
 
     @PutMapping("/{roomNumber}/bed/{bedNumber}/status")
-    public ApiResult updateBedStatus(@PathVariable Long roomNumber, @PathVariable Long bedNumber){
-        return roomService.updateBedStatus(roomNumber, bedNumber);
+    public ApiResult updateBedStatus(@RequestParam String building, @PathVariable Long roomNumber, @PathVariable Long bedNumber){
+        return roomService.updateBedStatus(building, roomNumber, bedNumber);
     }
 }

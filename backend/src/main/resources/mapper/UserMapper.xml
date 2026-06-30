@@ -12,7 +12,7 @@
                c.age,
                c.gender,
                c.tel,
-               "606" AS buildingNumber,
+               r.building AS buildingNumber,
                r.room_no AS roomNumber,
                b.bed_no AS bedNumber,
                n.nursing_level_name AS nursingLevel

@@ -47,16 +47,19 @@ public class BedServiceImpl implements BedService{
      * @return 床位示意图数据
      */
     @Override
-    public ApiResult<List<BedMapVO>> getMap(String floor) {
+    public ApiResult<List<BedMapVO>> getMap(String floor, String building) {
         // 按层获取床位示意图
         // 变量准备
         ApiResult<List<BedMapVO>> result = new ApiResult<>();
         List<BedMapVO> list = new ArrayList<>();
         List<Map<String, Object>> dbRooms;
+        Map<String, Object> floorParams = new HashMap<>();
+        floorParams.put("floor", floor);
+        floorParams.put("building", building);
         // 数据库查询
         // 按楼层查询房间
         try{
-            dbRooms = bedMapper.selectRoomsByFloor(floor);
+            dbRooms = bedMapper.selectRoomsByFloor(floorParams);
         }catch (Exception e){
             result.setCode(500);
             result.setMessage("按楼查找房间数据库错误");
@@ -165,13 +168,9 @@ public class BedServiceImpl implements BedService{
                 bedResult.setUsageEndDate(String.valueOf(bed.get("usage_end_date")));
                 bedResult.setHistory(String.valueOf(bed.get("history")));
                 bedResult.setStatus(String.valueOf(bed.get("status")));
-                // 拼装床位详情
-                String building, roomNo, bedNo, bedDetails;
-                building  = String.valueOf(bed.get("building"));
-                roomNo = String.valueOf(bed.get("room_no"));
-                bedNo = String.valueOf(bed.get("bed_no"));
-                bedDetails = building + "#" + roomNo + "-" + bedNo;
-                bedResult.setBedDetails(bedDetails);
+                bedResult.setBuildingNumber(String.valueOf(bed.get("building")));
+                bedResult.setRoomNumber(String.valueOf(bed.get("room_no")));
+                bedResult.setBedNumber(String.valueOf(bed.get("bed_no")));
                 list.add(bedResult);
             }
         }else{
@@ -198,13 +197,9 @@ public class BedServiceImpl implements BedService{
                     bedResult.setUsageEndDate(String.valueOf(bed.get("usage_end_date")));
                     bedResult.setHistory(String.valueOf(bed.get("history")));
                     bedResult.setStatus(String.valueOf(bed.get("status")));
-                    // 拼装床位详情
-                    String building, roomNo, bedNo, bedDetails;
-                    building  = String.valueOf(bed.get("building"));
-                    roomNo = String.valueOf(bed.get("room_no"));
-                    bedNo = String.valueOf(bed.get("bed_no"));
-                    bedDetails = building + "#" + roomNo + "-" + bedNo;
-                    bedResult.setBedDetails(bedDetails);
+                    bedResult.setBuildingNumber(String.valueOf(bed.get("building")));
+                    bedResult.setRoomNumber(String.valueOf(bed.get("room_no")));
+                    bedResult.setBedNumber(String.valueOf(bed.get("bed_no")));
                     list.add(bedResult);
                 }
             }
@@ -267,7 +262,7 @@ public class BedServiceImpl implements BedService{
      * @return 空闲房间列表
      */
     @Override
-    public ApiResult<List<FreeRoomVO>> selectFreeRooms() {
+    public ApiResult<List<FreeRoomVO>> selectFreeRooms(String building) {
         // 获取有空闲床位的房间
         // 变量准备
         ApiResult<List<FreeRoomVO>> result = new ApiResult<>();// 返回结果
@@ -277,7 +272,7 @@ public class BedServiceImpl implements BedService{
         // 数据库查询
         // 获取楼层列表
         try {
-            floorList = roomMapper.getFloorList();
+            floorList = roomMapper.getFloorListByBuilding(building);
         } catch (Exception e) {
             result.setCode(500);
             result.setMessage("查找楼层列表数据库错误");
@@ -291,7 +286,7 @@ public class BedServiceImpl implements BedService{
         }
         // 获取有空闲床位的房间
         try {
-            dbFreeRooms = bedMapper.selectFreeRooms();
+            dbFreeRooms = bedMapper.selectFreeRooms(building);
         } catch (Exception e) {
             result.setCode(500);
             result.setMessage("查找有空闲床位房间数据库错误");
@@ -326,15 +321,18 @@ public class BedServiceImpl implements BedService{
      * @return 空闲床位列表
      */
     @Override
-    public ApiResult<List<PairVO>> selectFreeBeds(String roomNumber) {
+    public ApiResult<List<PairVO>> selectFreeBeds(String roomNumber, String building) {
         // 获取指定房间的空闲床位
         // 变量准备
         ApiResult<List<PairVO>> result = new ApiResult<>();
         List<PairVO> data = new ArrayList<>();
         List<Map<String, Object>> dbFreeBeds;
+        Map<String, Object> params = new HashMap<>();
+        params.put("roomNumber", roomNumber);
+        params.put("building", building);
         // 数据库查询
         try {
-            dbFreeBeds = bedMapper.selectFreeBedsByRoom(roomNumber);
+            dbFreeBeds = bedMapper.selectFreeBedsByRoom(params);
         } catch (Exception e) {
             result.setCode(500);
             result.setMessage("查找空闲床位数据库错误");
@@ -369,8 +367,9 @@ public class BedServiceImpl implements BedService{
         BedRecord oldBedRecord;
         BedRecord newBedRecord = new BedRecord();
         Map<String, Object> newBedParams = new HashMap<>();
-        newBedParams.put("roomNo", params.getNewBedDetails().split("#")[1].split("-")[0]);
-        newBedParams.put("bedNo", params.getNewBedDetails().split("-")[1]);
+        newBedParams.put("building", params.getNewBuildingNumber());
+        newBedParams.put("roomNo", params.getNewRoomNumber());
+        newBedParams.put("bedNo", params.getNewBedNumber());
         // 数据库查询
         // 获取旧床位使用记录
         QueryWrapper<BedRecord> oldBedRecordQueryWrapper = new QueryWrapper<>();
@@ -471,14 +470,18 @@ public class BedServiceImpl implements BedService{
      * @return 楼层列表
      */
     @Override
-    public ApiResult<List<String>> floorList() {
+    public ApiResult<List<String>> floorList(String building) {
         // 获取楼层列表
         // 变量准备
         ApiResult<List<String>> result = new ApiResult<>();
         List<String> data;
         // 数据库查询
         try {
-            data = roomMapper.getFloorList();
+            if (building != null && !building.isEmpty()) {
+                data = roomMapper.getFloorListByBuilding(building);
+            } else {
+                data = roomMapper.getFloorList();
+            }
         } catch (Exception e) {
             result.setCode(500);
             result.setMessage("查询楼层列表数据库错误");

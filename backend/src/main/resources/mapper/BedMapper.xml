@@ -2,10 +2,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.eldercare.system.mapper.BedMapper">
-    <select id="selectRoomsByFloor" parameterType="string" resultType="map">
+    <select id="selectRoomsByFloor" parameterType="map" resultType="map">
         select r.room_id, r.room_no
         from room r
         where r.floor = #{floor}
+        and r.building = #{building}
         and r.del_flag = '0'
         order by r.room_no
     </select>
@@ -18,11 +19,12 @@
         order by b.bed_no
     </select>
 
-    <select id="selectFreeBedsByRoom" parameterType="string" resultType="map">
+    <select id="selectFreeBedsByRoom" parameterType="map" resultType="map">
         select b.bed_no, b.status
         from bed b, room r
         where b.room_id = r.room_id
         and r.room_no = #{roomNumber}
+        and r.building = #{building}
         and b.del_flag = '0'
         and b.status = 'free'
         order by b.bed_no
@@ -71,13 +73,14 @@
         order by b.bed_id
     </select>
 
-    <select id="selectFreeRooms" resultType="map">
+    <select id="selectFreeRooms" parameterType="string" resultType="map">
         select distinct r.room_no, r.floor
         from room r, bed b
         where r.del_flag = '0'
         and b.del_flag = '0'
         and b.room_id = r.room_id
         and b.status = 'free'
+        and r.building = #{building}
         order by r.room_no
     </select>
 
@@ -89,6 +92,7 @@
         and r.del_flag = '0'
         and b.bed_no = #{bedNo}
         and r.room_no = #{roomNo}
+        and r.building = #{building}
     </select>
 
     <update id="updateBedStatus">

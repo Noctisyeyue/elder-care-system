@@ -14,10 +14,11 @@ public interface BedService {
     /**
      * 查询床位示意图数据
      *
-     * @param floor 楼层
+     * @param floor    楼层
+     * @param building 楼号
      * @return 床位示意图数据
      */
-    ApiResult<List<BedMapVO>> getMap(String floor);
+    ApiResult<List<BedMapVO>> getMap(String floor, String building);
 
     /**
      * 分页查询床位列表
@@ -39,17 +40,19 @@ public interface BedService {
     /**
      * 查询有空闲床位的房间
      *
+     * @param building 楼号
      * @return 空闲房间列表
      */
-    ApiResult<List<FreeRoomVO>> selectFreeRooms();
+    ApiResult<List<FreeRoomVO>> selectFreeRooms(String building);
 
     /**
      * 查询指定房间的空闲床位
      *
      * @param roomNumber 房间号
+     * @param building   楼号
      * @return 空闲床位列表
      */
-    ApiResult<List<PairVO>> selectFreeBeds(String roomNumber);
+    ApiResult<List<PairVO>> selectFreeBeds(String roomNumber, String building);
 
     /**
      * 交换客户床位
@@ -62,9 +65,10 @@ public interface BedService {
     /**
      * 查询楼层列表
      *
+     * @param building 楼号
      * @return 楼层列表
      */
-    ApiResult<List<String>> floorList();
+    ApiResult<List<String>> floorList(String building);
 
     /**
      * 统计空闲床位数量

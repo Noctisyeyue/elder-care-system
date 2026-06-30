@@ -41,7 +41,9 @@
       <el-table-column type="index" label="序号" width="90" />
       <el-table-column prop="customerName" label="客户姓名" />
       <el-table-column prop="gender" label="性别" width="120" />
-      <el-table-column prop="bedDetails" label="床位详情" />
+      <el-table-column prop="buildingNumber" label="楼号" width="90" />
+      <el-table-column prop="roomNumber" label="房间号" width="100" />
+      <el-table-column prop="bedNumber" label="床号" width="80" />
       <el-table-column prop="usageStartDate" label="床位使用起始时间" />
       <el-table-column prop="usageEndDate" label="床位使用结束时间" />
       <el-table-column label="操作" width="180">
@@ -85,11 +87,23 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="床位详情:">
-              <el-input v-model="editForm.bedDetails" disabled />
+          <el-col :span="8">
+            <el-form-item label="楼号:">
+              <el-input v-model="editForm.buildingNumber" disabled />
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+            <el-form-item label="房间号:">
+              <el-input v-model="editForm.roomNumber" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="床号:">
+              <el-input v-model="editForm.bedNumber" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="床位使用起始日期:">
               <el-input v-model="editForm.usageStartDate" disabled />
@@ -126,9 +140,21 @@
               <el-input v-model="changeBedForm.customerName" disabled />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="旧床位详情:">
-              <el-input v-model="changeBedForm.oldBedDetails" disabled />
+          <el-col :span="14">
+            <el-form-item label="旧楼号:">
+              <el-input v-model="changeBedForm.oldBuildingNumber" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="10">
+            <el-form-item label="旧房间号:">
+              <el-input v-model="changeBedForm.oldRoomNumber" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="旧床号:">
+              <el-input v-model="changeBedForm.oldBedNumber" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -139,8 +165,19 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="新楼号:">
-              <el-input v-model="changeBedForm.newBuildingNumber" disabled value="606" />
+            <el-form-item label="新楼号:" prop="newBuildingNumber">
+              <el-select
+                v-model="changeBedForm.newBuildingNumber"
+                placeholder="请选择楼栋"
+                @change="onSwapBuildingChange"
+              >
+                <el-option
+                  v-for="item in buildingOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -207,7 +244,10 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBedList, updateBedUsageEndDate, getFreeRooms, getFreeBeds, swapBeds } from '@/api/bed'
+import { BUILDING_OPTIONS, DEFAULT_BUILDING } from '@/utils/building'
 import { Search } from '@element-plus/icons-vue'
+
+const buildingOptions = BUILDING_OPTIONS
 
 /** 查询表单。 */
 const searchForm = reactive({
@@ -221,7 +261,9 @@ const bedList = ref([
   {
     customerName: '李福星',
     gender: '男',
-    bedDetails: '606#2001-1',
+    buildingNumber: '06',
+    roomNumber: '2001',
+    bedNumber: '1',
     usageStartDate: '2025-06-11',
   },
 ])
@@ -240,7 +282,9 @@ const editForm = reactive({
   id: null,
   customerName: '',
   gender: '',
-  bedDetails: '',
+  buildingNumber: '',
+  roomNumber: '',
+  bedNumber: '',
   usageStartDate: '',
   usageEndDate: '',
 })
@@ -271,9 +315,11 @@ const changeBedDialogVisible = ref(false)
 const changeBedForm = reactive({
   id: null,
   customerName: '',
-  oldBedDetails: '',
+  oldBuildingNumber: '',
+  oldRoomNumber: '',
+  oldBedNumber: '',
   gender: '',
-  newBuildingNumber: '606',
+  newBuildingNumber: DEFAULT_BUILDING,
   newRoomNumber: '',
   currentBedUsageStartDate: '',
   newBedNumber: '',
@@ -428,9 +474,11 @@ const handleChangeBed = async (row) => {
   Object.assign(changeBedForm, {
     id: row.id,
     customerName: row.customerName,
-    oldBedDetails: row.bedDetails,
+    oldBuildingNumber: row.buildingNumber || DEFAULT_BUILDING,
+    oldRoomNumber: row.roomNumber || '',
+    oldBedNumber: row.bedNumber || '',
     gender: row.gender,
-    newBuildingNumber: '606',
+    newBuildingNumber: row.buildingNumber || DEFAULT_BUILDING,
     newRoomNumber: '',
     currentBedUsageStartDate: row.usageStartDate,
     newBedNumber: '',
@@ -439,7 +487,7 @@ const handleChangeBed = async (row) => {
   availableBeds.value = []
 
   try {
-    const response = await getFreeRooms()
+    const response = await getFreeRooms(changeBedForm.newBuildingNumber)
     roomOptions.value = response
   } catch (error) {
     console.error('获取有空闲床位的房间号失败:', error)
@@ -447,6 +495,19 @@ const handleChangeBed = async (row) => {
   }
 
   changeBedDialogVisible.value = true
+}
+
+const onSwapBuildingChange = async () => {
+  changeBedForm.newRoomNumber = ''
+  changeBedForm.newBedNumber = ''
+  availableBeds.value = []
+  try {
+    const response = await getFreeRooms(changeBedForm.newBuildingNumber)
+    roomOptions.value = response
+  } catch (error) {
+    console.error('获取有空闲床位的房间号失败:', error)
+    ElMessage.error('获取有空闲床位的房间号失败')
+  }
 }
 
 /**
@@ -457,7 +518,7 @@ const handleChangeBed = async (row) => {
  */
 const getAvailableBeds = async (roomNumber) => {
   try {
-    const response = await getFreeBeds(roomNumber)
+    const response = await getFreeBeds(roomNumber, changeBedForm.newBuildingNumber)
     availableBeds.value = response // 假设后端直接返回可用床位列表
   } catch (error) {
     console.error('获取可用床位失败:', error)
@@ -491,7 +552,9 @@ const saveChangeBed = () => {
           const swapData = {
             oldBedId: changeBedForm.id,
             oldBedEndDate: new Date().toISOString().slice(0, 10),
-            newBedDetails: `${changeBedForm.newBuildingNumber}#${changeBedForm.newRoomNumber}-${changeBedForm.newBedNumber}`,
+            newBuildingNumber: changeBedForm.newBuildingNumber,
+            newRoomNumber: changeBedForm.newRoomNumber,
+            newBedNumber: changeBedForm.newBedNumber,
             newBedStartDate: new Date().toISOString().slice(0, 10),
             newBedEndDate: changeBedForm.currentBedUsageEndDate,
           }

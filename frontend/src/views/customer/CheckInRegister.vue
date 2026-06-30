@@ -45,9 +45,9 @@
       <el-table-column prop="familyMember" label="家属" width="90"></el-table-column>
       <el-table-column prop="familyMemberTel" label="家属电话" width="120"></el-table-column>
       <el-table-column prop="idNumber" label="身份证号" width="120"></el-table-column>
-      <el-table-column prop="buildingNumber" label="楼号" width="60"></el-table-column>
-      <el-table-column prop="roomNumber" label="房间号" width="90"></el-table-column>
-      <el-table-column prop="bedNumber" label="床号" width="60"></el-table-column>
+      <el-table-column prop="buildingNumber" label="楼号" width="90" />
+      <el-table-column prop="roomNumber" label="房间号" width="100" />
+      <el-table-column prop="bedNumber" label="床号" width="80" />
       <el-table-column prop="dateOfBirth" label="出生日期" width="120"></el-table-column>
       <el-table-column prop="checkInDate" label="入住时间" width="120"></el-table-column>
       <el-table-column prop="nursingLevel" label="护理级别" width="90"></el-table-column>
@@ -89,7 +89,18 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="楼栋" prop="buildingNumber">
-              <el-input v-model="customerForm.buildingNumber" disabled></el-input>
+              <el-select
+                v-model="customerForm.buildingNumber"
+                placeholder="请选择楼栋"
+                @change="onBuildingChange"
+              >
+                <el-option
+                  v-for="item in buildingOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -230,7 +241,10 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCustomerList, registerCustomer, updateCustomer, deleteCustomer, releaseCustomerBed } from '@/api/customer'
 import { getRoomOptions, getRoomBeds, updateBedStatus } from '@/api/room'
+import { BUILDING_OPTIONS, DEFAULT_BUILDING } from '@/utils/building'
 import { Search } from '@element-plus/icons-vue'
+
+const buildingOptions = BUILDING_OPTIONS
 // 搜索表单数据
 const searchForm = reactive({
   customerName: '',
@@ -248,7 +262,7 @@ const customerList = ref([
     dateOfBirth: '1948-01-01',
     familyMemberTel: '13812345678',
     idNumber: '110101194801011234',
-    buildingNumber: '606',
+    buildingNumber: '06',
     roomNumber: '101',
     bedNumber: '1',
     checkInDate: '2023-01-01',
@@ -279,7 +293,7 @@ const customerForm = reactive({
   bloodType: 'O',
   familyMember: '',
   familyMemberTel: '',
-  buildingNumber: '606', // 楼栋固定为 606
+  buildingNumber: DEFAULT_BUILDING,
   roomNumber: '',
   bedNumber: '',
   checkInDate: '',
@@ -296,8 +310,6 @@ const customerFormRef = ref()
 // 房间号和床位号选项
 const roomOptions = ref([])
 const bedOptions = ref([])
-const oldbednumber = ref()
-const num = ref()
 
 // 当前激活的老人类型 Tab
 const activeCustomerType = ref('self-care')
@@ -336,6 +348,7 @@ const formRules = reactive({
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ],
   roomNumber: [{ required: true, message: '请选择房间号', trigger: 'change' }],
+  buildingNumber: [{ required: true, message: '请选择楼栋', trigger: 'change' }],
   bedNumber: [{ required: true, message: '请选择床位号', trigger: 'change' }],
   checkInDate: checkInDateRule, // 默认登记规则
   contractEndDate: [
@@ -385,24 +398,21 @@ const openRegisterDialog = () => {
   formRules.checkInDate = checkInDateRule
   dialogVisible.value = true
   customerFormRef.value?.clearValidate()
-  getRoomOptions() // 获取房间号选项
+  fetchRoomOptions()
   customerFormRef.value?.clearValidate()
 
 }
 
 const editCustomer = (row) => {
   isEdit.value = true
-  num.value = row.bedNumber
-  row.bedNumber = row.bedNumber +'号床'
-  Object.assign(customerForm, row) // 填充表单数据
-  row.bedNumber = num.value
+  Object.assign(customerForm, row)
   // 修改时不需要入住时间验证
   formRules.checkInDate = []
   dialogVisible.value = true
   customerFormRef.value?.clearValidate()
-  getRoomOptions() // 获取房间号选项
-  getAvailableBeds(customerForm.roomNumber)
-  customerFormRef.value?.clearValidate()// 获取当前房间的床位
+  fetchRoomOptions()
+  getAvailableBeds(customerForm.roomNumber, true)
+  customerFormRef.value?.clearValidate()
 }
 
 const handleDeleteCustomer = (row) => {
@@ -413,7 +423,7 @@ const handleDeleteCustomer = (row) => {
   })
     .then(async () => {
       await deleteCustomer(row.id)
-      await updateBedStatus(row.roomNumber, row.bedNumber, 'free')
+      await updateBedStatus(row.buildingNumber, row.roomNumber, row.bedNumber, 'free')
       await releaseCustomerBed(row.id, row.bedNumber)
       ElMessage.success('删除成功！')
       queryCustomers()
@@ -440,24 +450,36 @@ const handleTabChange = (name) => {
 
 const fetchRoomOptions = async () => {
   try {
-    const res = await getRoomOptions()
+    const res = await getRoomOptions(customerForm.buildingNumber)
     roomOptions.value = res
   } catch (error) {
     console.error('获取房间选项失败：', error)
   }
 }
 
-const getAvailableBeds = async (roomNumber) => {
+const onBuildingChange = () => {
+  customerForm.roomNumber = ''
   customerForm.bedNumber = ''
+  bedOptions.value = []
+  fetchRoomOptions()
+}
+
+const getAvailableBeds = async (roomNumber, keepCurrentBed = false) => {
+  const previousBed = keepCurrentBed ? String(customerForm.bedNumber || '').replace(/号床$/, '') : ''
+  if (!keepCurrentBed) {
+    customerForm.bedNumber = ''
+  }
   try {
-    const res = await getRoomBeds(roomNumber)
+    const res = await getRoomBeds(roomNumber, customerForm.buildingNumber)
     bedOptions.value = (res || []).map((bed) => ({
       ...bed,
       label: bed.label ? bed.label : `${bed.value}号床`,
     }))
-    oldbednumber.value = customerForm.bedNumber
-    if (isEdit.value && !bedOptions.value.some((bed) => bed.value === customerForm.bedNumber)) {
-      customerForm.bedNumber = oldbednumber.value
+    if (isEdit.value && previousBed && !bedOptions.value.some((bed) => String(bed.value) === previousBed)) {
+      bedOptions.value.push({ value: previousBed, label: `${previousBed}号床` })
+    }
+    if (previousBed) {
+      customerForm.bedNumber = previousBed
     }
   } catch (error) {
     console.error('获取可用床位失败：', error)
@@ -536,7 +558,7 @@ const resetForm = () => {
     bloodType: 'O',
     familyMember: '',
     familyMemberTel: '',
-    buildingNumber: '606',
+    buildingNumber: DEFAULT_BUILDING,
     roomNumber: '',
     bedNumber: '',
     checkInDate: '',
@@ -577,7 +599,7 @@ const deleteSelectedCustomers = () => {
     .then(async () => {
       for (const row of multipleSelection.value) {
         await deleteCustomer(row.id)
-        await updateBedStatus(row.roomNumber, row.bedNumber, 'free')
+        await updateBedStatus(row.buildingNumber, row.roomNumber, row.bedNumber, 'free')
         await releaseCustomerBed(row.id, row.bedNumber)
       }
       ElMessage.success('批量删除成功！')

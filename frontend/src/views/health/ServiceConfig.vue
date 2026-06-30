@@ -23,7 +23,9 @@
           <el-table-column prop="customerName" label="姓名" />
           <el-table-column prop="age" label="年龄" />
           <el-table-column prop="gender" label="性别" />
-          <el-table-column prop="bedNumber" label="床号" />
+          <el-table-column prop="buildingNumber" label="楼号" width="90" />
+          <el-table-column prop="roomNumber" label="房间号" width="100" />
+          <el-table-column prop="bedNumber" label="床号" width="80" />
           <el-table-column prop="nursingLevel" label="护理级别" />
           <el-table-column label="操作" width="100">
             <template #default="scope">
@@ -52,7 +54,9 @@
           <el-table-column prop="customerName" label="姓名" />
           <el-table-column prop="age" label="年龄" />
           <el-table-column prop="gender" label="性别" />
-          <el-table-column prop="bedNumber" label="床号" />
+          <el-table-column prop="buildingNumber" label="楼号" width="90" />
+          <el-table-column prop="roomNumber" label="房间号" width="100" />
+          <el-table-column prop="bedNumber" label="床号" width="80" />
           <el-table-column prop="nursingLevel" label="护理级别" />
           <el-table-column label="操作" width="100">
             <template #default="scope">
@@ -193,7 +197,7 @@ const removeCustomer = (customer) => {
 // 保存操作：将myCustomers的id列表提交到后端
 const handleSave = async () => {
   const customerIds = allMyCustomers.value.map((c) => c.id)
-  await setCaregiverCustomers({ caregiverId, customerIds })
+  await setCaregiverCustomers(Number(caregiverId), customerIds)
   isChanged.value = false
   ElMessage.success('保存成功！')
 }
