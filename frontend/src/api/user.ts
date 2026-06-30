@@ -133,7 +133,15 @@ export function auditUser(userId: number) {
 }
 
 /**
- * 禁用/启用账号（将 status 改为 2 或从 2 恢复为 1）
+ * 启用账号（将 status 从 2 改回 1）
+ * @param userId 用户 ID
+ */
+export function enableUser(userId: number) {
+  return post('/user/enable', null, { params: { userId } })
+}
+
+/**
+ * 禁用账号（将 status 改为 2）
  * @param userId 用户 ID
  */
 export function disableUser(userId: number) {

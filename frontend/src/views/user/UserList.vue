@@ -91,10 +91,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="员工类型" prop="role">
-          <el-select v-model="form.role" placeholder="请选择">
-            <el-option label="护士" value="护士" />
-            <el-option label="医生" value="医生" />
-            <el-option label="护工" value="护工" />
+          <el-select v-model="form.role" placeholder="请选择" disabled>
+            <el-option label="管理员" value="管理员" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -128,6 +126,7 @@ import {
   updateUser,
   deleteUsers,
   auditUser,
+  enableUser,
   disableUser,
   resetUserPwd,
 } from '@/api/user'
@@ -154,7 +153,7 @@ const form = reactive({
   phone: '',
   email: '',
   gender: '男',
-  role: '护工',
+  role: '管理员',
 })
 const formRef = ref()
 const rules = {
@@ -215,7 +214,7 @@ function openDialog(row) {
       realName: '',
       phone: '',
       gender: '男',
-      role: '护工',
+      role: '管理员',
       email: '',
     })
   } else {
@@ -303,8 +302,7 @@ function handleEnable(row) {
     type: 'info',
   })
     .then(() => {
-      // 启用 = 审核通过，将 status 从 2 改回 1
-      auditUser(row.userId).then(() => {
+      enableUser(row.userId).then(() => {
         ElMessage.success('已启用')
         handleSearch()
       })
