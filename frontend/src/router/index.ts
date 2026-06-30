@@ -174,9 +174,15 @@ router.beforeEach((to, _from, next) => {
 
   // 白名单路径直接放行
   if (WHITELIST.includes(to.path)) {
-    // 已登录用户访问登录页，直接跳首页
+    // 已登录用户访问登录页，按角色直接跳对应首页
     if (userStore.isLoggedIn && to.path === '/login') {
-      next(userStore.isPending ? '/pending' : '/')
+      if (userStore.isPending) {
+        next('/pending')
+      } else if (userStore.isCaregiver) {
+        next('/home/caregiver')
+      } else {
+        next('/home/admin')
+      }
       return
     }
     next()

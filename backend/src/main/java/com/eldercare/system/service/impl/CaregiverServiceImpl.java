@@ -264,37 +264,28 @@ public class CaregiverServiceImpl implements CaregiverService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         // 格式化日期
         String formattedDate = currentDate.format(formatter);
-        // 根据Token获取用户名
-        String username;
+        // 根据Token获取用户ID和邮箱
+        String email;
         try {
             if (token != null && token.startsWith("Bearer ")){
                 token = token.substring(7);
             }
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
+            Claim emailClaim = claims.get("email");
+            email = emailClaim != null ? emailClaim.asString() : "";
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
-        data.setUserName(username);
-        // 数据库查询
-        // 获取用户ID
-        try {
-            userId = userMapper.selectIdByUsername(username);
-        } catch (Exception e) {
-            result.setCode(500);
-            result.setMessage("用户ID获取失败");
-            return result;
-        }
+        data.setUserName(email);
         // 获取今日护理次数
         QueryWrapper<NursingRecord> todayNursingCountQueryWrapper = new QueryWrapper<>();
         todayNursingCountQueryWrapper.eq("user_id", userId);

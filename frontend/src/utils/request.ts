@@ -49,6 +49,7 @@ service.interceptors.response.use(
       }
 
       if (res.code === 401) {
+        sessionStorage.removeItem('token')
         router.push('/login')
       }
 
@@ -63,6 +64,7 @@ service.interceptors.response.use(
 
       switch (status) {
         case 401:
+          sessionStorage.removeItem('token')
           ElMessage.error('未登录，请先登录')
           router.push('/login')
           break

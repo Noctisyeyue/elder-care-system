@@ -426,28 +426,24 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public ApiResult approveCheckout(Long id, Map<String, Object> params, String token) {
         ApiResult result = new ApiResult();
-        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        String username = "";
+        //根据Token获取用户ID，将审批人id添加到记录表
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
-
-        Long userId = userMapper.selectIdByUsername(username);
         //获取当前日期
         String date = LocalDate.now().toString();
         //获取退住类型,用汉字映射字符型的数字，退住类型0正常退住1死亡退住2保留床位
@@ -560,28 +556,24 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public ApiResult approveOuting(Long id, Map<String, Object> params, String token) {
         ApiResult result = new ApiResult();
-        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        String username = "";
+        //根据Token获取用户ID，将审批人id添加到记录表
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
-
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
-        Long userId = userMapper.selectIdByUsername(username);
         //获取当前日期
         String date = LocalDate.now().toString();
         //获取通过状态,0通过1不通过2已提交3未提交
@@ -794,27 +786,23 @@ public class CustomerServiceImpl implements CustomerService{
     public ApiResult<CustomerNoCaregiverListVO> listMyCustomers(CustomerListRequest request, String token) {
         ApiResult<CustomerNoCaregiverListVO> result = new ApiResult<>();
         //从token中获取当前健康管家的 id
-        //根据Token获取用户名，根据用户名找到用户ID
-        String username = "";
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
         }
-        Long userId = userMapper.selectIdByUsername(username);
         CustomersByCareIdRequest request2 = new CustomersByCareIdRequest();
         request2.setCustomerName(request.getCustomerName());
         request2.setCaregiverId(userId);
@@ -836,21 +824,19 @@ public class CustomerServiceImpl implements CustomerService{
         //健康管家为客户提出外出申请请求。后端将approvalStatus(外出申请状态)默认置为“已提交”
         ApiResult result = new ApiResult();
         OutingRecord outingRecord = new OutingRecord();
-        String username ;
-        //获取token中的用户名
+        Long userId;
+        //获取token中的用户ID
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
@@ -863,7 +849,7 @@ public class CustomerServiceImpl implements CustomerService{
             result.setMessage("客户id不存在");
             return result;
         }
-        outingRecord.setUserId(userMapper.selectIdByUsername(username));
+        outingRecord.setUserId(userId);
         outingRecord.setCustomerId(param.getCustomerId());
         outingRecord.setOutingDate(param.getOutingDate());
         outingRecord.setReason(param.getOutingReason());
@@ -893,28 +879,24 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public ApiResult<MyApplicationListVO> listmyApplications(CustomerListRequest request, String token) {
         ApiResult<MyApplicationListVO> result = new ApiResult<>();
-        //获取token中的用户Id
-        String username ;
-        //获取token中的用户名
+        //获取token中的用户ID
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
         }
-        Long userId = userMapper.selectIdByUsername(username);
 
         String customerName = request.getCustomerName();
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
@@ -996,28 +978,24 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public ApiResult checkApply(CheckoutRequest param, String token) {
         ApiResult result = new ApiResult();
-        //获取token中的用户Id
-        String username ;
-        //获取token中的用户名
+        //获取token中的用户ID
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
         }
-        Long userId = userMapper.selectIdByUsername(username);
         CheckOutRecord checkoutRecord = new CheckOutRecord();
         checkoutRecord.setUserId(userId);
         checkoutRecord.setCustomerId(param.getCustomerId());
@@ -1078,28 +1056,24 @@ public class CustomerServiceImpl implements CustomerService{
     @Override
     public ApiResult<MyCheckoutApplicationListVO> listmyCheckoutApplications(CustomerListRequest request, String token) {
         ApiResult<MyCheckoutApplicationListVO> result = new ApiResult<>();
-        //获取token中的用户Id
-        String username ;
-        //获取token中的用户名
+        //获取token中的用户ID
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
         }
-        Long userId = userMapper.selectIdByUsername(username);
 
         String customerName = request.getCustomerName();
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();

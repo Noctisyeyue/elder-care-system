@@ -857,27 +857,23 @@ public class NursingServiceImpl implements NursingService{
         NursingRecord nursingRecord = new NursingRecord();
         nursingRecord.setCustomerId(record.getCustomerId());
         //从token中获取当前健康管家的 id
-        //根据Token获取用户名，根据用户名找到用户ID
-        String username = "";
+        Long userId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户ID不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
         }
-        Long userId = userMapper.selectIdByUsername(username);
         nursingRecord.setUserId(userId);
         nursingRecord.setCustomerId(record.getCustomerId());
         nursingRecord.setNursingItemId(record.getItemId());
