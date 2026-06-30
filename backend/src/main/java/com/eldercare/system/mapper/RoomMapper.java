@@ -8,4 +8,6 @@ import java.util.List;
 /** RoomMapper */
 public interface RoomMapper extends BaseMapper<Room> {
     List<String> getFloorList();
+
+    List<String> getFloorListByBuilding(String building);
 }

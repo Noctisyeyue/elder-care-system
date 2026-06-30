@@ -9,7 +9,7 @@ import java.util.Map;
 /** BedMapper */
 public interface BedMapper extends BaseMapper<Bed> {
 
-    List<Map<String, Object>> selectRoomsByFloor(String floor);
+    List<Map<String, Object>> selectRoomsByFloor(Map<String, Object> params);
 
     List<Map<String, Object>> selectBedsByRoom(Object roomId);
 
@@ -17,9 +17,9 @@ public interface BedMapper extends BaseMapper<Bed> {
 
     List<Map<String, Object>> selectBedsByCustomerNameAndHistory(Map<String, Object> paramsMap);
 
-    List<Map<String, Object>> selectFreeRooms();
+    List<Map<String, Object>> selectFreeRooms(String building);
 
-    List<Map<String, Object>> selectFreeBedsByRoom(String roomNumber);
+    List<Map<String, Object>> selectFreeBedsByRoom(Map<String, Object> params);
 
     Bed selectBedByBedDetails(Map<String, Object> newBedParams);
 

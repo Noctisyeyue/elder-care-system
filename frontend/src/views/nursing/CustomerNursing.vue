@@ -27,9 +27,9 @@
       <el-table-column prop="customerName" label="客户姓名" width="120" />
       <el-table-column prop="age" label="年龄" width="90" />
       <el-table-column prop="gender" label="性别" width="90" />
-      <el-table-column prop="buildingNumber" label="所属楼房" width="120" />
-      <el-table-column prop="roomNumber" label="房间号" width="120" />
-      <el-table-column prop="bedNumber" label="床号" width="90" />
+      <el-table-column prop="buildingNumber" label="楼号" width="90" />
+      <el-table-column prop="roomNumber" label="房间号" width="100" />
+      <el-table-column prop="bedNumber" label="床号" width="80" />
       <el-table-column prop="tel" label="联系电话"/>
       <el-table-column prop="nursingLevel" label="护理级别" width="120" />
       <el-table-column label="操作" width="240">
@@ -202,9 +202,9 @@ const customerList = ref([
     customerName: '李福星',
     age: 18,
     gender: '男',
-    roomNumber: '1001',
+    buildingNumber: '06',
+    roomNumber: '101',
     bedNumber: '1',
-    buildingNumber: '606',
     contactPhone: '1386663233',
     nursingLevel: '一级 ',
   },

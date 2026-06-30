@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,46 +35,56 @@ public class RoomServiceImpl implements RoomService{
     /**
      * 查询房间选项列表
      *
+     * @param building 楼号
      * @return 房间选项列表
      */
     @Override
-    public ApiResult<List<RoomResultVO>> options() {
-        //查询数据库中的所有房间信息
-        List<Room> rooms = roomMapper.selectList(null);
-        //封装返回结果
-        List<RoomOptionVO> roomOptions = new ArrayList<>();
-        for(Room room : rooms){
+    public ApiResult<List<RoomResultVO>> options(String building) {
+        QueryWrapper<Room> wrapper = new QueryWrapper<>();
+        wrapper.eq("del_flag", "0");
+        if (building != null && !building.isEmpty()) {
+            wrapper.eq("building", building);
+        }
+        wrapper.orderByAsc("floor", "room_no");
+        List<Room> rooms = roomMapper.selectList(wrapper);
+
+        Map<String, List<RoomOptionVO>> floorGroups = new LinkedHashMap<>();
+        for (Room room : rooms) {
             RoomOptionVO roomOption = new RoomOptionVO();
             roomOption.setValue(room.getRoomNo());
-            roomOption.setLabel("房间 "+room.getRoomNo());
-            roomOptions.add(roomOption);
+            roomOption.setLabel("房间 " + room.getRoomNo());
+            floorGroups.computeIfAbsent(room.getFloor(), k -> new ArrayList<>()).add(roomOption);
         }
-        //封装返回结果
-        ApiResult<List<RoomResultVO> > result = new ApiResult<>();
-        RoomResultVO roomResult = new RoomResultVO("606楼",roomOptions);
+
+        List<RoomResultVO> data = new ArrayList<>();
+        for (Map.Entry<String, List<RoomOptionVO>> entry : floorGroups.entrySet()) {
+            data.add(new RoomResultVO(entry.getKey(), entry.getValue()));
+        }
+
+        ApiResult<List<RoomResultVO>> result = new ApiResult<>();
         result.setCode(200);
         result.setMessage("success");
-        result.setData(List.of(roomResult));
+        result.setData(data);
         return result;
     }
 
     /**
      * 更新指定床位状态为空闲
      *
+     * @param building   楼号
      * @param roomNumber 房间号
      * @param bedNumber  床位号
      * @return 操作结果
      */
     @Override
-    public ApiResult updateBedStatus(Long roomNumber, Long bedNumber) {
+    public ApiResult updateBedStatus(String building, Long roomNumber, Long bedNumber) {
         ApiResult result = new ApiResult<>();
-        //根据床号和房间号获取床id
         Map<String, Object> newBedParams = new HashMap<>();
-        newBedParams.put("bedNo", bedNumber);
-        newBedParams.put("roomNo", roomNumber);
+        newBedParams.put("bedNo", String.valueOf(bedNumber));
+        newBedParams.put("roomNo", String.valueOf(roomNumber));
+        newBedParams.put("building", building);
         try {
             Long bedId = bedMapper.selectBedByBedDetails(newBedParams).getBedId();
-            // 根据床id将status变为free
             bedMapper.updateBedStatus(bedId);
             result.setCode(200);
             result.setMessage("释放床位成功");

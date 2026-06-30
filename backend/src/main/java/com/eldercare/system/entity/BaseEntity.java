@@ -1,31 +1,28 @@
 package com.eldercare.system.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
 /**
- * 实体基类，所有数据库实体继承它，自动获得通用审计字段
+ * 实体基类，所有数据库实体继承它，自动获得通用审计字段。
+ * createTime/updateTime 由 MyBatis-Plus MetaObjectHandler 自动填充。
  */
+@Data
 public class BaseEntity {
 
     /** 0=正常 1=已删除 */
     private String delFlag;
     /** 创建人 */
     private String createBy;
-    /** 创建时间 */
-    private String createTime;
+    /** 创建时间（插入时自动填充） */
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
     /** 最后修改人 */
     private String updateBy;
-    /** 最后修改时间 */
-    private String updateTime;
-
-    // ===== getter / setter =====
-
-    public String getDelFlag() { return delFlag; }
-    public void setDelFlag(String delFlag) { this.delFlag = delFlag; }
-    public String getCreateBy() { return createBy; }
-    public void setCreateBy(String createBy) { this.createBy = createBy; }
-    public String getCreateTime() { return createTime; }
-    public void setCreateTime(String createTime) { this.createTime = createTime; }
-    public String getUpdateBy() { return updateBy; }
-    public void setUpdateBy(String updateBy) { this.updateBy = updateBy; }
-    public String getUpdateTime() { return updateTime; }
-    public void setUpdateTime(String updateTime) { this.updateTime = updateTime; }
+    /** 最后修改时间（插入和更新时自动填充） */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 }

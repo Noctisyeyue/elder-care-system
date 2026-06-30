@@ -162,6 +162,7 @@ public class CustomerServiceImpl implements CustomerService{
         Map<String, Object> newBedParams = new HashMap<>();
         newBedParams.put("bedNo", param.getBedNumber());
         newBedParams.put("roomNo", param.getRoomNumber());
+        newBedParams.put("building", param.getBuildingNumber());
         Long newBedId = bedMapper.selectBedByBedDetails(newBedParams).getBedId();
 
         try {
@@ -230,14 +231,17 @@ public class CustomerServiceImpl implements CustomerService{
             Long bedRecordId = bedRecordMapper.selectBedRecordIdByBedIdAndHistory(existingCustomer.getBedId(), "1");
             //根据existingCustomer.getBedId()查床的房间号和床号
             Bed bed = bedMapper.selectById(existingCustomer.getBedId());
-            String oldBedDetails = "606" + "#" +roomMapper.selectById( bed.getRoomId() ).getRoomNo()+ "-" + bed.getBedNo()+"号床";
+            Room oldRoom = roomMapper.selectById(bed.getRoomId());
             params.setOldBedId(bedRecordId);
             params.setOldBedEndDate(existingCustomer.getContractEndDate());
-            params.setNewBedDetails("606" + "#" + param.getRoomNumber() + "-" + param.getBedNumber());
             params.setNewBedStartDate(param.getCheckInDate());
             params.setNewBedEndDate(param.getContractEndDate());
-            //如果旧的床位和新床位的床号相同、房间号相同，则不需要进行更换
-            if (!oldBedDetails.equals(params.getNewBedDetails())) {
+            if (!Objects.equals(oldRoom.getBuilding(), param.getBuildingNumber())
+                    || !Objects.equals(oldRoom.getRoomNo(), param.getRoomNumber())
+                    || !Objects.equals(bed.getBedNo(), param.getBedNumber())) {
+                params.setNewBuildingNumber(param.getBuildingNumber());
+                params.setNewRoomNumber(param.getRoomNumber());
+                params.setNewBedNumber(param.getBedNumber());
                 bedService.swap(params);
             }
         }
@@ -276,6 +280,7 @@ public class CustomerServiceImpl implements CustomerService{
             param.setBedNumber(param.getBedNumber().replace("号床", ""));
             bedParams.put("bedNo", param.getBedNumber());
             bedParams.put("roomNo", param.getRoomNumber());
+            bedParams.put("building", param.getBuildingNumber());
             try {
                 Long newBedId = bedMapper.selectBedByBedDetails(bedParams).getBedId();
                 Long oldBedId = existingCustomer.getBedId();
@@ -463,11 +468,9 @@ public class CustomerServiceImpl implements CustomerService{
                     case "未提交" -> "3";
                     default -> "4";
                 };
-        //获取房间号和床号格式为“1001-1”，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
-        String[] bedNumber = params.get("bedNumber").toString().split("-");
-        //转成Long
-        Long roomNo = Long.parseLong(bedNumber[0]);
-        Long bedNo = Long.parseLong(bedNumber[1]);
+        String building = params.get("buildingNumber").toString();
+        Long roomNo = Long.parseLong(params.get("roomNumber").toString());
+        Long bedNo = Long.parseLong(params.get("bedNumber").toString());
         //更新退住记录表
         //如果不通过则状态改为不通过，更新时间改为当前日期
         try {
@@ -479,7 +482,7 @@ public class CustomerServiceImpl implements CustomerService{
             }
             if(!type.equals("2")&& status.equals("0")){
                 //根据床号将床的状态设置为free
-                roomService.updateBedStatus(roomNo, bedNo);
+                roomService.updateBedStatus(building, roomNo, bedNo);
                 //将客户表的del_flag改为1
                 customerMapper.updateDelFlag(id, 1);
                 //修改床位记录表，截止时间usage_end_date改为当前日期
@@ -585,14 +588,13 @@ public class CustomerServiceImpl implements CustomerService{
                     case "未提交" -> "3";
                     default -> "4";
                 };
-        //获取房间号和床号格式为“1001-1”，将其拆分成房间号和床号，随后根据这两个参数调用updateBedStatus
-        String[] bedNumber = params.get("bedNumber").toString().split("-");
-        //转成Long
-        Long roomNo = Long.parseLong(bedNumber[0]);
-        Long bedNo = Long.parseLong(bedNumber[1]);
+        String building = params.get("buildingNumber").toString();
+        Long roomNo = Long.parseLong(params.get("roomNumber").toString());
+        Long bedNo = Long.parseLong(params.get("bedNumber").toString());
         Map<String, Object> newBedParams = new HashMap<>();
         newBedParams.put("roomNo", roomNo);
         newBedParams.put("bedNo", bedNo);
+        newBedParams.put("building", building);
         Long bedId;
         try {
             bedId = bedMapper.selectBedByBedDetails(newBedParams).getBedId();

@@ -35,8 +35,8 @@ public class BedController {
 //    })
     @Operation(summary = "获取某一层的床位示意图信息")
     @GetMapping("/map")
-    public ApiResult<List<BedMapVO>> map(String floor){
-        return bedService.getMap(floor);
+    public ApiResult<List<BedMapVO>> map(String floor, @RequestParam String building){
+        return bedService.getMap(floor, building);
     }
 
     @Operation(summary = "获取正在使用床位的客户信息")
@@ -53,14 +53,14 @@ public class BedController {
 
     @Operation(summary = "获取所有有空闲床位的房间")
     @GetMapping("/freeRooms")
-    public ApiResult<List<FreeRoomVO>> freeRooms(){
-        return bedService.selectFreeRooms();
+    public ApiResult<List<FreeRoomVO>> freeRooms(@RequestParam String building){
+        return bedService.selectFreeRooms(building);
     }
 
     @Operation(summary = "获取某个房间的所有空闲床位信息")
     @GetMapping("/freeBeds/{roomNumber}")
-    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber){
-        return bedService.selectFreeBeds(roomNumber);
+    public ApiResult<List<PairVO>> freeBeds(@PathVariable String roomNumber, @RequestParam String building){
+        return bedService.selectFreeBeds(roomNumber, building);
     }
 
     @Operation(summary = "使客户进行床位调换")
@@ -71,8 +71,8 @@ public class BedController {
 
     @Operation(summary = "获取楼层列表")
     @GetMapping("/floorList")
-    public ApiResult<List<String>> floorList(){
-        return bedService.floorList();
+    public ApiResult<List<String>> floorList(@RequestParam(required = false) String building){
+        return bedService.floorList(building);
     }
 
     @Operation(summary = "获取总空闲床位数")

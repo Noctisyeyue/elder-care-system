@@ -84,7 +84,9 @@
         WHEN c.status = '4' THEN '已撤销'
         ELSE '未知状态'
         END AS approvalStatus,
-        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber
+        r.building AS buildingNumber,
+        r.room_no AS roomNumber,
+        b.bed_no AS bedNumber
         FROM check_out_record c
         LEFT JOIN customer cu ON c.customer_id = cu.customer_id
         LEFT JOIN user s ON c.examing_by = s.user_id
@@ -140,7 +142,9 @@
         WHEN c.status = '4' THEN '已撤销'
         ELSE '未知状态'
         END AS approvalStatus,
-        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber
+        r.building AS buildingNumber,
+        r.room_no AS roomNumber,
+        b.bed_no AS bedNumber
         FROM outing_record c
         LEFT JOIN customer cu ON c.customer_id = cu.customer_id
         LEFT JOIN user s ON c.user_id = s.user_id
@@ -174,7 +178,9 @@
         c.customer_name AS customerName,
         c.age,
         c.gender,
-        CONCAT(r.room_no, '-', b.bed_no) AS bedNumber,
+        r.building AS buildingNumber,
+        r.room_no AS roomNumber,
+        b.bed_no AS bedNumber,
         l.nursing_level_name AS nursingLevel
         FROM customer c
         LEFT JOIN nursing_level l ON c.nursing_level_id = l.nursing_level_id

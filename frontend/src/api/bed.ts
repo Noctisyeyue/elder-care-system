@@ -11,10 +11,11 @@ export function getBedMap(params?: Record<string, unknown>) {
 
 /**
  * 获取楼层列表
+ * @param building 楼号
  * @returns 楼层列表
  */
-export function getFloorList() {
-  return get('/bed/floorList')
+export function getFloorList(building?: string) {
+  return get('/bed/floorList', building ? { building } : undefined)
 }
 
 /**
@@ -37,19 +38,21 @@ export function updateBedUsageEndDate(id: number | string, usageEndDate: string)
 
 /**
  * 获取有空闲床位的房间列表
+ * @param building 楼号
  * @returns 空闲房间列表
  */
-export function getFreeRooms() {
-  return get('/bed/freeRooms')
+export function getFreeRooms(building: string) {
+  return get('/bed/freeRooms', { building })
 }
 
 /**
  * 获取指定房间的空闲床位
  * @param roomNumber 房间号
+ * @param building 楼号
  * @returns 空闲床位列表
  */
-export function getFreeBeds(roomNumber: string) {
-  return get(`/bed/freeBeds/${roomNumber}`)
+export function getFreeBeds(roomNumber: string, building: string) {
+  return get(`/bed/freeBeds/${roomNumber}`, { building })
 }
 
 /**

@@ -3,6 +3,19 @@
     <!-- 楼层选择和统计 -->
     <div style="display: flex; align-items: center; margin-bottom: 16px">
       <el-select
+        v-model="selectedBuilding"
+        @change="onBuildingChange"
+        style="width: 120px; margin-right: 20px"
+        placeholder="选择楼栋"
+      >
+        <el-option
+          v-for="item in buildingOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-select
         v-model="selectedFloor"
         @change="fetchRoomList"
         style="width: 120px; margin-right: 20px"
@@ -101,6 +114,10 @@ import outBedSvg from '@/assets/out_bed.svg'
 import totalBedSvg from '@/assets/total_bed.svg'
 import usedBedSvg from '@/assets/used_bed.svg'
 import { getBedMap, getFloorList } from '@/api/bed'
+import { BUILDING_OPTIONS, DEFAULT_BUILDING } from '@/utils/building'
+
+const buildingOptions = BUILDING_OPTIONS
+const selectedBuilding = ref(DEFAULT_BUILDING)
 
 /** 楼层列表。 */
 const floorList = ref([])
@@ -185,6 +202,7 @@ function getBedIcon(status) {
 function fetchRoomList() {
   getBedMap({
     floor: selectedFloor.value,
+    building: selectedBuilding.value,
   }).then((res) => {
     roomList.value = res || []
     maxBedCount.value = Math.max(...roomList.value.map((r) => r.beds.length), 0)
@@ -223,8 +241,15 @@ function updateBedStats() {
  *
  * @returns 无返回值
  */
+function onBuildingChange() {
+  selectedFloor.value = ''
+  floorList.value = []
+  roomList.value = []
+  fetchFloorList()
+}
+
 function fetchFloorList() {
-  getFloorList().then((res) => {
+  getFloorList(selectedBuilding.value).then((res) => {
     floorList.value = res || []
     if (floorList.value.length > 0) {
       selectedFloor.value = floorList.value[0]
