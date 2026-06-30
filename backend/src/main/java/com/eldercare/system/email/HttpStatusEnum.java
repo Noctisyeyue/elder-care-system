@@ -13,6 +13,8 @@ public enum HttpStatusEnum {
     EMAIL_ALREADY_EXIST(4005, "邮箱不存在"),
     PASSWORD_INCONSISTENT(4006, "密码不一致"),
     PARAM_ILLEGAL(4007, "参数不合法"),
+    EMAIL_REGISTERED(4008, "邮箱已被注册"),
+    CODE_SEND_TOO_FREQUENT(4009, "验证码发送过于频繁，请稍后再试"),
 
     INTERNAL_SERVER_ERROR(500, "服务器异常"),
     UNKNOWN_ERROR(66666, "未知异常, 联系管理员"),

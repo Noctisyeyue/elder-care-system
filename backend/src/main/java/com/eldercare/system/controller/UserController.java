@@ -42,6 +42,12 @@ public class UserController {
     public ApiResult add(@RequestBody UserAddRequest user) {
         return userService.add(user);
     }
+    // 护工注册
+    @Operation(summary = "护工注册")
+    @PostMapping("/register")
+    public ApiResult register(@RequestBody CaregiverRegisterRequest request) {
+        return userService.register(request);
+    }
     // 删除用户
     @Operation(summary = "删除用户")
     @PostMapping("/del")

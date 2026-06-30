@@ -14,10 +14,12 @@ import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.util.PasswordUtil;
 import com.eldercare.system.util.ImgUploadUtil;
 import com.eldercare.system.dto.user.*;
+import com.eldercare.system.email.RedisConstant;
 import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.vo.user.RoleNumVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,6 +69,10 @@ public class UserServiceImpl implements UserService{
     /** JWT 配置属性 */
     @Autowired
     private JwtProperties jwtProperties;
+
+    /** Redis 字符串模板，用于读取注册验证码 */
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 获取 JWT 过期时间（毫秒），用于 Redis token 同步过期
@@ -179,6 +185,78 @@ public class UserServiceImpl implements UserService{
         else {
             result.setCode(500);
             result.setMessage("添加失败，其他错误");
+        }
+        return result;
+    }
+
+    /**
+     * 护工注册：固定创建 role_id=3、status=0 的待审核账号
+     *
+     * @param request 注册参数
+     * @return 注册结果
+     */
+    @Override
+    public ApiResult register(CaregiverRegisterRequest request) {
+        ApiResult result = new ApiResult();
+        // 必填校验
+        if (request.getUserName() == null || request.getUserName().isBlank()
+                || request.getEmail() == null || request.getEmail().isBlank()
+                || request.getCode() == null || request.getCode().isBlank()
+                || request.getPassword() == null || request.getPassword().isBlank()
+                || request.getRealName() == null || request.getRealName().isBlank()
+                || request.getPhone() == null || request.getPhone().isBlank()
+                || request.getGender() == null || request.getGender().isBlank()) {
+            result.setCode(500);
+            result.setMessage("注册失败，请填写完整信息");
+            return result;
+        }
+        // 用户名格式：4-20 位字母/数字/下划线
+        if (!request.getUserName().matches("^[a-zA-Z0-9_]{4,20}$")) {
+            result.setCode(500);
+            result.setMessage("注册失败，用户名需为 4-20 位字母、数字或下划线");
+            return result;
+        }
+        // 用户名查重
+        QueryWrapper<User> userNameWrapper = new QueryWrapper<>();
+        userNameWrapper.eq("user_name", request.getUserName());
+        userNameWrapper.eq("del_flag", "0");
+        if (userMapper.selectOne(userNameWrapper) != null) {
+            result.setCode(500);
+            result.setMessage("注册失败，用户名已存在");
+            return result;
+        }
+        // 邮箱查重
+        if (getUserByEmail(request.getEmail())) {
+            result.setCode(500);
+            result.setMessage("注册失败，邮箱已被注册");
+            return result;
+        }
+        // 验证码校验
+        String rightCode = stringRedisTemplate.opsForValue().get(RedisConstant.REGISTER_CODE + request.getEmail());
+        if (rightCode == null || !rightCode.equals(request.getCode())) {
+            result.setCode(500);
+            result.setMessage("注册失败，验证码错误或已过期");
+            return result;
+        }
+        // 验证通过，删除验证码防止重复使用
+        stringRedisTemplate.delete(RedisConstant.REGISTER_CODE + request.getEmail());
+
+        // 创建护工账号，固定角色和待审核状态
+        User user = new User();
+        user.setUserName(request.getUserName());
+        user.setPassword(hashPassword(request.getPassword()));
+        user.setRealName(request.getRealName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setGender(request.getGender());
+        user.setRoleId(UserRoleConstant.CAREGIVER_ID);
+        user.setStatus(0);
+        if (userMapper.insert(user) > 0) {
+            result.setCode(200);
+            result.setMessage("注册成功，请等待管理员审核");
+        } else {
+            result.setCode(500);
+            result.setMessage("注册失败，其他错误");
         }
         return result;
     }

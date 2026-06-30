@@ -30,6 +30,14 @@ public interface UserService {
     ApiResult add(UserAddRequest user);
 
     /**
+     * 护工注册
+     *
+     * @param request 注册参数
+     * @return 注册结果
+     */
+    ApiResult register(CaregiverRegisterRequest request);
+
+    /**
      * 分页查询用户列表
      *
      * @param user 查询参数

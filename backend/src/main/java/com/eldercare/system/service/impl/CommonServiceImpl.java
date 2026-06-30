@@ -176,6 +176,49 @@ public class CommonServiceImpl implements CommonService {
     }
 
     /**
+     * 发送护工注册验证码
+     * 仅当邮箱未被注册时发送，同一邮箱 60 秒内不可重复发送
+     *
+     * @param emailJson 邮箱参数 JSON
+     * @return 发送结果
+     */
+    @Override
+    public R sendRegisterCode(String emailJson) {
+        // 非空校验
+        if (StringUtils.isBlank(emailJson)) return R.error(HttpStatusEnum.PARAM_ILLEGAL);
+
+        // 提取邮箱并校验格式
+        String email = JSON.parseObject(emailJson).getString("email").trim();
+        if (!StringUtil.checkEmail(email)) {
+            return R.error(HttpStatusEnum.EMAIL_ERROR);
+        }
+        // 注册要求邮箱未被使用：已存在则拒绝
+        if (userService.getUserByEmail(email)) {
+            return R.error(HttpStatusEnum.EMAIL_REGISTERED);
+        }
+        // 60 秒防刷：防刷标记存在则拒绝
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(RedisConstant.REGISTER_CODE_LIMIT + email))) {
+            return R.error(HttpStatusEnum.CODE_SEND_TOO_FREQUENT);
+        }
+
+        // 生成 6 位数字验证码
+        String code = StringUtil.randomSixCode();
+        String content = "亲爱的用户：\n" +
+                "您此次的注册验证码为：\n\n" +
+                code + "\n\n" +
+                "此验证码5分钟内有效，请立即进行下一步操作。 如非你本人操作，请忽略此邮件。\n" +
+                "感谢您的使用！";
+        threadService.sendSimpleMail(email, "您此次的注册验证码为：" + code, content);
+        System.out.println("注册验证码发送成功，email=" + email + "，code=" + code);
+
+        // 验证码缓存 5 分钟
+        redisTemplate.opsForValue().set(RedisConstant.REGISTER_CODE + email, code, RedisConstant.EXPIRE_FIVE_MINUTE, TimeUnit.SECONDS);
+        // 防刷标记缓存 60 秒
+        redisTemplate.opsForValue().set(RedisConstant.REGISTER_CODE_LIMIT + email, "1", RedisConstant.EXPIRE_ONE_MINUTE, TimeUnit.SECONDS);
+        return R.ok();
+    }
+
+    /**
      * 查询指定日期的通知信息
      *
      * @param date 日期字符串

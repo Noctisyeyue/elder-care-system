@@ -33,6 +33,14 @@ public interface CommonService {
     R findPassword(LoginParam loginParam);
 
     /**
+     * 发送护工注册验证码（邮箱不存在才发送，60 秒防刷）
+     *
+     * @param emailJson 邮箱参数 JSON
+     * @return 发送结果
+     */
+    R sendRegisterCode(String emailJson);
+
+    /**
      * 查询指定日期的通知信息
      *
      * @param date 日期字符串

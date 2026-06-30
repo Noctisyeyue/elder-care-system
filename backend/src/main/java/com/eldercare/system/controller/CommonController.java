@@ -41,6 +41,13 @@ public class CommonController {
         return commonService.findPassword(loginParam);
     }
 
+    // 护工注册验证码接口
+    @Operation(summary = "护工注册验证码接口")
+    @PostMapping("/code/register")
+    public R sendRegisterCode(@RequestBody String emailJson) {
+        return commonService.sendRegisterCode(emailJson);
+    }
+
     @Operation(summary = "获取通知信息")
     @GetMapping("/notification")
     public ApiResult<NotificationVO> getNotification(String date){
