@@ -201,6 +201,12 @@ router.beforeEach((to, _from, next) => {
     return
   }
 
+  // 用户管理类路由仅超级管理员可访问
+  if (to.path.startsWith('/user') && !userStore.isSuperAdmin) {
+    next(userStore.isCaregiver ? '/home/caregiver' : '/home/admin')
+    return
+  }
+
   next()
 })
 

@@ -21,6 +21,13 @@ const LLMService = axios.create({
 /** 是否已显示错误提示，避免短时间内重复弹窗。 */
 let isErrorMessageShown = false
 
+/** 清理 sessionStorage 中的完整登录态 */
+function clearAuthFromStorage() {
+  ;['token', 'userId', 'realName', 'email', 'roleId', 'roleKey', 'roleName', 'status'].forEach((k) =>
+    sessionStorage.removeItem(k),
+  )
+}
+
 service.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token')
@@ -49,7 +56,7 @@ service.interceptors.response.use(
       }
 
       if (res.code === 401) {
-        sessionStorage.removeItem('token')
+        clearAuthFromStorage()
         router.push('/login')
       }
 
@@ -64,7 +71,7 @@ service.interceptors.response.use(
 
       switch (status) {
         case 401:
-          sessionStorage.removeItem('token')
+          clearAuthFromStorage()
           ElMessage.error('未登录，请先登录')
           router.push('/login')
           break
