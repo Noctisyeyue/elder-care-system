@@ -3,6 +3,7 @@ import com.eldercare.system.service.CaregiverService;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.eldercare.system.constant.UserRoleConstant;
 import com.eldercare.system.entity.*;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
@@ -69,7 +70,7 @@ public class CaregiverServiceImpl implements CaregiverService {
         // 2. 分页查询
         int pageStart = (request.getPageNum() - 1) * request.getPageSize();
         queryWrapper.last("LIMIT " + pageStart + ", " + request.getPageSize());
-        queryWrapper.eq("role_id", 2);
+        queryWrapper.eq("role_id", UserRoleConstant.CAREGIVER_ID);
         List<User> caregivers = userMapper.selectList(queryWrapper);
 
         // 3. 数据转换
@@ -90,7 +91,7 @@ public class CaregiverServiceImpl implements CaregiverService {
         if (request.getUserName() != null && !request.getUserName().isEmpty()) {
             countQueryWrapper.like("real_name", request.getUserName());
         }
-        countQueryWrapper.eq("role_id", 2);
+        countQueryWrapper.eq("role_id", UserRoleConstant.CAREGIVER_ID);
 
         // 使用不带 LIMIT 的 wrapper 查询总数
         int total = Math.toIntExact(userMapper.selectCount(countQueryWrapper));

@@ -2,9 +2,8 @@ import { get, post } from '@/utils/request'
 
 /** 用户登录请求参数 */
 export interface LoginParams {
-  userName: string
+  account: string
   password: string
-  role: string
 }
 
 /** 用户列表查询参数 */

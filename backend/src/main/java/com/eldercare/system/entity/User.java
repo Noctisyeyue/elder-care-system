@@ -38,4 +38,7 @@ public class User extends BaseEntity {
 
     /** 性别 */
     private String gender;
+
+    /** 账号状态：0 待审核，1 启用，2 禁用 */
+    private Integer status;
 }

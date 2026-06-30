@@ -1,7 +1,7 @@
 <template>
   <el-form :model="form" label-position="top" @submit.prevent="handleSubmit">
-    <el-form-item label="用户名">
-      <el-input v-model="form.userName" placeholder="请输入用户名" required />
+    <el-form-item label="用户名 / 邮箱">
+      <el-input v-model="form.account" placeholder="请输入用户名或邮箱" required />
     </el-form-item>
     <el-form-item label="密码">
       <el-input
@@ -103,22 +103,21 @@ const props = defineProps({
 const router = useRouter()
 const loading = ref(false)
 const form = ref({
-  userName: '',
+  account: '',
   password: '',
 })
 const userStore = useUserStore()
 const handleSubmit = async () => {
   loading.value = true
   try {
-    const { userName, password } = form.value
+    const { account, password } = form.value
 
     const response = await post<LoginResponse>('/user/login', {
-      userName,
+      account,
       password,
-      role: props.role,
     })
 
-    userStore.setUser(response.token, props.role, userName, response.email || '')
+    userStore.setUser(response.token, props.role, account, response.email || '')
     // const testToken = 'This is a test token'
     // userStore.setUser(testToken, props.role, userName)
     router.push('/')

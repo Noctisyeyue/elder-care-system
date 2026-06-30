@@ -8,22 +8,9 @@ import lombok.Data;
 @Data
 public class UserLoginRequest {
 
-    private String userName; // 用户名
-    private String password; // 密码
-    private String role; // 登录角色标识
+    /** 登录账号，可为用户名或邮箱 */
+    private String account;
 
-    /**
-     * 获取角色编号
-     *
-     * @return 角色编号
-     */
-    public int getRoleId() {
-        if (role.equals("admin")) {
-            return 1;
-        } else if (role.equals("caregiver")) {
-            return 2;
-        } else {
-            return 0;
-        }
-    }
+    /** 密码 */
+    private String password;
 }

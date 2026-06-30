@@ -7,12 +7,11 @@
 USE elder_care_system;
 
 -- -----------------------------------------------------------
--- 角色表：管理系统内置角色（管理员/护工/医生/护士）
+-- 角色表：管理系统内置角色（超级管理员/管理员/护工）
 -- -----------------------------------------------------------
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (1, '管理员', 'admin');
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (2, '护工', 'caregiver');
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (3, '医生', 'doctor');
-INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (4, '护士', 'nurse');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (1, '超级管理员', 'super_admin');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (2, '管理员', 'admin');
+INSERT INTO `role` (`role_id`, `role_name`, `role_key`) VALUES (3, '护工', 'caregiver');
 
 INSERT INTO `bed` VALUES (1, '1', 'used', 1, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `bed` VALUES (2, '2', 'used', 1, '0', NULL, NULL, NULL, NULL);
@@ -443,36 +442,23 @@ INSERT INTO `room` VALUES (47, '5007', '五层', '606', '0', NULL, NULL, NULL, N
 INSERT INTO `room` VALUES (48, '5008', '五层', '606', '0', NULL, NULL, NULL, NULL);
 INSERT INTO `room` VALUES (49, '5009', '五层', '606', '0', NULL, NULL, NULL, NULL);
 INSERT INTO `room` VALUES (50, '5010', '五层', '606', '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (1, 1, 'admin', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '蒋致远', '16915788444', 'stole3@outlook.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (2, 1, 'admin1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邱宇宁', '18489665847', 'cl309@gmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (3, 1, 'admin2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邵璐', '17780346788', 'wagnejose9@icloud.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (4, 2, 'caregiver', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '郝云熙', '18792493111', 'fhall@outlook.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (5, 2, 'caregiver1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '冯睿', '16134584418', 'williamsclar94@outlook.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (6, 2, 'caregiver2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '孔詩涵', '17381375062', 'kelleylillian@icloud.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (7, 2, 'caregiver3', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '陶子异', '16781642323', 'foxmelissa@yahoo.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (8, 2, 'caregiver4', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邓杰宏', '18291952428', 'powelterry99@hotmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (9, 2, 'caregiver5', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '沈璐', '16054785826', 'gary215@icloud.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (10, 2, 'caregiver6', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '夏詩涵', '18329124120', 'huntela124@outlook.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (11, 2, 'caregiver7', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王秀英', '16242572721', 'cf10@hotmail.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (12, 2, 'caregiver8', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '廖震南', '18788530318', 'westno@yahoo.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (13, 2, 'caregiver9', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '陆子异', '15971964696', 'evansw10@mail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (14, 2, 'caregiver10', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王云熙', '18671589744', 'awe9@icloud.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (15, 2, 'caregiver11', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '郑震南', '18850921209', 'josephreed7@gmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (16, 2, 'caregiver12', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王嘉伦', '18092028430', 'parkerm10@hotmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (17, 2, 'caregiver13', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '钱晓明', '17679847811', 'nb2015@hotmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (18, 2, 'caregiver14', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '蔡子异', '17283837180', 'eherrera8@outlook.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (19, 2, 'caregiver15', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '胡宇宁', '18519896034', 'marviwagne618@yahoo.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (20, 2, 'caregiver16', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邱杰宏', '17107062760', 'harrf@gmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (21, 3, 'doctor0', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '严致远', '17469386130', 'ecar308@icloud.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (22, 3, 'doctor1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '阎子异', '15961973462', 'hendechar@hotmail.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (23, 3, 'doctor2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '孔晓明', '18201901107', 'laurav@outlook.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (24, 3, 'doctor3', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '傅震南', '16798825586', 'scottgo929@icloud.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (25, 3, 'doctor4', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '汪秀英', '16705920174', 'jd1@mail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (26, 3, 'doctor5', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '向致远', '16475240870', 'nicolehunter117@hotmail.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (27, 4, 'nurse0', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '丁晓明', '16721676059', 'karencooper@mail.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (28, 4, 'nurse1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '任安琪', '18140652532', 'ruizdi314@icloud.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (29, 4, 'nurse2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '孔嘉伦', '15968413768', 'fisherlori823@icloud.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (30, 4, 'nurse3', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '夏嘉伦', '18719544671', 'lopez6@mail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (31, 4, 'nurse4', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '马震南', '15908507638', 'cliffsteph@hotmail.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (32, 4, 'nurse5', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '雷秀英', '17458451234', 'cjud7@gmail.com', '女', NULL, '0', NULL, NULL, NULL, NULL);
-INSERT INTO `user` VALUES (33, 4, 'nurse6', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '曹璐', '18567903728', 'briantucker@icloud.com', '男', NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (1, 1, 'admin', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '蒋致远', '16915788444', 'stole3@outlook.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (2, 2, 'admin1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邱宇宁', '18489665847', 'cl309@gmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (3, 2, 'admin2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邵璐', '17780346788', 'wagnejose9@icloud.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (4, 3, 'caregiver', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '郝云熙', '18792493111', 'fhall@outlook.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (5, 3, 'caregiver1', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '冯睿', '16134584418', 'williamsclar94@outlook.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (6, 3, 'caregiver2', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '孔詩涵', '17381375062', 'kelleylillian@icloud.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (7, 3, 'caregiver3', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '陶子异', '16781642323', 'foxmelissa@yahoo.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (8, 3, 'caregiver4', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邓杰宏', '18291952428', 'powelterry99@hotmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (9, 3, 'caregiver5', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '沈璐', '16054785826', 'gary215@icloud.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (10, 3, 'caregiver6', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '夏詩涵', '18329124120', 'huntela124@outlook.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (11, 3, 'caregiver7', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王秀英', '16242572721', 'cf10@hotmail.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (12, 3, 'caregiver8', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '廖震南', '18788530318', 'westno@yahoo.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (13, 3, 'caregiver9', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '陆子异', '15971964696', 'evansw10@mail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (14, 3, 'caregiver10', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王云熙', '18671589744', 'awe9@icloud.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (15, 3, 'caregiver11', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '郑震南', '18850921209', 'josephreed7@gmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (16, 3, 'caregiver12', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '王嘉伦', '18092028430', 'parkerm10@hotmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (17, 3, 'caregiver13', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '钱晓明', '17679847811', 'nb2015@hotmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (18, 3, 'caregiver14', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '蔡子异', '17283837180', 'eherrera8@outlook.com', '女', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (19, 3, 'caregiver15', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '胡宇宁', '18519896034', 'marviwagne618@yahoo.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
+INSERT INTO `user` VALUES (20, 3, 'caregiver16', '$2a$10$kcRSgxPxj32qkzBaNreXOOgUHZNRLmkvz93PLwhm0tQ38z2goMffy', '邱杰宏', '17107062760', 'harrf@gmail.com', '男', 1, NULL, '0', NULL, NULL, NULL, NULL);
