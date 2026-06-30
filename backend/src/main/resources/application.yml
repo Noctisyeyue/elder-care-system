@@ -7,11 +7,17 @@ spring:
   application:
     name: elder-care-system
 
+  # 激活本地配置覆盖敏感信息（application-local.yml 不提交，见 .gitignore）
+  # 其他人 clone 后，请新建 application-local.yml 并填入本地真实配置
+  profiles:
+    active: local
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库连接信息为本地配置，真值见 application-local.yml
     url: jdbc:mysql://localhost:3306/elder_care_system?serverTimezone=UTC&characterEncoding=utf-8
-    username: root
-    password: 123456
+    username: your-mysql-username
+    password: your-mysql-password
 
   data:
     redis:
@@ -36,7 +42,7 @@ spring:
   main:
     allow-circular-references: false
 
-  # Spring AI（LLM 对话，需自行替换 api-key）
+  # Spring AI（LLM 对话，api-key 为敏感信息，真值见 application-local.yml）
   ai:
     openai:
       api-key: your-deepseek-api-key
@@ -48,12 +54,12 @@ spring:
       embedding:
         enabled: false
 
-  # 邮件服务（可选，后续按需启用）
+  # 邮件服务（密码为敏感信息，真值见 application-local.yml，勿提交）
   mail:
     protocol: smtp
     host: smtp.qq.com
-    username: 1923780217@qq.com
-    password: zxrcqomlaipkdica
+    username: your-email@qq.com
+    password: your-smtp-password
     properties:
       port: 587
       default-encoding: UTF-8
@@ -73,9 +79,11 @@ logging:
 # 自定义配置
 elder-care:
   jwt:
-    secret-key: elder-care-system-jwt-secret-key-2026
+    # JWT 密钥为敏感信息，真值见 application-local.yml
+    secret-key: your-jwt-secret-key
     ttl: 72000000
   alioss:
+    # OSS 密钥为敏感信息，真值见 application-local.yml
     access-key-id: your-access-key-id
     access-key-secret: your-access-key-secret
     bucket-name: elder-care-system
