@@ -34,9 +34,36 @@
       <el-table-column prop="gender" label="性别" />
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="role" label="员工类型" />
-      <el-table-column label="操作" width="150">
+      <el-table-column label="状态" width="90">
+        <template #default="scope">
+          <el-tag v-if="scope.row.status === 0" type="warning" size="small">待审核</el-tag>
+          <el-tag v-else-if="scope.row.status === 1" type="success" size="small">启用</el-tag>
+          <el-tag v-else-if="scope.row.status === 2" type="danger" size="small">禁用</el-tag>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="280">
         <template #default="scope">
           <el-button type="text" @click="openDialog(scope.row)">修改</el-button>
+          <el-button
+            v-if="scope.row.status === 0"
+            type="text"
+            style="color: #67c23a"
+            @click="handleAudit(scope.row)"
+          >通过审核</el-button>
+          <el-button
+            v-if="scope.row.status === 1"
+            type="text"
+            style="color: #e6a23c"
+            @click="handleDisable(scope.row)"
+          >禁用</el-button>
+          <el-button
+            v-if="scope.row.status === 2"
+            type="text"
+            style="color: #67c23a"
+            @click="handleEnable(scope.row)"
+          >启用</el-button>
+          <el-button type="text" @click="handleResetPwd(scope.row)">重置密码</el-button>
           <el-button type="text" style="color: red" @click="handleDelete(scope.row)">移除</el-button>
         </template>
       </el-table-column>
@@ -100,18 +127,22 @@ import {
   addUser,
   updateUser,
   deleteUsers,
+  auditUser,
+  disableUser,
+  resetUserPwd,
 } from '@/api/user'
 import { Search } from '@element-plus/icons-vue'
 const searchForm = reactive({ userName: '' })
 const userList = ref([
   {
-    id: 1,
+    userId: 1,
     userName: 'jett',
     realName: '李福星',
     phone: '1432543223',
     gender: '男',
     email: '20223367@stu.neu.edu.cn',
     role: '护工',
+    status: 1,
   },
 ])
 
@@ -230,6 +261,70 @@ function handleDelete(row) {
       deleteUsers([row.userName]).then(() => {
         ElMessage.success('删除成功')
         handleSearch() // 重新加载列表
+      })
+    })
+    .catch(() => {})
+}
+
+function handleAudit(row) {
+  ElMessageBox.confirm(`确定要通过【${row.realName || row.userName}】的审核吗？`, '审核确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'info',
+  })
+    .then(() => {
+      auditUser(row.userId).then(() => {
+        ElMessage.success('审核通过')
+        handleSearch()
+      })
+    })
+    .catch(() => {})
+}
+
+function handleDisable(row) {
+  ElMessageBox.confirm(`确定要禁用【${row.realName || row.userName}】吗？禁用后该用户将无法登录。`, '禁用确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(() => {
+      disableUser(row.userId).then(() => {
+        ElMessage.success('已禁用')
+        handleSearch()
+      })
+    })
+    .catch(() => {})
+}
+
+function handleEnable(row) {
+  ElMessageBox.confirm(`确定要重新启用【${row.realName || row.userName}】吗？`, '启用确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'info',
+  })
+    .then(() => {
+      // 启用 = 审核通过，将 status 从 2 改回 1
+      auditUser(row.userId).then(() => {
+        ElMessage.success('已启用')
+        handleSearch()
+      })
+    })
+    .catch(() => {})
+}
+
+function handleResetPwd(row) {
+  ElMessageBox.confirm(
+    `确定要重置【${row.realName || row.userName}】的密码吗？密码将重置为默认密码 123456。`,
+    '重置密码确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    },
+  )
+    .then(() => {
+      resetUserPwd(row.userId).then(() => {
+        ElMessage.success('密码已重置为 123456')
       })
     })
     .catch(() => {})

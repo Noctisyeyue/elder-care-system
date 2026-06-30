@@ -124,6 +124,30 @@ export function uploadAvatar(formData: FormData) {
   return post('/user/avatar/upload', formData)
 }
 
+/**
+ * 审核护工（将 status 从 0 改为 1）
+ * @param userId 用户 ID
+ */
+export function auditUser(userId: number) {
+  return post('/user/audit', null, { params: { userId } })
+}
+
+/**
+ * 禁用/启用账号（将 status 改为 2 或从 2 恢复为 1）
+ * @param userId 用户 ID
+ */
+export function disableUser(userId: number) {
+  return post('/user/disable', null, { params: { userId } })
+}
+
+/**
+ * 重置密码为默认密码（123456）
+ * @param userId 用户 ID
+ */
+export function resetUserPwd(userId: number) {
+  return post('/user/resetPwd', null, { params: { userId } })
+}
+
 /** 获取用户头像 */
 export function getUserAvatar() {
   return get('/user/avatar/get')

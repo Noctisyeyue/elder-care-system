@@ -379,12 +379,14 @@ public class UserServiceImpl implements UserService{
         Long index = 1L;
         for (User user0 : users) {
             UserResultVO userResult = new UserResultVO();
+            userResult.setUserId(user0.getUserId());
             userResult.setUserName(user0.getUserName());
             userResult.setRealName(user0.getRealName());
             userResult.setPhone(user0.getPhone());
             userResult.setEmail(user0.getEmail());
             userResult.setGender(user0.getGender());
             userResult.setIndex(user0.getUserId());
+            userResult.setStatus(user0.getStatus());
             // 角色 name 直接来自 role 表
             userResult.setRole(roleNameMap.get(user0.getRoleId()));
             userResults.add(userResult);
