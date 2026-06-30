@@ -1,6 +1,7 @@
 package com.eldercare.system.dto.nursing;
 
 import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -8,10 +9,7 @@ import java.util.List;
  */
 @Data
 public class LevelItemsRequest {
-    /*
-    levelId: 1,      // 当前护理级别ID
-    itemId: [2,3]     // 护理项目ID数组
-    */
-    private Long levelId;
-    private List<Long> itemIds;
+
+    private Long levelId; // 护理级别 ID
+    private List<Long> itemIds; // 护理项目 ID 列表
 }

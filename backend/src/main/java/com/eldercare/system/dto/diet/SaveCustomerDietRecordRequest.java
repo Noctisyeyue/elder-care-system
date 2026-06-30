@@ -4,18 +4,15 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 客户每日膳食记录保存请求
+ */
 @Data
 public class SaveCustomerDietRecordRequest {
-    /*
-    customerId: number,  // 客户ID
-    date: string,       // 日期，格式：YYYY-MM-DD
-    breakfast: []        // 早餐列表
-    lunch: []        // 午餐列表
-    dinner: []        // 晚餐列表
-    */
-    private Long customerId;
-    private String date;
-    private List<DishRequest> breakfast;
-    private List<DishRequest> lunch;
-    private List<DishRequest> dinner;
+
+    private Long customerId; // 客户 ID
+    private String date; // 膳食日期
+    private List<DishRequest> breakfast; // 早餐菜品列表
+    private List<DishRequest> lunch; // 午餐菜品列表
+    private List<DishRequest> dinner; // 晚餐菜品列表
 }

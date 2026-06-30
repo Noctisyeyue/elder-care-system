@@ -7,7 +7,8 @@ import lombok.Data;
  */
 @Data
 public class LevelItemListRequest {
-    private Long levelId;
-    private Integer pageNum;
-    private Integer pageSize;
+
+    private Long levelId; // 护理级别 ID
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
 }

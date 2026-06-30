@@ -7,8 +7,9 @@ import lombok.Data;
  */
 @Data
 public class CustomerListRequest {
-    private String customerName;      // 可为空
-    private String customerType;      // 可为空，值应为 'self-care' 或 'nursing-care'
-    private Integer pageNum;             // 必填
-    private Integer pageSize;         // 必填
+
+    private String customerName; // 客户姓名，支持模糊查询
+    private String customerType; // 客户类型：self-care 自理老人，nursing-care 护理老人
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
 }

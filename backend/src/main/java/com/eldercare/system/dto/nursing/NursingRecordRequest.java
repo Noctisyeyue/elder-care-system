@@ -7,17 +7,12 @@ import lombok.Data;
  */
 @Data
 public class NursingRecordRequest {
-    /*  "id": 3,                    // 护理项目ID，数字类型
-  "name": "踩背",             // 护理项目名称，字符串
-  "code": "#1234",            // 护理项目编号，字符串
-  "price": 100,               // 护理项目价格，数字类型
-  "nursingTime": "2024-06-21",// 护理时间，字符串，格式为YYYY-MM-DD
-  "times": 1          // 护理数量，数字类型*/
-    private Long itemId;
-    private Long customerId;
-    private String name;
-    private String code;
-    private Double price;
-    private String nursingTime;
-    private Integer times;
+
+    private Long itemId; // 护理项目 ID
+    private Long customerId; // 客户 ID
+    private String name; // 护理项目名称
+    private String code; // 护理项目编号
+    private Double price; // 护理项目价格
+    private String nursingTime; // 护理时间
+    private Integer times; // 护理次数
 }

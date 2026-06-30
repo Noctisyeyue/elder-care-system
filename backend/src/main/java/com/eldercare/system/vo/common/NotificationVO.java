@@ -7,10 +7,8 @@ import lombok.Data;
  */
 @Data
 public class NotificationVO {
-    /** 退住申请数 */
-    private Long checkOutApplyCount;
-    /** 外出申请数 */
-    private Long outingApplyCount;
-    /** 膳食是否已配置 */
-    private Boolean dietConfigured;
+
+    private Long checkOutApplyCount; // 退住申请数
+    private Long outingApplyCount; // 外出申请数
+    private Boolean dietConfigured; // 膳食是否已配置
 }

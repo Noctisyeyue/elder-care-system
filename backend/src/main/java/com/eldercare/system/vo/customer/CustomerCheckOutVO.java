@@ -7,15 +7,15 @@ import lombok.Data;
  */
 @Data
 public class CustomerCheckOutVO {
-    private Long id;
-    private String customerName;
-    private String checkInDate;
-    private String checkOutDate;
-    private String checkOutType;
-    private String checkOutReason;
-    private String approvalTime;
-    private String approvalPerson;
-    private String approvalStatus;
-    private String bedNumber;
 
+    private Long id; // 退住申请 ID
+    private String customerName; // 客户姓名
+    private String checkInDate; // 入住日期
+    private String checkOutDate; // 退住日期
+    private String checkOutType; // 退住类型
+    private String checkOutReason; // 退住原因
+    private String approvalTime; // 审批时间
+    private String approvalPerson; // 审批人
+    private String approvalStatus; // 审批状态
+    private String bedNumber; // 床位号
 }

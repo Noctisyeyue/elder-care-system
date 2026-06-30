@@ -2,17 +2,14 @@ package com.eldercare.system.vo.caregiver;
 
 import lombok.Data;
 
+/**
+ * 申请状态统计视图
+ */
 @Data
-/** ApplicationStatus视图 */
 public class ApplicationStatusVO {
-    /*
-    "approved":80,
-    "rejected": 15,
-    "submitted": 25,
-    "cancelled":5
-    */
-    private Long approved;
-    private Long rejected;
-    private Long submitted;
-    private Long cancelled;
+
+    private Long approved; // 已通过数量
+    private Long rejected; // 已拒绝数量
+    private Long submitted; // 已提交数量
+    private Long cancelled; // 已撤销数量
 }

@@ -4,23 +4,19 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 客户膳食视图
+ */
 @Data
 public class CustomerDishListVO {
-    /*
-    customerId: number,      // 客户ID
-    customerName: string,    // 客户姓名
-    age: number,     // 年龄
-    gender: string,  // 性别：'male'/'female'
-    nation: string,  // 民族
-    bedNumber: string, // 床号
-    */
-    private Long customerId;
-    private String customerName;
-    private Integer age;
-    private String gender;
-    private String nation;
-    private String bedNumber;
-    private List<DishVO> breakfast;
-    private List<DishVO> lunch;
-    private List<DishVO> dinner;
+
+    private Long customerId; // 客户 ID
+    private String customerName; // 客户姓名
+    private Integer age; // 年龄
+    private String gender; // 性别
+    private String nation; // 民族
+    private String bedNumber; // 床位号
+    private List<DishVO> breakfast; // 早餐菜品列表
+    private List<DishVO> lunch; // 午餐菜品列表
+    private List<DishVO> dinner; // 晚餐菜品列表
 }

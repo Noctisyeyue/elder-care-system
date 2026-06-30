@@ -2,11 +2,14 @@ package com.eldercare.system.dto.caregiver;
 
 import lombok.Data;
 
+/**
+ * 健康管家服务对象查询请求
+ */
 @Data
-/** CustomersByCareId请求 */
 public class CustomersByCareIdRequest {
-    private Long caregiverId;      // 可为空
-    private Integer pageNum;         // 必填
-    private Integer pageSize;
-    private String customerName;
+
+    private Long caregiverId; // 健康管家用户 ID，可为空
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
+    private String customerName; // 客户姓名，支持模糊查询
 }

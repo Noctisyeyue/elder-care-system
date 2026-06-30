@@ -2,21 +2,15 @@ package com.eldercare.system.dto.bed;
 
 import lombok.Data;
 
-@Data
 /**
- * BedSwapRequest 请求
+ * 床位调换请求
  */
+@Data
 public class BedSwapRequest {
-    /*
-    oldBedId: number;        // 旧床位记录的ID
-    oldBedEndDate: string;   // 旧床位结束日期，格式：YYYY-MM-DD
-    newBedDetails: string;   // 新床位详情，格式：606#房间号-床位号
-    newBedStartDate: string; // 新床位开始日期，格式：YYYY-MM-DD
-    newBedEndDate: string;   // 新床位结束日期，格式：YYYY-MM-DD
-    */
-    private Long oldBedId;
-    private String oldBedEndDate;
-    private String newBedDetails;
-    private String newBedStartDate;
-    private String newBedEndDate;
+
+    private Long oldBedId; // 原床位记录 ID
+    private String oldBedEndDate; // 原床位结束日期
+    private String newBedDetails; // 新床位详情，格式为房间号#床位号
+    private String newBedStartDate; // 新床位开始日期
+    private String newBedEndDate; // 新床位结束日期
 }

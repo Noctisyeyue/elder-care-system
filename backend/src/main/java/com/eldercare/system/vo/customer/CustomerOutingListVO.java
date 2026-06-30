@@ -9,6 +9,7 @@ import java.util.List;
  */
 @Data
 public class CustomerOutingListVO {
-    private List<CustomerOutingVO> records;
-    private Long total;
+
+    private List<CustomerOutingVO> records; // 外出申请记录列表
+    private Long total; // 总记录数
 }

@@ -7,10 +7,7 @@ import lombok.Data;
  */
 @Data
 public class LevelItemRequest {
-    /*
-    levelId: 1,      // 当前护理级别ID
-    itemId: 2     // 护理项目ID
-    */
-    private Long levelId;
-    private Long itemId;
+
+    private Long levelId; // 护理级别 ID
+    private Long itemId; // 护理项目 ID
 }

@@ -7,12 +7,8 @@ import lombok.Data;
  */
 @Data
 public class LevelVO {
-    /*
-    id: 1,
-    evel: "一级",
-    status: "启用"
-    */
-    private Long id;
-    private String level;
-    private String status;
+
+    private Long id; // 护理级别 ID
+    private String level; // 护理级别名称
+    private String status; // 护理级别状态
 }

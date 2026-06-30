@@ -7,14 +7,9 @@ import lombok.Data;
  */
 @Data
 public class ItemRecordAddRequest {
-    /*
-    itemId: number;   // 项目ID
-    buyDate: string;   // 购买日期，格式：YYYY-MM-DD
-    buyCount: number;  // 购买数量
-    expireDate: string; // 到期日期，格式：YYYY-MM-DD
-    */
-    private Long itemId;
-    private String buyDate;
-    private Integer buyCount;
-    private String expireDate;
+
+    private Long itemId; // 护理项目 ID
+    private String buyDate; // 购买日期
+    private Integer buyCount; // 购买数量
+    private String expireDate; // 到期日期
 }

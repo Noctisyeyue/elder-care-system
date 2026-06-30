@@ -2,12 +2,12 @@ package com.eldercare.system.dto.diet;
 
 import lombok.Data;
 
+/**
+ * 膳食日历月视图查询请求
+ */
 @Data
 public class DietCalendarMonthListRequest {
-    /*
-    year : number  年份
-    month: number   月份
-    */
-    private Integer year;
-    private Integer month;
+
+    private Integer year; // 年份
+    private Integer month; // 月份
 }

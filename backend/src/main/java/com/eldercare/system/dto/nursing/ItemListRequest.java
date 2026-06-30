@@ -7,14 +7,9 @@ import lombok.Data;
  */
 @Data
 public class ItemListRequest {
-    /*
-    status: '启用',      // ‘启用’或者停用’
-    page: 1,            // 当前页码
-    pageSize: 10,       // 每页条数
-    name: ''      // 护理项目名称（可选，模糊搜索），若为空返回全部
-    */
-    private String status;
-    private Integer pageNum;
-    private Integer pageSize;
-    private String name;
+
+    private String status; // 护理项目状态
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
+    private String name; // 护理项目名称，支持模糊查询
 }

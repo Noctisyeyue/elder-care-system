@@ -5,10 +5,11 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 设置健康管家客户请求
+ * 设置健康管家服务对象请求
  */
 @Data
 public class SetCustomersRequest {
-    Long caregiverId;
-    List<Long> customerIds;
+
+    Long caregiverId; // 健康管家用户 ID
+    List<Long> customerIds; // 客户 ID 列表
 }

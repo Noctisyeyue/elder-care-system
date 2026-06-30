@@ -4,11 +4,21 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 健康管家列表视图
+ */
 @Data
-/** CaregiverList视图 */
 public class CaregiverListVO {
-    private List<CaregiverVO> list;
-    private int total;
+
+    private List<CaregiverVO> list; // 健康管家列表
+    private int total; // 总记录数
+
+    /**
+     * 创建健康管家列表视图
+     *
+     * @param list 健康管家列表
+     * @param total 总记录数
+     */
     public CaregiverListVO(List<CaregiverVO> list, int total) {
         this.list = list;
         this.total = total;

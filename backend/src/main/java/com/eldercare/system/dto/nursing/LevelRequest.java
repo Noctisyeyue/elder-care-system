@@ -7,12 +7,8 @@ import lombok.Data;
  */
 @Data
 public class LevelRequest {
-    /*
-    id: number,      // 护理级别ID
-    level:	 string,    // 护理级别名称
-    status: string   // '启用' 或 '停用'
-    */
-    private Long id;
-    private String level;
-    private String status;
+
+    private Long id; // 护理级别 ID
+    private String level; // 护理级别名称
+    private String status; // 护理级别状态
 }

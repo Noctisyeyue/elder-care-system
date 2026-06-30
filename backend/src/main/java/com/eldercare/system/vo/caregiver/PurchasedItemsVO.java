@@ -2,30 +2,37 @@ package com.eldercare.system.vo.caregiver;
 
 import lombok.Data;
 
+/**
+ * 已购买护理项目视图
+ */
 @Data
-/** PurchasedItems视图 */
 public class PurchasedItemsVO {
-    /*id: 1,     // 项目ID
-    customerName: "李福星", // 客户姓名
-    code: "N001", // 项目编号
-    name: "基础护理", // 项目名称
-    price: 100,  // 价格
-    executionTimes,  // （一份）执行次数
-    remain: 10,  // 剩余数量
-    expireDate: "2024-12-31", // 到期时间
-    status: "normal" // 状态：normal-正常, expired-到期, arrears-欠费
-    */
 
-    private Long id;
-    private String customerName;
-    private String code;
-    private String name;
-    private float price;
-    private int executionTimes;
-    private int remain;
-    private String expireDate;
-    private String status;
-    public PurchasedItemsVO(Long id, String customerName, String code, String name, float price, int executionTimes, int remain, String expireDate, String status){
+    private Long id; // 护理项目 ID
+    private String customerName; // 客户姓名
+    private String code; // 护理项目编号
+    private String name; // 护理项目名称
+    private float price; // 护理项目价格
+    private int executionTimes; // 单份执行次数
+    private int remain; // 剩余次数
+    private String expireDate; // 到期时间
+    private String status; // 护理项目状态
+
+    /**
+     * 创建已购买护理项目视图
+     *
+     * @param id 护理项目 ID
+     * @param customerName 客户姓名
+     * @param code 护理项目编号
+     * @param name 护理项目名称
+     * @param price 护理项目价格
+     * @param executionTimes 单份执行次数
+     * @param remain 剩余次数
+     * @param expireDate 到期时间
+     * @param status 护理项目状态
+     */
+    public PurchasedItemsVO(Long id, String customerName, String code, String name, float price,
+                            int executionTimes, int remain, String expireDate, String status) {
         this.id = id;
         this.customerName = customerName;
         this.code = code;
