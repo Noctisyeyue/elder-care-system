@@ -29,6 +29,22 @@ export interface LoginResult {
   token: string
 }
 
+/** 护工注册请求参数 */
+export interface RegisterParams {
+  userName: string
+  email: string
+  code: string
+  password: string
+  realName: string
+  phone: string
+  gender: string
+}
+
+/** 发送注册验证码请求参数 */
+export interface SendRegisterCodeParams {
+  email: string
+}
+
 /**
  * 用户登录
  * @param params 登录参数（用户名、密码、角色编码）
@@ -36,6 +52,22 @@ export interface LoginResult {
  */
 export function login(params: LoginParams) {
   return post<LoginResult>('/user/login', params)
+}
+
+/**
+ * 发送护工注册验证码（邮箱不存在才发送，60 秒防刷）
+ * @param params 邮箱参数
+ */
+export function sendRegisterCode(params: SendRegisterCodeParams) {
+  return post('/common/code/register', params)
+}
+
+/**
+ * 护工注册（注册后为待审核状态）
+ * @param params 注册参数
+ */
+export function register(params: RegisterParams) {
+  return post('/user/register', params)
 }
 
 /**

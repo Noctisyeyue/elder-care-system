@@ -22,6 +22,9 @@
             <LoginForm role="caregiver" />
           </el-tab-pane>
         </el-tabs>
+        <div class="register-link">
+          护工注册请 <span @click="goRegister">点此注册</span>
+        </div>
       </el-card>
     </div>
   </div>
@@ -29,9 +32,14 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import LoginForm from '@/components/LoginForm.vue'
 const activeTab = ref('admin')
+const router = useRouter()
+const goRegister = () => {
+  router.push('/register')
+}
 </script>
 
 <style scoped>
@@ -97,5 +105,17 @@ const activeTab = ref('admin')
   font-size: 1.8rem;
   font-weight: bold;
   color: #222;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+.register-link span {
+  color: #409eff;
+  cursor: pointer;
 }
 </style>

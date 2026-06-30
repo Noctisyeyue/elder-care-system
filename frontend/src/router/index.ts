@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/Login.vue'
+import RegisterView from '@/views/Register.vue'
+import PendingReviewView from '@/views/PendingReview.vue'
 import MainView from '@/views/Main.vue'
 import BedManageView from '@/views/bed/BedManage.vue'
 import BedMapView from '@/views/bed/BedMap.vue'
@@ -50,6 +52,17 @@ const router = createRouter({
       path: '/login',
       name: 'LoginView',
       component: LoginView,
+    },
+    {
+      path: '/register',
+      name: 'RegisterView',
+      component: RegisterView,
+    },
+    {
+      path: '/pending',
+      name: 'PendingReview',
+      component: PendingReviewView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/',
