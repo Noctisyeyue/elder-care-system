@@ -165,3 +165,8 @@ export function getUserAvatar() {
 export function getUserEmail() {
   return get('/user/email/get')
 }
+
+/** 获取当前用户在数据库中的最新状态（待审核护工刷新用） */
+export function getUserStatus() {
+  return get<number>('/user/status/get')
+}
