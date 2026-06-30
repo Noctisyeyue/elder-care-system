@@ -1,6 +1,7 @@
 package com.eldercare.system.vo.nursing;
 
 import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -8,6 +9,7 @@ import java.util.List;
  */
 @Data
 public class LevelListVO {
-    private List<LevelVO> records;
-    private Long total;
+
+    private List<LevelVO> records; // 护理级别记录列表
+    private Long total; // 总记录数
 }

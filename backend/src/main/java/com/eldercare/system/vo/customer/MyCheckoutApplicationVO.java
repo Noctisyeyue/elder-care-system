@@ -7,16 +7,11 @@ import lombok.Data;
  */
 @Data
 public class MyCheckoutApplicationVO {
-    /* id: number,                    // 申请ID
-      customerName: string,          // 客户姓名
-      checkOutType: string,          // 退住类型（如："正常退住"）
-      checkOutReason: string,        // 退住原因
-      checkOutDate: string,          // 退住时间（格式：YYYY-MM-DD）
-      approvalStatus: string         // 审批状态（"已提交"、"通过"、"不通过"、"已撤销"）*/
-    Long id;
-    String customerName;
-    String checkOutType;
-    String checkOutReason;
-    String checkOutDate;
-    String approvalStatus;
+
+    Long id; // 退住申请 ID
+    String customerName; // 客户姓名
+    String checkOutType; // 退住类型
+    String checkOutReason; // 退住原因
+    String checkOutDate; // 退住日期
+    String approvalStatus; // 审批状态
 }

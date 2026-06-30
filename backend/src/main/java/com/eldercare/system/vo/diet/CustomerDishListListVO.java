@@ -4,12 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 客户膳食列表视图
+ */
 @Data
 public class CustomerDishListListVO {
-    /*
-    list: []  // 客户膳食列表
-    total: number  // 总记录数
-    */
-    private List<CustomerDishListVO> list;
-    private Integer total;
+
+    private List<CustomerDishListVO> list; // 客户膳食列表
+    private Integer total; // 总记录数
 }

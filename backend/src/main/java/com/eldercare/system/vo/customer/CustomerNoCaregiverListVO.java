@@ -9,6 +9,7 @@ import java.util.List;
  */
 @Data
 public class CustomerNoCaregiverListVO {
-    private List<CustomerNoCaregiverVO> list;
-    private Long total;
+
+    private List<CustomerNoCaregiverVO> list; // 未分配健康管家的客户列表
+    private Long total; // 总记录数
 }

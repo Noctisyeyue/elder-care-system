@@ -4,9 +4,13 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 膳食日历视图
+ */
 @Data
 public class DietCalendarVO {
-    private Long calendarId;
-    private String date;
-    private List<SetMealVO> setMeals;
+
+    private Long calendarId; // 膳食日历 ID
+    private String date; // 膳食日期
+    private List<SetMealVO> setMeals; // 套餐列表
 }

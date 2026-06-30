@@ -7,20 +7,12 @@ import lombok.Data;
  */
 @Data
 public class RecordVO {
-    /*
-    id: number,           // 记录ID
-    code: string,         // 护理项目编号
-    name: string,         // 护理项目名称
-    times: number,        // 护理数量
-    nursingStaff: string, // 护理人员
-    staffPhone: string,   // 护理人员手机
-    nursingTime: string   // 护理时间（格式：YYYY-MM-DD）
-    */
-    private Long id;
-    private String code;
-    private String name;
-    private Integer times;
-    private String nursingStaff;
-    private String staffPhone;
-    private String nursingTime;
+
+    private Long id; // 护理记录 ID
+    private String code; // 护理项目编号
+    private String name; // 护理项目名称
+    private Integer times; // 护理次数
+    private String nursingStaff; // 护理人员
+    private String staffPhone; // 护理人员手机号
+    private String nursingTime; // 护理时间
 }

@@ -4,11 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
 /**
- * FreeRoomVO 视图
+ * 空闲房间选项视图
  */
+@Data
 public class FreeRoomVO {
-    private String label;
-    private List<PairVO> options;
+
+    private String label; // 房间显示名称
+    private List<PairVO> options; // 床位选项列表
 }

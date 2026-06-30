@@ -5,12 +5,13 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
 /**
- * BedMapVO 视图
+ * 床位示意图视图
  */
+@Data
 public class BedMapVO {
-    private String roomNumber;
-    private List<Bed> beds;
-    private List<BedVO> details;
+
+    private String roomNumber; // 房间号
+    private List<Bed> beds; // 房间床位列表
+    private List<BedVO> details; // 床位使用详情
 }

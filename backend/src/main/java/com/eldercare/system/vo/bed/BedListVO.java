@@ -4,11 +4,12 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
 /**
- * BedListVO 视图
+ * 床位列表视图
  */
+@Data
 public class BedListVO {
-    private List<BedVO> list;
-    private Integer total;
+
+    private List<BedVO> list; // 床位信息列表
+    private Integer total; // 总记录数
 }

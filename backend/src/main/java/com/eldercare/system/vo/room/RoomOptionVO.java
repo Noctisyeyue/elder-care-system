@@ -7,8 +7,7 @@ import lombok.Data;
  */
 @Data
 public class RoomOptionVO {
-    /** 标签 */
-    private String label;
-    /** 值 */
-    private String value;
+
+    private String label; // 选项显示文本
+    private String value; // 选项值
 }

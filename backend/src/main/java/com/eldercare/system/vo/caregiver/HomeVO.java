@@ -4,42 +4,20 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 健康管家首页视图
+ */
 @Data
-/** Home视图 */
 public class HomeVO {
-    /*
-    返回示例
-    {
-        "userName":"张三",
-        "dailyCarecount": 10,
-        "compareCarecount": 35,
-        "totalcarecount":205216,
-        "completedcarecount":150000,
-        "uncompletedcarecount":55216,
-        "totalCaredPeople":55231,
-        "counts":[50，25，70，35，20，45，60，55，80，65，75，90],
-        outingApplicationStatus":{
-            "approved": 120,
-            "rejected": 30,
-            "submitted": 58,
-            "cancelled": 10
-        },
-        checkoutApplicationStatus":{
-            "approved":80,
-            "rejected": 15,
-            "submitted": 25,
-            "cancelled":5
-        }
-    }
-    */
-    private String userName;
-    private Long dailyCareCount;
-    private Long compareCareCount;
-    private Long totalCareCount;
-    private Long completedCareCount;
-    private Long uncompletedCareCount;
-    private Long totalCaredPeople;
-    private List<Long> counts;
-    private ApplicationStatusVO outingApplicationStatus;
-    private ApplicationStatusVO checkoutApplicationStatus;
+
+    private String userName; // 用户名
+    private Long dailyCareCount; // 今日护理次数
+    private Long compareCareCount; // 对比护理次数
+    private Long totalCareCount; // 累计护理次数
+    private Long completedCareCount; // 已完成护理次数
+    private Long uncompletedCareCount; // 未完成护理次数
+    private Long totalCaredPeople; // 累计服务人数
+    private List<Long> counts; // 趋势统计数据
+    private ApplicationStatusVO outingApplicationStatus; // 外出申请状态统计
+    private ApplicationStatusVO checkoutApplicationStatus; // 退住申请状态统计
 }
