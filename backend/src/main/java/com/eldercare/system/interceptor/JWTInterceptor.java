@@ -32,11 +32,9 @@ public class JWTInterceptor implements HandlerInterceptor {
             "/user/avatar/upload"
     );
 
-    /** 仅超级管理员可访问的接口（用户管理类） */
+    /** 仅超级管理员可访问的接口（用户管理类操作，count/roleNum 为仪表盘统计，管理员也可访问） */
     private static final Set<String> SUPER_ADMIN_ONLY = Set.of(
             "/user/list",
-            "/user/count",
-            "/user/roleNum",
             "/user/add",
             "/user/update",
             "/user/del",
