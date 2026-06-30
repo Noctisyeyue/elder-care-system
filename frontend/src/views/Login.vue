@@ -14,14 +14,7 @@
     <div class="login-form-container">
       <el-card class="login-card" shadow="hover">
         <h2>东软颐养中心</h2>
-        <el-tabs v-model="activeTab" stretch>
-          <el-tab-pane label="管理员登录" name="admin">
-            <LoginForm role="admin" />
-          </el-tab-pane>
-          <el-tab-pane label="健康管家登录" name="caregiver">
-            <LoginForm role="caregiver" />
-          </el-tab-pane>
-        </el-tabs>
+        <LoginForm />
         <div class="register-link">
           护工注册请 <span @click="goRegister">点此注册</span>
         </div>
@@ -31,11 +24,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import LoginForm from '@/components/LoginForm.vue'
-const activeTab = ref('admin')
 const router = useRouter()
 const goRegister = () => {
   router.push('/register')

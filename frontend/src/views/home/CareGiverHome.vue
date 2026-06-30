@@ -8,7 +8,7 @@
             <el-col :span="16">
               <div class="welcome-content">
                 <div class="welcome-text">
-                  <h2>欢迎回来&nbsp;&nbsp;&nbsp;&nbsp;{{ userStore.userName }}</h2>
+                  <h2>欢迎回来&nbsp;&nbsp;&nbsp;&nbsp;{{ userStore.realName }}</h2>
                 </div>
                 <el-row class="stats-row">
                   <el-col :span="8">
@@ -539,9 +539,9 @@ const fetchData = async () => {
           ...res.checkoutApplicationStatus,
         };
       }
-      // 用户名（如果后端返回）
-      if (typeof res.userName === 'string') {
-        userStore.userName = res.userName;
+      // 用户名同步到 store（如果后端返回且 store 中尚无值）
+      if (typeof res.userName === 'string' && !userStore.realName) {
+        userStore.realName = res.userName
       }
     }
 

@@ -410,13 +410,14 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * 批量删除用户
+     * 批量删除用户（仅超级管理员可调用，由拦截器保证）
      *
      * @param userNameList 用户名列表
+     * @param token        当前登录令牌，用于防止删除自己
      * @return 操作结果
      */
     @Override
-    public ApiResult delete(List<String> userNameList) {
+    public ApiResult delete(List<String> userNameList, String token) {
         ApiResult result = new ApiResult();
         if (userNameList == null || userNameList.isEmpty()) {
             result.setCode(500);
@@ -424,18 +425,48 @@ public class UserServiceImpl implements UserService{
             return result;
         }
 
+        // 从 token 解析当前用户 ID，用于禁止删除自己的检查
+        Long currentUserId = null;
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim != null) {
+                currentUserId = Long.parseLong(userIdClaim.asString());
+            }
+        } catch (Exception ignored) {
+            // token 解析失败则跳过自身保护（极端情况）
+        }
+
         int totalDeleted = 0;
         for (String userName : userNameList) {
+            Long userId = userMapper.selectIdByUsername(userName);
 
-            // 根据userName查询用户id,并将costumer表的user_id字段设置为null
-            userMapper.updateUserId(userMapper.selectIdByUsername(userName));
-            // 根据userid将nursing_record表中的del_flag字段设置为1
-            nursingRecordMapper.updateNursingRecordDelFlagByUserId(userMapper.selectIdByUsername(userName));
-            // 根据userid将outing_record表中的del_flag字段设置为1
-            outingRecordMapper.updateOutingRecordDelFlagByUserId(userMapper.selectIdByUsername(userName));
-            // 根据userid将checkout_record表中的del_flag字段设置为1
-            checkoutRecordMapper.updateCheckoutRecordDelFlagByUserId(userMapper.selectIdByUsername(userName));
-            //改为逻辑删除，将del_flag字段设置为1
+            // 查询目标用户角色，禁止删除超级管理员
+            User targetUser = userMapper.selectById(userId);
+            if (targetUser != null && UserRoleConstant.SUPER_ADMIN_ID.equals(targetUser.getRoleId())) {
+                result.setCode(500);
+                result.setMessage("删除失败，不能删除超级管理员账号");
+                return result;
+            }
+
+            // 禁止删除当前登录用户
+            if (currentUserId != null && currentUserId.equals(userId)) {
+                result.setCode(500);
+                result.setMessage("删除失败，不能删除自己的账号");
+                return result;
+            }
+
+            // 将customer表的user_id字段设置为null
+            userMapper.updateUserId(userId);
+            // 将nursing_record表中的del_flag字段设置为1
+            nursingRecordMapper.updateNursingRecordDelFlagByUserId(userId);
+            // 将outing_record表中的del_flag字段设置为1
+            outingRecordMapper.updateOutingRecordDelFlagByUserId(userId);
+            // 将checkout_record表中的del_flag字段设置为1
+            checkoutRecordMapper.updateCheckoutRecordDelFlagByUserId(userId);
+            // 改为逻辑删除，将del_flag字段设置为1
             int count = userMapper.deleteUser(userName);
             if (count > 0) {
                 totalDeleted += count;

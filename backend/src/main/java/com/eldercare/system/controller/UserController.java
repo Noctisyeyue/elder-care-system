@@ -51,9 +51,10 @@ public class UserController {
     // 删除用户
     @Operation(summary = "删除用户")
     @PostMapping("/del")
-    public ApiResult delete(@RequestBody Map<String, List<String>> payload) {
+    public ApiResult delete(@RequestBody Map<String, List<String>> payload,
+                            @RequestHeader(value = "Authorization", required = false) String token) {
         List<String> userNames = payload.get("userNames");
-        return userService.delete(userNames);
+        return userService.delete(userNames, token);
     }
     // 修改用户
     @Operation(summary = "修改用户信息")

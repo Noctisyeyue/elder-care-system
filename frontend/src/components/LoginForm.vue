@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { post } from '@/utils/request'
 import { ElMessage } from 'element-plus'
@@ -90,15 +90,14 @@ import { ElNotification } from 'element-plus';
 
 interface LoginResponse {
   token: string
+  userId: number
   email: string
+  realName: string
+  roleId: number
+  roleKey: string
+  roleName: string
+  status: number
 }
-const props = defineProps({
-  role: {
-    type: String,
-    required: true,
-    validator: (value: string) => ['admin', 'caregiver'].includes(value),
-  },
-})
 
 const router = useRouter()
 const loading = ref(false)
@@ -117,10 +116,17 @@ const handleSubmit = async () => {
       password,
     })
 
-    userStore.setUser(response.token, props.role, account, response.email || '')
-    // const testToken = 'This is a test token'
-    // userStore.setUser(testToken, props.role, userName)
-    router.push('/')
+    userStore.setUser(response)
+
+    // 按 roleKey + status 分流跳转
+    let target = '/'
+    if (response.roleKey === 'caregiver') {
+      target = response.status === 0 ? '/pending' : '/home/caregiver'
+    } else {
+      // super_admin / admin
+      target = '/home/admin'
+    }
+    router.push(target)
     ElMessage.success('登录成功')
   } finally {
     loading.value = false

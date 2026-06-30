@@ -75,7 +75,7 @@ public interface UserService {
      * @param userName 用户名列表
      * @return 操作结果
      */
-    ApiResult delete(List<String> userName);
+    ApiResult delete(List<String> userName, String token);
 
     /**
      * 修改用户信息

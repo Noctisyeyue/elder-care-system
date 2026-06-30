@@ -40,7 +40,6 @@ import AdminHomeView from '@/views/home/AdminHome.vue'
 import CaregiverHomeView from '@/views/home/CaregiverHome.vue'
 
 import { useUserStore } from '@/stores/user'
-import { ElMessage } from 'element-plus'
 
 /**
  * 应用路由实例。
@@ -163,20 +162,40 @@ const router = createRouter({
   ],
 })
 
+/** 不需要登录即可访问的白名单路径 */
+const WHITELIST = ['/login', '/register']
+
 /**
- * 全局路由守卫。
+ * 全局路由守卫：统一处理登录态、待审核跳转、重复登录拦截。
  */
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const userStore = useUserStore()
   userStore.loadFromStorage()
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-    next('/login')
-  } else if (to.meta.role && userStore.role !== to.meta.role) {
-    ElMessage.error('无权限访问')
-    next('/')
-  } else {
+
+  // 白名单路径直接放行
+  if (WHITELIST.includes(to.path)) {
+    // 已登录用户访问登录页，直接跳首页
+    if (userStore.isLoggedIn && to.path === '/login') {
+      next(userStore.isPending ? '/pending' : '/')
+      return
+    }
     next()
+    return
   }
+
+  // 未登录访问受保护页面 → 跳登录
+  if (!userStore.isLoggedIn) {
+    next('/login')
+    return
+  }
+
+  // 待审核账号只能停留在等待审核页
+  if (userStore.isPending && to.path !== '/pending') {
+    next('/pending')
+    return
+  }
+
+  next()
 })
 
 export default router

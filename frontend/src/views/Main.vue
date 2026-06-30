@@ -11,19 +11,19 @@
         <el-menu class="menu" :default-openeds="['默认展开选项，后期会更新为主页自动展开']" :collapse="isCollapse"
           :default-active="activePath">
           <!-- 首页菜单项 -->
-          <el-menu-item index="首页" @click="setActiveMenu('home/admin')" v-if="userStore.role === 'admin'">
+          <el-menu-item index="首页" @click="setActiveMenu('home/admin')" v-if="userStore.isAdmin">
             <el-icon style="margin-left: -1.5pt">
               <HomeFilled />
             </el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-menu-item index="首页" @click="setActiveMenu('home/caregiver')" v-else>
+          <el-menu-item index="首页" @click="setActiveMenu('home/caregiver')" v-else-if="userStore.isCaregiver">
             <el-icon style="margin-left: -1.5pt">
               <HomeFilled />
             </el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-sub-menu index="床位管理" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="床位管理" v-if="userStore.isAdmin">
             <!-- 子菜单对应父级路由路径 -->
             <template #title>
               <i class="iconfont-sys iconsys-danrenchuang"></i>
@@ -35,7 +35,7 @@
             </el-menu-item>
           </el-sub-menu>
           <!-- 管理员的的客户管理 -->
-          <el-sub-menu index="客户管理" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="客户管理" v-if="userStore.isAdmin">
             <template #title>
               <el-icon>
                 <User />
@@ -47,7 +47,7 @@
             <el-menu-item index="客户管理 / 退住审核" @click="setActiveMenu('customer/checkOut')">退住审核</el-menu-item>
           </el-sub-menu>
           <!-- 健康管家的客户管理 -->
-          <el-sub-menu index="客户管理" v-if="userStore.role === 'caregiver'">
+          <el-sub-menu index="客户管理" v-if="userStore.isCaregiver">
             <template #title>
               <el-icon>
                 <User />
@@ -57,7 +57,7 @@
             <el-menu-item index="客户管理 / 外出申请" @click="setActiveMenu('customer/outApply')">外出申请</el-menu-item>
             <el-menu-item index="客户管理 / 退住申请" @click="setActiveMenu('customer/checkOutApply')">退住申请</el-menu-item>
           </el-sub-menu>
-          <el-sub-menu index="护理管理" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="护理管理" v-if="userStore.isAdmin">
             <template #title>
               <el-icon>
                 <FirstAidKit />
@@ -70,7 +70,7 @@
             <el-menu-item index="护理管理 / 护理记录" @click="setActiveMenu('nursing/record')">护理记录</el-menu-item>
           </el-sub-menu>
           <!-- 管理员端的健康管家 -->
-          <el-sub-menu index="健康管家" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="健康管家" v-if="userStore.isAdmin">
             <template #title>
               <el-icon>
                 <Service />
@@ -81,7 +81,7 @@
             <el-menu-item index="健康管家 / 服务关注" @click="setActiveMenu('service/concern')">服务关注</el-menu-item>
           </el-sub-menu>
           <!-- 护工端的健康管家 -->
-          <el-sub-menu index="健康管家" v-if="userStore.role === 'caregiver'">
+          <el-sub-menu index="健康管家" v-if="userStore.isCaregiver">
             <template #title>
               <el-icon>
                 <Service />
@@ -91,7 +91,7 @@
             <el-menu-item index="健康管家 / 日常护理" @click="setActiveMenu('service/dailyCare')">日常护理</el-menu-item>
             <el-menu-item index="健康管家 / 护理记录" @click="setActiveMenu('service/records')">护理记录</el-menu-item>
           </el-sub-menu>
-          <el-sub-menu index="膳食管理" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="膳食管理" v-if="userStore.isAdmin">
             <template #title>
               <el-icon>
                 <ForkSpoon />
@@ -104,7 +104,7 @@
             <el-menu-item index="膳食管理 / 膳食配置" @click="setActiveMenu('diet/config')">膳食配置</el-menu-item>
           </el-sub-menu>
 
-          <el-sub-menu index="系统管理" v-if="userStore.role === 'admin'">
+          <el-sub-menu index="系统管理" v-if="userStore.isSuperAdmin">
             <template #title>
               <el-icon>
                 <Setting />
@@ -129,7 +129,7 @@
             <div class="header-top-right">
               <!-- 通知图标 -->
               <el-popover placement="bottom" width="260" trigger="hover" popper-class="notification-popover"
-                @show="fetchNotification" v-if="userStore.role === 'admin'">
+                @show="fetchNotification" v-if="userStore.isAdmin">
                 <template #reference>
                   <div class="notification-icon">
                     <el-icon :size="20" style="margin-right: 15px;">
@@ -197,7 +197,7 @@
                 <div class="user-info-card">
                   <el-avatar :size="48" :src="avatarUrl" @click="previewImage(avatarUrl)" />
                   <div class="user-info-meta">
-                    <div class="user-info-name">{{ userStore.userName || '未登录' }}</div>
+                    <div class="user-info-name">{{ userStore.realName || '未登录' }}</div>
                     <div class="user-info-email">{{ email || '未绑定邮箱' }}</div>
                   </div>
                 </div>
@@ -648,7 +648,7 @@ function handleDropdownCommand(command) {
       }
     }
     // 可选：跳转到首页或登录页
-    if (userStore.role === 'admin') {
+    if (userStore.isAdmin) {
       activeTab.value = '/home/admin'
       router.push('/home/admin')
     } else {
@@ -757,7 +757,7 @@ onMounted(() => {
     email.value = response
   })
   // 页面加载时获取通知数据（红点需提前显示）
-  if (userStore.role === 'admin') {
+  if (userStore.isAdmin) {
     fetchNotification()
   }
 })
