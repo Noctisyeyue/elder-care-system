@@ -4,16 +4,14 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 膳食日历保存请求
+ */
 @Data
 public class SaveDietCalendarRequest {
-    /*
-    "date": "2024-06-01",           // 日期，字符串
-    "breakfast": [1, 2],            // 早餐食品id数组
-    "lunch": [3],                   // 午餐食品id数组
-    "dinner": [4]                   // 晚餐食品id数组
-    */
-    private String date;
-    private List<Long> breakfast;
-    private List<Long> lunch;
-    private List<Long> dinner;
+
+    private String date; // 膳食日期
+    private List<Long> breakfast; // 早餐菜品 ID 列表
+    private List<Long> lunch; // 午餐菜品 ID 列表
+    private List<Long> dinner; // 晚餐菜品 ID 列表
 }

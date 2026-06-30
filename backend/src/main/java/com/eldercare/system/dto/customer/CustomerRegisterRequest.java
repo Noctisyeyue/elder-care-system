@@ -7,37 +7,21 @@ import lombok.Data;
  */
 @Data
 public class CustomerRegisterRequest {
-    /*参数：
-{
-  customerName: string,    // 必填，客户姓名
-  gender: string,         // 必填，性别：'男' 或 '女'
-  dateOfBirth: string,    // 必填，出生日期，格式：YYYY-MM-DD
-  idNumber: string,       // 必填，身份证号
-  bloodType: string,      // 必填，血型：'A'/'B'/'O'/'AB'
-  familyMember: string,   // 必填，家属姓名
-  contactPhone: string,   // 必填，联系电话
-  buildingNumber: string, // 必填，楼号
-  roomNumber: string,     // 必填，房间号
-  bedNumber: string,      // 必填，床位号
-  checkInDate: string,    // 必填，入住日期，格式：YYYY-MM-DD
-  contractEndDate: string,// 必填，合同到期日期，格式：YYYY-MM-DD
-  physicalMentalStatus: string  // 必填，身心状况
-}*/
-    private String customerName;
-    private String gender;
-    private String dateOfBirth;
-    private String idNumber;
-    private String bloodType;
-    private String familyMember;
-    private String tel;
-    private String familyMemberTel;
-    private String nation;
-    private String buildingNumber;
-    private String roomNumber;
-    private String bedNumber;
-    private String checkInDate;
-    private String contractEndDate;
-    private String physicalMentalStatus;
-    private String customerType;
 
+    private String customerName; // 客户姓名
+    private String gender; // 性别
+    private String dateOfBirth; // 出生日期
+    private String idNumber; // 身份证号
+    private String bloodType; // 血型
+    private String familyMember; // 家属姓名
+    private String tel; // 客户联系电话
+    private String familyMemberTel; // 家属联系电话
+    private String nation; // 民族
+    private String buildingNumber; // 楼号
+    private String roomNumber; // 房间号
+    private String bedNumber; // 床位号
+    private String checkInDate; // 入住日期
+    private String contractEndDate; // 合同到期日期
+    private String physicalMentalStatus; // 身心状况
+    private String customerType; // 客户类型
 }

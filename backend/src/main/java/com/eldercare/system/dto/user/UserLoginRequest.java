@@ -1,12 +1,22 @@
 package com.eldercare.system.dto.user;
 
 import lombok.Data;
-//用于接受用户登录信息
+
+/**
+ * 用户登录请求
+ */
 @Data
 public class UserLoginRequest {
-    private String userName;
-    private String password;
-    private String role;
+
+    private String userName; // 用户名
+    private String password; // 密码
+    private String role; // 登录角色标识
+
+    /**
+     * 获取角色编号
+     *
+     * @return 角色编号
+     */
     public int getRoleId() {
         if (role.equals("admin")) {
             return 1;

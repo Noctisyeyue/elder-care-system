@@ -1,6 +1,7 @@
 package com.eldercare.system.dto.nursing;
 
 import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -8,12 +9,8 @@ import java.util.List;
  */
 @Data
 public class AddItemRecordsRequest {
-    /*
-    customerId: number;  // 客户ID
-    levelId: number;    // 护理级别ID
-    items: List<ItemRecordAddRequest>
-    */
-    private Long customerId;
-    private Long levelId;
-    private List<ItemRecordAddRequest> items;
+
+    private Long customerId; // 客户 ID
+    private Long levelId; // 护理级别 ID
+    private List<ItemRecordAddRequest> items; // 护理项目记录列表
 }

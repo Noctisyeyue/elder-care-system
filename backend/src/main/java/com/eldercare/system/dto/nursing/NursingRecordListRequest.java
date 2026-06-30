@@ -7,12 +7,8 @@ import lombok.Data;
  */
 @Data
 public class NursingRecordListRequest {
-    /*
-    customerId: number    // 客户ID
-    pageNum: number
-    pageSize: number
-    */
-    private Long customerId;
-    private Integer pageNum;
-    private Integer pageSize;
+
+    private Long customerId; // 客户 ID
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
 }

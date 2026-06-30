@@ -7,14 +7,10 @@ import lombok.Data;
  */
 @Data
 public class BuyItemRequest {
-    /** 客户ID */
-    private Long customerId;
-    /** 护理项目ID */
-    private Long itemId;
-    /** 购买次数 */
-    private Integer buyCount;
-    /** 购买日期（YYYY-MM-DD） */
-    private String buyDate;
-    /** 到期日期（YYYY-MM-DD） */
-    private String expireDate;
+
+    private Long customerId; // 客户 ID
+    private Long itemId; // 护理项目 ID
+    private Integer buyCount; // 购买次数
+    private String buyDate; // 购买日期
+    private String expireDate; // 到期日期
 }

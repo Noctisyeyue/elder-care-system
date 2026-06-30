@@ -7,14 +7,9 @@ import lombok.Data;
  */
 @Data
 public class CustomerLevelItemListRequest {
-    /*
-    customerId ： number   客户id
-    name ：string 护理项目名称，模糊搜索
-    pageNum : number
-    pageSize : number
-    */
-    private Long customerId;
-    private String name;
-    private Integer pageNum;
-    private Integer pageSize;
+
+    private Long customerId; // 客户 ID
+    private String name; // 护理项目名称，支持模糊查询
+    private Integer pageNum; // 当前页码
+    private Integer pageSize; // 每页数量
 }
