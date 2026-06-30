@@ -58,10 +58,10 @@ public class JWTInterceptor implements HandlerInterceptor {
         try {
             if (token != null) {
                 Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-                String userName = claims.get("userName").asString();
+                String email = claims.get("email").asString();
 
                 // 对比 Redis 中存储的 token，确保是最新签发的
-                String redisToken = redisService.getToken(userName);
+                String redisToken = redisService.getToken(email);
                 if (redisToken != null && redisToken.equals(token)) {
                     return true;
                 }

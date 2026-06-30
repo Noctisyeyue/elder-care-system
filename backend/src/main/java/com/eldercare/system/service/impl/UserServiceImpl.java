@@ -5,6 +5,7 @@ import com.eldercare.system.service.UserService;
 import com.aliyuncs.exceptions.ClientException;
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.eldercare.system.constant.UserRoleConstant;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
 import com.eldercare.system.config.JwtProperties;
@@ -85,37 +86,57 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public ApiResult<LoginResponseVO> login(UserLoginRequest user) {
-        //根据用户名密码查询用户
-        String token ;
+        //根据用户名或邮箱查询用户
         ApiResult<LoginResponseVO> result = new ApiResult<>();
         LoginResponseVO loginResponse = new LoginResponseVO();
-        QueryWrapper qw = new QueryWrapper();
-        qw.eq("user_name", user.getUserName());
-        qw.eq("role_id", user.getRoleId());
+        QueryWrapper<User> qw = new QueryWrapper<>();
+        qw.and(w -> w.eq("user_name", user.getAccount()).or().eq("email", user.getAccount()));
         qw.eq("del_flag", "0");
         User user0 = userMapper.selectOne(qw);
         Boolean flag = false;
         if(user0!=null)
              flag = PasswordUtil.checkPassword(user.getPassword(), user0.getPassword());
-        // 判断用户是否存在
-        if (user0!= null&&flag) {
-            token = JWTUtil.getToken(new HashMap<>() {{
-                put("userName", user0.getUserName());
+        // 判断用户是否存在且密码正确
+        if (user0 != null && flag) {
+            // 账号状态校验：2=禁用，拒绝登录
+            Integer status = user0.getStatus();
+            if (status != null && status == 2) {
+                result.setCode(403);
+                result.setData(loginResponse);
+                result.setMessage("账号已被禁用，请联系管理员");
+                return result;
+            }
+            // 根据 role_id 查询 role 表，获取 role_key 和 role_name
+            Role role = roleMapper.selectById(user0.getRoleId());
+            String roleKey = role != null ? role.getRoleKey() : "";
+            String roleName = role != null ? role.getRoleName() : "";
+            int statusValue = status != null ? status : 1;
+            final int finalStatusValue = statusValue;
+            String token = JWTUtil.getToken(new HashMap<>() {{
                 put("userId", String.valueOf(user0.getUserId()));
+                put("email", user0.getEmail());
                 put("roleId", String.valueOf(user0.getRoleId()));
+                put("roleKey", roleKey);
+                put("status", String.valueOf(finalStatusValue));
             }});
-            //将token传给redis，过期时间与 jwt.ttl（毫秒）一致
-            redisService.setToken(user.getUserName(), token, jwtTtlMillis());
+            //将token传给redis，key 使用 email，过期时间与 jwt.ttl（毫秒）一致
+            redisService.setToken(user0.getEmail(), token, jwtTtlMillis());
             System.out.println("登录成功,token为:" + token);
-            System.out.println("当前登录的用户信息为:" + user);
             result.setCode(200);
             loginResponse.setToken(token);
+            loginResponse.setUserId(user0.getUserId());
+            loginResponse.setEmail(user0.getEmail());
+            loginResponse.setRealName(user0.getRealName());
+            loginResponse.setRoleId(user0.getRoleId());
+            loginResponse.setRoleKey(roleKey);
+            loginResponse.setRoleName(roleName);
+            loginResponse.setStatus(statusValue);
             result.setData(loginResponse);
             result.setMessage("登录成功!");
         } else {
             result.setCode(400);
             result.setData(loginResponse);
-            result.setMessage("登录失败!请检查用户名、密码、角色是否正确！");
+            result.setMessage("登录失败!请检查账号或密码是否正确！");
         }
         return result;
     }
@@ -129,8 +150,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public ApiResult add(UserAddRequest user) {
         ApiResult result = new ApiResult();
-        // 角色：护工=2，医生=3，护士=4
-        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
+        // 新体系下后台只能新增管理员，护工统一走注册流程
+        Long roleId = UserRoleConstant.ADMIN_ID;
         // 查询是否已存在相同用户名
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_name", user.getUserName());
@@ -150,6 +171,7 @@ public class UserServiceImpl implements UserService{
         user0.setEmail(user.getEmail());
         user0.setGender(user.getGender());
         user0.setRoleId(roleId);
+        user0.setStatus(1);
         if (userMapper.insert(user0) > 0) {
             result.setCode(200);
             result.setMessage("添加成功");
@@ -178,6 +200,11 @@ public class UserServiceImpl implements UserService{
         //倒序展示展示
         queryWrapper.orderByDesc("user_id");
         List<User> users = userMapper.selectList(queryWrapper);
+        // 一次性查询所有角色，构建 roleId -> roleName 映射，避免逐条查询和硬编码 switch
+        Map<Long, String> roleNameMap = new HashMap<>();
+        for (Role role : roleMapper.selectList(null)) {
+            roleNameMap.put(role.getRoleId(), role.getRoleName());
+        }
         // 将User类型的users转换为UserResult类型的users
         List<UserResultVO> userResults =new java.util.ArrayList<>();
         Long index = 1L;
@@ -189,13 +216,8 @@ public class UserServiceImpl implements UserService{
             userResult.setEmail(user0.getEmail());
             userResult.setGender(user0.getGender());
             userResult.setIndex(user0.getUserId());
-            // 根据 roleId 映射角色名称
-            switch (user0.getRoleId().intValue()) {
-                case 1 -> userResult.setRole("管理员");
-                case 2 -> userResult.setRole("护工");
-                case 3 -> userResult.setRole("医生");
-                case 4 -> userResult.setRole("护士");
-            }
+            // 角色 name 直接来自 role 表
+            userResult.setRole(roleNameMap.get(user0.getRoleId()));
             userResults.add(userResult);
         }
         try {
@@ -279,15 +301,7 @@ public class UserServiceImpl implements UserService{
             result.setMessage("修改失败，未找到用户");
             return result;
         }
-        Long roleId = (long) (user.getRole().equals("护工") ? 2 : user.getRole().equals("医生") ? 3 : 4);
-        if(!user.getRole().equals("护工")){
-            // 根据userid将nursing_record表中的del_flag字段设置为1
-            nursingRecordMapper.updateNursingRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
-            // 根据userid将outing_record表中的del_flag字段设置为1
-            outingRecordMapper.updateOutingRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
-            // 根据userid将checkout_record表中的del_flag字段设置为1
-            checkoutRecordMapper.updateCheckoutRecordDelFlagByUserId(userMapper.selectIdByUsername(user.getUserName()));
-        }
+        Long roleId = user0.getRoleId();
         user0.setUserName(user.getUserName());
         // 密码非空才更新，且必须加密存储；空则保留原密码
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
@@ -415,27 +429,24 @@ public class UserServiceImpl implements UserService{
     public ApiResult<String> uploadFile(MultipartFile file,String token) {
         ApiResult<String> result = new ApiResult<>();
         //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        String username = "";
+        Long userId = null;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户信息不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
 
-        Long userId = userMapper.selectIdByUsername(username);
         try {
             String originalFilename = file.getOriginalFilename();
             String extendName = originalFilename.substring(originalFilename.lastIndexOf("."));
@@ -466,27 +477,24 @@ public class UserServiceImpl implements UserService{
     public ApiResult<String> getAvatar(String token) {
         ApiResult<String> result = new ApiResult<>();
         //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        String username = "";
+        Long userId = null;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户信息不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
 
-        Long userId = userMapper.selectIdByUsername(username);
         // 获取用户头像
         try {
             String avatar = userMapper.selectAvatar(userId);
@@ -514,27 +522,24 @@ public class UserServiceImpl implements UserService{
     public ApiResult<String> getEmail(String token) {
         ApiResult<String> result = new ApiResult<>();
         //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        String username = "";
+        Long userId = null;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim usernameClaim = claims.get("userName");
-            if (usernameClaim == null) {
-                // 处理 username 不存在的情况
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
                 result.setCode(401);
-                result.setMessage("用户名不存在");
+                result.setMessage("用户信息不存在");
                 return result;
             }
-            username = usernameClaim.asString();
-            // 继续业务逻辑
+            userId = Long.parseLong(userIdClaim.asString());
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
             return result;
         }
 
-        Long userId = userMapper.selectIdByUsername(username);
         try {
             String email = userMapper.selectEmail(userId);
             result.setCode(200);
