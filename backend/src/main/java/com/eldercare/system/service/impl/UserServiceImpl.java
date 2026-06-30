@@ -829,4 +829,46 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 获取当前用户在数据库中的最新状态（不读 JWT，供待审核护工刷新感知审核结果）
+     */
+    @Override
+    public ApiResult<Integer> getStatus(String token) {
+        ApiResult<Integer> result = new ApiResult<>();
+        Long userId;
+        try {
+            if (token != null && token.startsWith("Bearer "))
+                token = token.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
+                result.setCode(401);
+                result.setMessage("用户信息不存在");
+                return result;
+            }
+            userId = Long.parseLong(userIdClaim.asString());
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            return result;
+        }
+
+        try {
+            User user = userMapper.selectById(userId);
+            if (user == null || "1".equals(user.getDelFlag())) {
+                result.setCode(500);
+                result.setMessage("用户不存在");
+                return result;
+            }
+            int statusValue = user.getStatus() != null ? user.getStatus() : 1;
+            result.setCode(200);
+            result.setData(statusValue);
+            result.setMessage("查询成功");
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("数据库错误");
+        }
+        return result;
+    }
+
 }

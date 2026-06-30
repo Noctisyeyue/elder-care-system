@@ -118,4 +118,10 @@ public class UserController {
     public ApiResult<String> getEmail(@RequestHeader(value = "Authorization", required = false) String token) {
         return userService.getEmail(token);
     }
+    //获取当前用户最新状态（待审核护工刷新用）
+    @Operation(summary = "获取当前用户状态")
+    @GetMapping("/status/get")
+    public ApiResult<Integer> getStatus(@RequestHeader(value = "Authorization", required = false) String token) {
+        return userService.getStatus(token);
+    }
 }

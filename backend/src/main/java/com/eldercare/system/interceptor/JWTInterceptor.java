@@ -29,7 +29,8 @@ public class JWTInterceptor implements HandlerInterceptor {
     private static final Set<String> PENDING_REVIEW_WHITELIST = Set.of(
             "/user/email/get",
             "/user/avatar/get",
-            "/user/avatar/upload"
+            "/user/avatar/upload",
+            "/user/status/get"
     );
 
     /** 仅超级管理员可访问的接口（用户管理类操作，count/roleNum 为仪表盘统计，管理员也可访问） */

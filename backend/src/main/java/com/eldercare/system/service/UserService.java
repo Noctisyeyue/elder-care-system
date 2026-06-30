@@ -140,4 +140,12 @@ public interface UserService {
      * @return 邮箱地址
      */
     ApiResult<String> getEmail(String token);
+
+    /**
+     * 获取当前用户在数据库中的最新状态（不读 JWT）
+     *
+     * @param token 登录令牌
+     * @return 最新 status：0 待审核 1 启用 2 禁用
+     */
+    ApiResult<Integer> getStatus(String token);
 }
