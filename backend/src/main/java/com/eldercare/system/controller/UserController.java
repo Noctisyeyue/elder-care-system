@@ -61,6 +61,24 @@ public class UserController {
     public ApiResult update(@RequestBody UserAddRequest user) {
         return userService.update(user);
     }
+    // 审核护工（仅超级管理员）
+    @Operation(summary = "审核护工")
+    @PostMapping("/audit")
+    public ApiResult audit(@RequestParam Long userId) {
+        return userService.audit(userId);
+    }
+    // 禁用账号（仅超级管理员，不可禁用超级管理员）
+    @Operation(summary = "禁用账号")
+    @PostMapping("/disable")
+    public ApiResult disable(@RequestParam Long userId) {
+        return userService.disable(userId);
+    }
+    // 重置密码为默认密码（仅超级管理员）
+    @Operation(summary = "重置密码")
+    @PostMapping("/resetPwd")
+    public ApiResult resetPassword(@RequestParam Long userId) {
+        return userService.resetPassword(userId);
+    }
 
     // 获取用户总数
     @Operation(summary = "获取用户总数")

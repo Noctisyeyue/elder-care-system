@@ -38,6 +38,30 @@ public interface UserService {
     ApiResult register(CaregiverRegisterRequest request);
 
     /**
+     * 审核护工（将 status 从 0 改为 1）
+     *
+     * @param userId 用户 ID
+     * @return 操作结果
+     */
+    ApiResult audit(Long userId);
+
+    /**
+     * 禁用账号（将 status 改为 2），超级管理员不可被禁用
+     *
+     * @param userId 用户 ID
+     * @return 操作结果
+     */
+    ApiResult disable(Long userId);
+
+    /**
+     * 重置密码为默认密码（123456）
+     *
+     * @param userId 用户 ID
+     * @return 操作结果
+     */
+    ApiResult resetPassword(Long userId);
+
+    /**
      * 分页查询用户列表
      *
      * @param user 查询参数

@@ -5,6 +5,7 @@ import com.eldercare.system.service.UserService;
 import com.aliyuncs.exceptions.ClientException;
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eldercare.system.constant.UserRoleConstant;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
@@ -257,6 +258,96 @@ public class UserServiceImpl implements UserService{
         } else {
             result.setCode(500);
             result.setMessage("注册失败，其他错误");
+        }
+        return result;
+    }
+
+    /** 重置密码时使用的默认明文密码 */
+    private static final String DEFAULT_PASSWORD = "123456";
+
+    /**
+     * 审核护工：将 status 从 0 改为 1
+     */
+    @Override
+    public ApiResult audit(Long userId) {
+        ApiResult result = new ApiResult();
+        User user = userMapper.selectById(userId);
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("审核失败，用户不存在");
+            return result;
+        }
+        if (user.getStatus() != null && user.getStatus() != 0) {
+            result.setCode(500);
+            result.setMessage("审核失败，该账号非待审核状态");
+            return result;
+        }
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("user_id", userId).set("status", 1);
+        if (userMapper.update(null, uw) > 0) {
+            result.setCode(200);
+            result.setMessage("审核通过");
+        } else {
+            result.setCode(500);
+            result.setMessage("审核失败，其他错误");
+        }
+        return result;
+    }
+
+    /**
+     * 禁用账号：将 status 改为 2，超级管理员不可被禁用
+     */
+    @Override
+    public ApiResult disable(Long userId) {
+        ApiResult result = new ApiResult();
+        User user = userMapper.selectById(userId);
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("禁用失败，用户不存在");
+            return result;
+        }
+        // 超级管理员自我保护：不允许禁用
+        if (UserRoleConstant.SUPER_ADMIN_ID.equals(user.getRoleId())) {
+            result.setCode(500);
+            result.setMessage("禁用失败，不允许禁用超级管理员");
+            return result;
+        }
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("user_id", userId).set("status", 2);
+        if (userMapper.update(null, uw) > 0) {
+            // 清除被禁用账号的登录态，立即生效
+            if (user.getEmail() != null) {
+                redisService.deleteToken(user.getEmail());
+            }
+            result.setCode(200);
+            result.setMessage("禁用成功");
+        } else {
+            result.setCode(500);
+            result.setMessage("禁用失败，其他错误");
+        }
+        return result;
+    }
+
+    /**
+     * 重置密码为默认密码（123456）
+     */
+    @Override
+    public ApiResult resetPassword(Long userId) {
+        ApiResult result = new ApiResult();
+        User user = userMapper.selectById(userId);
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("重置失败，用户不存在");
+            return result;
+        }
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("user_id", userId).set("password", hashPassword(DEFAULT_PASSWORD));
+        if (userMapper.update(null, uw) > 0) {
+            result.setCode(200);
+            result.setMessage("重置成功，新密码为 " + DEFAULT_PASSWORD);
+        } else {
+            result.setCode(500);
+            result.setMessage("重置失败，其他错误");
         }
         return result;
     }
