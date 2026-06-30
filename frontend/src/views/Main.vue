@@ -135,7 +135,7 @@
                     <el-icon :size="20" style="margin-right: 15px;">
                       <Bell />
                     </el-icon>
-                    <span v-if="notificationData.checkOutCount + notificationData.outApplyCount > 0"
+                    <span v-if="notificationData.checkOutApplyCount + notificationData.outingApplyCount + notificationData.pendingUserCount > 0"
                       class="notification-dot"></span>
                   </div>
                 </template>
@@ -157,6 +157,12 @@
                       <Operation />
                     </el-icon>
                     待处理外出申请：{{ notificationData.outingApplyCount }} 个
+                  </div>
+                  <div class="notification-item">
+                    <el-icon class="notification-item-icon">
+                      <User />
+                    </el-icon>
+                    新注册待审核：{{ notificationData.pendingUserCount }} 个
                   </div>
                   <div class="notification-item">
                     <el-icon class="notification-item-icon">
@@ -689,11 +695,7 @@ const handleFileChange = (e) => {
       const formData = new FormData()
       formData.append('file', file) // 假设后端接口接收的字段名为 'file'
 
-      uploadAvatar(formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then((response) => {
+      uploadAvatar(formData).then((response) => {
         // 上传成功
         handleAvatarSuccess(response)
       })
@@ -725,6 +727,7 @@ const notificationLoading = ref(false)
 const notificationData = ref({
   checkOutApplyCount: 0,
   outingApplyCount: 0,
+  pendingUserCount: 0,
   dietConfigured: false,
 })
 
@@ -753,6 +756,10 @@ onMounted(() => {
   getUserEmail().then((response) => {
     email.value = response
   })
+  // 页面加载时获取通知数据（红点需提前显示）
+  if (userStore.role === 'admin') {
+    fetchNotification()
+  }
 })
 </script>
 
