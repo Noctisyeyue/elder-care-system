@@ -355,18 +355,26 @@ public class UserServiceImpl implements UserService{
         }
         // 禁止禁用当前登录用户
         try {
-            String t = token;
-            if (t != null && t.startsWith("Bearer "))
-                t = t.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(t);
-            Claim c = claims.get("userId");
-            if (c != null && userId.equals(Long.parseLong(c.asString()))) {
+            String rawToken = token;
+            if (rawToken != null && rawToken.startsWith("Bearer "))
+                rawToken = rawToken.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(rawToken);
+            Claim userIdClaim = claims.get("userId");
+            if (userIdClaim == null) {
+                result.setCode(401);
+                result.setMessage("禁用失败，用户身份校验失败");
+                return result;
+            }
+            Long currentUserId = Long.parseLong(userIdClaim.asString());
+            if (userId.equals(currentUserId)) {
                 result.setCode(500);
                 result.setMessage("禁用失败，不能禁用自己的账号");
                 return result;
             }
-        } catch (Exception ignored) {
-            // token 解析失败仅跳过自身保护，不禁用操作仍继续
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("禁用失败，token解析失败");
+            return result;
         }
         UpdateWrapper<User> uw = new UpdateWrapper<>();
         uw.eq("user_id", userId).set("status", 2);
