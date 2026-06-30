@@ -8,23 +8,19 @@
           <span v-if="!isCollapse" class="logo-text">Neusoft Care</span>
         </div>
 
-        <el-menu
-          class="menu"
-          :default-openeds="['默认展开选项，后期会更新为主页自动展开']"
-          :collapse="isCollapse"
-          :default-active="activePath"
-        >
+        <el-menu class="menu" :default-openeds="['默认展开选项，后期会更新为主页自动展开']" :collapse="isCollapse"
+          :default-active="activePath">
           <!-- 首页菜单项 -->
-          <el-menu-item
-            index="首页"
-            @click="setActiveMenu('home/admin')"
-            v-if="userStore.role === 'admin'"
-          >
-            <el-icon style="margin-left: -1.5pt"><HomeFilled /></el-icon>
+          <el-menu-item index="首页" @click="setActiveMenu('home/admin')" v-if="userStore.role === 'admin'">
+            <el-icon style="margin-left: -1.5pt">
+              <HomeFilled />
+            </el-icon>
             <span>首页</span>
           </el-menu-item>
           <el-menu-item index="首页" @click="setActiveMenu('home/caregiver')" v-else>
-            <el-icon style="margin-left: -1.5pt"><HomeFilled /></el-icon>
+            <el-icon style="margin-left: -1.5pt">
+              <HomeFilled />
+            </el-icon>
             <span>首页</span>
           </el-menu-item>
           <el-sub-menu index="床位管理" v-if="userStore.role === 'admin'">
@@ -33,9 +29,7 @@
               <i class="iconfont-sys iconsys-danrenchuang"></i>
               <span>床位管理</span>
             </template>
-            <el-menu-item index="床位管理 / 床位示意图" @click="setActiveMenu('bed/map')"
-              >床位示意图</el-menu-item
-            >
+            <el-menu-item index="床位管理 / 床位示意图" @click="setActiveMenu('bed/map')">床位示意图</el-menu-item>
             <el-menu-item index="床位管理 / 床位管理" @click="setActiveMenu('bed/list')">
               床位管理
             </el-menu-item>
@@ -43,107 +37,81 @@
           <!-- 管理员的的客户管理 -->
           <el-sub-menu index="客户管理" v-if="userStore.role === 'admin'">
             <template #title>
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
               <span>客户管理</span>
             </template>
-            <el-menu-item index="客户管理 / 入住登记" @click="setActiveMenu('customer/checkIn')"
-              >入住登记</el-menu-item
-            >
-            <el-menu-item index="客户管理 / 外出审核" @click="setActiveMenu('customer/out')"
-              >外出审核</el-menu-item
-            >
-            <el-menu-item index="客户管理 / 退住审核" @click="setActiveMenu('customer/checkOut')"
-              >退住审核</el-menu-item
-            >
+            <el-menu-item index="客户管理 / 入住登记" @click="setActiveMenu('customer/checkIn')">入住登记</el-menu-item>
+            <el-menu-item index="客户管理 / 外出审核" @click="setActiveMenu('customer/out')">外出审核</el-menu-item>
+            <el-menu-item index="客户管理 / 退住审核" @click="setActiveMenu('customer/checkOut')">退住审核</el-menu-item>
           </el-sub-menu>
           <!-- 健康管家的客户管理 -->
           <el-sub-menu index="客户管理" v-if="userStore.role === 'caregiver'">
             <template #title>
-              <el-icon><User /></el-icon>
+              <el-icon>
+                <User />
+              </el-icon>
               <span>客户管理</span>
             </template>
-            <el-menu-item index="客户管理 / 外出申请" @click="setActiveMenu('customer/outApply')"
-              >外出申请</el-menu-item
-            >
-            <el-menu-item
-              index="客户管理 / 退住申请"
-              @click="setActiveMenu('customer/checkOutApply')"
-              >退住申请</el-menu-item
-            >
+            <el-menu-item index="客户管理 / 外出申请" @click="setActiveMenu('customer/outApply')">外出申请</el-menu-item>
+            <el-menu-item index="客户管理 / 退住申请" @click="setActiveMenu('customer/checkOutApply')">退住申请</el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="护理管理" v-if="userStore.role === 'admin'">
             <template #title>
-              <el-icon><FirstAidKit /></el-icon>
+              <el-icon>
+                <FirstAidKit />
+              </el-icon>
               <span>护理管理</span>
             </template>
-            <el-menu-item index="护理管理 / 护理级别" @click="setActiveMenu('nursing/level')"
-              >护理级别</el-menu-item
-            >
-            <el-menu-item index="护理管理 / 护理项目" @click="setActiveMenu('nursing/item')"
-              >护理项目</el-menu-item
-            >
-            <el-menu-item index="护理管理 / 客户护理设置" @click="setActiveMenu('nursing/customer')"
-              >客户护理设置</el-menu-item
-            >
-            <el-menu-item index="护理管理 / 护理记录" @click="setActiveMenu('nursing/record')"
-              >护理记录</el-menu-item
-            >
+            <el-menu-item index="护理管理 / 护理级别" @click="setActiveMenu('nursing/level')">护理级别</el-menu-item>
+            <el-menu-item index="护理管理 / 护理项目" @click="setActiveMenu('nursing/item')">护理项目</el-menu-item>
+            <el-menu-item index="护理管理 / 客户护理设置" @click="setActiveMenu('nursing/customer')">客户护理设置</el-menu-item>
+            <el-menu-item index="护理管理 / 护理记录" @click="setActiveMenu('nursing/record')">护理记录</el-menu-item>
           </el-sub-menu>
           <!-- 管理员端的健康管家 -->
           <el-sub-menu index="健康管家" v-if="userStore.role === 'admin'">
             <template #title>
-              <el-icon><Service /></el-icon>
+              <el-icon>
+                <Service />
+              </el-icon>
               <span>健康管家</span>
             </template>
-            <el-menu-item
-              index="健康管家 / 设置服务对象"
-              @click="setActiveMenu('service/caregiver')"
-              >设置服务对象</el-menu-item
-            >
-            <el-menu-item index="健康管家 / 服务关注" @click="setActiveMenu('service/concern')"
-              >服务关注</el-menu-item
-            >
+            <el-menu-item index="健康管家 / 设置服务对象" @click="setActiveMenu('service/caregiver')">设置服务对象</el-menu-item>
+            <el-menu-item index="健康管家 / 服务关注" @click="setActiveMenu('service/concern')">服务关注</el-menu-item>
           </el-sub-menu>
           <!-- 护工端的健康管家 -->
           <el-sub-menu index="健康管家" v-if="userStore.role === 'caregiver'">
             <template #title>
-              <el-icon><Service /></el-icon>
+              <el-icon>
+                <Service />
+              </el-icon>
               <span>健康管家</span>
             </template>
-            <el-menu-item index="健康管家 / 日常护理" @click="setActiveMenu('service/dailyCare')"
-              >日常护理</el-menu-item
-            >
-            <el-menu-item index="健康管家 / 护理记录" @click="setActiveMenu('service/records')"
-              >护理记录</el-menu-item
-            >
+            <el-menu-item index="健康管家 / 日常护理" @click="setActiveMenu('service/dailyCare')">日常护理</el-menu-item>
+            <el-menu-item index="健康管家 / 护理记录" @click="setActiveMenu('service/records')">护理记录</el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="膳食管理" v-if="userStore.role === 'admin'">
             <template #title>
-              <el-icon><ForkSpoon /></el-icon>
+              <el-icon>
+                <ForkSpoon />
+              </el-icon>
               <span>膳食管理</span>
             </template>
-            <el-menu-item index="膳食管理 / 菜品配置" @click="setActiveMenu('diet/status')"
-              >菜品配置</el-menu-item
-            >
-            <el-menu-item index="膳食管理 / 套餐配置" @click="setActiveMenu('diet/package')"
-              >套餐配置</el-menu-item
-            >
-            <el-menu-item index="膳食管理 / 膳食日历" @click="setActiveMenu('diet/calendar')"
-              >膳食日历</el-menu-item
-            >
-            <el-menu-item index="膳食管理 / 膳食配置" @click="setActiveMenu('diet/config')"
-              >膳食配置</el-menu-item
-            >
+            <el-menu-item index="膳食管理 / 菜品配置" @click="setActiveMenu('diet/status')">菜品配置</el-menu-item>
+            <el-menu-item index="膳食管理 / 套餐配置" @click="setActiveMenu('diet/package')">套餐配置</el-menu-item>
+            <el-menu-item index="膳食管理 / 膳食日历" @click="setActiveMenu('diet/calendar')">膳食日历</el-menu-item>
+            <el-menu-item index="膳食管理 / 膳食配置" @click="setActiveMenu('diet/config')">膳食配置</el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="系统管理" v-if="userStore.role === 'admin'">
             <template #title>
-              <el-icon><Setting /></el-icon>
+              <el-icon>
+                <Setting />
+              </el-icon>
               <span>系统管理</span>
             </template>
-            <el-menu-item index="系统管理 / 基础数据维护" @click="setActiveMenu('user/list')"
-              >基础数据维护</el-menu-item
-            >
+            <el-menu-item index="系统管理 / 基础数据维护" @click="setActiveMenu('user/list')">基础数据维护</el-menu-item>
           </el-sub-menu>
         </el-menu>
       </el-aside>
@@ -160,38 +128,47 @@
             </div>
             <div class="header-top-right">
               <!-- 通知图标 -->
-              <el-popover
-                placement="bottom"
-                width="260"
-                trigger="hover"
-                popper-class="notification-popover"
-                @show="fetchNotification"
-                v-if="userStore.role === 'admin'"
-              >
+              <el-popover placement="bottom" width="260" trigger="hover" popper-class="notification-popover"
+                @show="fetchNotification" v-if="userStore.role === 'admin'">
                 <template #reference>
                   <div class="notification-icon">
                     <el-icon :size="20" style="margin-right: 15px;">
                       <Bell />
                     </el-icon>
-                    <span v-if="notificationData.checkOutCount + notificationData.outApplyCount > 0" class="notification-dot"></span>
+                    <span v-if="notificationData.checkOutApplyCount + notificationData.outingApplyCount + notificationData.pendingUserCount > 0"
+                      class="notification-dot"></span>
                   </div>
                 </template>
                 <div v-if="notificationLoading" style="text-align:center;padding:20px 0;">
-                  <el-icon><Loading /></el-icon>
+                  <el-icon>
+                    <Loading />
+                  </el-icon>
                 </div>
                 <div v-else>
                   <div class="notification-title">通知</div>
                   <div class="notification-item">
-                    <el-icon class="notification-item-icon"><View /></el-icon>
+                    <el-icon class="notification-item-icon">
+                      <View />
+                    </el-icon>
                     待处理退住申请：{{ notificationData.checkOutApplyCount }} 个
                   </div>
                   <div class="notification-item">
-                    <el-icon class="notification-item-icon"><Operation /></el-icon>
+                    <el-icon class="notification-item-icon">
+                      <Operation />
+                    </el-icon>
                     待处理外出申请：{{ notificationData.outingApplyCount }} 个
                   </div>
                   <div class="notification-item">
-                    <el-icon class="notification-item-icon"><ForkSpoon /></el-icon>
-                    今日膳食配置：<span :style="{color: notificationData.dietConfigured ? '#52c41a' : '#f56c6c'}">
+                    <el-icon class="notification-item-icon">
+                      <User />
+                    </el-icon>
+                    新注册待审核：{{ notificationData.pendingUserCount }} 个
+                  </div>
+                  <div class="notification-item">
+                    <el-icon class="notification-item-icon">
+                      <ForkSpoon />
+                    </el-icon>
+                    今日膳食配置：<span :style="{ color: notificationData.dietConfigured ? '#52c41a' : '#f56c6c' }">
                       {{ notificationData.dietConfigured ? '已配置' : '未配置' }}
                     </span>
                   </div>
@@ -211,18 +188,9 @@
                 </el-icon>
                 <span class="ai-chat-dot"></span>
               </div>
-              <el-popover
-                placement="bottom-start"
-                trigger="hover"
-                width="260"
-                popper-class="user-info-popover"
-              >
-                <el-image-viewer
-                  v-if="imagePreviewVisible"
-                  :initial-index="0"
-                  :url-list="[selectedImageUrl]"
-                  @close="imagePreviewVisible = false"
-                />
+              <el-popover placement="bottom-start" trigger="hover" width="260" popper-class="user-info-popover">
+                <el-image-viewer v-if="imagePreviewVisible" :initial-index="0" :url-list="[selectedImageUrl]"
+                  @close="imagePreviewVisible = false" />
                 <template #reference>
                   <el-avatar :size="40" :src="avatarUrl" style="cursor: pointer" />
                 </template>
@@ -235,22 +203,11 @@
                 </div>
                 <div class="user-info-divider"></div>
                 <div class="user-info-logout-btn">
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="openAvatarDialog"
-                    plain
-                    style="margin-right: 12px"
-                    >修改头像</el-button
-                  >
+                  <el-button type="primary" size="small" @click="openAvatarDialog" plain
+                    style="margin-right: 12px">修改头像</el-button>
                   <el-button type="danger" size="small" @click="logout" plain>退出登录</el-button>
-                  <input
-                    ref="avatarInput"
-                    type="file"
-                    accept="image/*"
-                    style="display: none"
-                    @change="handleFileChange"
-                  />
+                  <input ref="avatarInput" type="file" accept="image/*" style="display: none"
+                    @change="handleFileChange" />
                 </div>
               </el-popover>
             </div>
@@ -260,16 +217,12 @@
               <div class="tab-cards-container" ref="tabsRef">
                 <div class="tab-cards-scroll" ref="scrollRef">
                   <!-- 这里 scrollRef 已经正确绑定 -->
-                  <div
-                    v-for="tab in tabs"
-                    :key="tab.name"
-                    :class="['tab-card', { 'is-active': activeTab === tab.name }]"
-                    @click="onTabClick(tab)"
-                  >
+                  <div v-for="tab in tabs" :key="tab.name"
+                    :class="['tab-card', { 'is-active': activeTab === tab.name }]" @click="onTabClick(tab)">
                     <span class="tab-title">{{ tab.title }}</span>
-                    <el-icon class="is-icon-close" @click.stop="removeTab(tab.name)"
-                      ><Close
-                    /></el-icon>
+                    <el-icon class="is-icon-close" @click.stop="removeTab(tab.name)">
+                      <Close />
+                    </el-icon>
                   </div>
                 </div>
               </div>
@@ -295,13 +248,7 @@
       </el-container>
     </el-container>
     <!-- Chatbot Drawer -->
-    <el-drawer
-      v-model="isChatDrawerVisible"
-      title="Chat Bot"
-      direction="rtl"
-      :size="600"
-      custom-class="chat-drawer"
-    >
+    <el-drawer v-model="isChatDrawerVisible" title="Chat Bot" direction="rtl" :size="600" custom-class="chat-drawer">
       <div class="chat-container">
         <div class="chat-body">
           <div v-for="(msg, idx) in messages" :key="idx" :class="['message', msg.role]">
@@ -312,20 +259,10 @@
           </div>
         </div>
         <div class="chat-footer">
-          <el-input
-            v-model="newMessage"
-            placeholder="输入消息..."
-            resize="none"
-            :disabled="sending"
-            @keyup.enter="sendMessage"
-          />
-          <el-button
-            type="primary"
-            :loading="sending"
-            @click="sendMessage"
-            :disabled="sending || !newMessage.trim()"
-            >发送</el-button
-          >
+          <el-input v-model="newMessage" placeholder="输入消息..." resize="none" :disabled="sending"
+            @keyup.enter="sendMessage" />
+          <el-button type="primary" :loading="sending" @click="sendMessage"
+            :disabled="sending || !newMessage.trim()">发送</el-button>
         </div>
       </div>
     </el-drawer>
@@ -358,6 +295,7 @@ import {
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { getUserAvatar, getUserEmail, uploadAvatar } from '@/api/user'
+import { get } from '@/utils/request'
 import { renderContent } from '@/utils/contentRenderer'
 import { ElMessage, ElImageViewer } from 'element-plus'
 import dayjs from 'dayjs'
@@ -757,11 +695,7 @@ const handleFileChange = (e) => {
       const formData = new FormData()
       formData.append('file', file) // 假设后端接口接收的字段名为 'file'
 
-      uploadAvatar(formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then((response) => {
+      uploadAvatar(formData).then((response) => {
         // 上传成功
         handleAvatarSuccess(response)
       })
@@ -791,8 +725,9 @@ const handleAvatarSuccess = (response) => {
 // 通知相关状态
 const notificationLoading = ref(false)
 const notificationData = ref({
-  checkOutCount: 0,
-  outApplyCount: 0,
+  checkOutApplyCount: 0,
+  outingApplyCount: 0,
+  pendingUserCount: 0,
   dietConfigured: false,
 })
 
@@ -821,11 +756,16 @@ onMounted(() => {
   getUserEmail().then((response) => {
     email.value = response
   })
+  // 页面加载时获取通知数据（红点需提前显示）
+  if (userStore.role === 'admin') {
+    fetchNotification()
+  }
 })
 </script>
 
 <style scoped>
 @import '../assets/icons/iconfont.css';
+
 .aside {
   background: #fff;
   border-right: 1px solid #eee;
@@ -867,6 +807,7 @@ onMounted(() => {
 .el-menu--collapse {
   width: 64px;
 }
+
 .el-menu--collapse .el-sub-menu__title span,
 .el-menu--collapse .el-menu-item span {
   height: 0;
@@ -875,12 +816,14 @@ onMounted(() => {
   visibility: hidden;
   display: inline-block;
 }
+
 /* Ensure icons are centered when collapsed */
 .el-menu--collapse .el-sub-menu__title .el-icon,
 .el-menu--collapse .el-menu-item .el-icon {
   margin-left: 10px;
   margin-right: 0px;
 }
+
 .el-menu--collapse .el-sub-menu__title .iconfont-sys,
 .el-menu--collapse .el-menu-item .iconfont-sys {
   margin-left: 4px;
@@ -1206,9 +1149,11 @@ onMounted(() => {
 .message .message-bubble :deep(h1) {
   font-size: 1.2em;
 }
+
 .message .message-bubble :deep(h2) {
   font-size: 1.1em;
 }
+
 .message .message-bubble :deep(h3) {
   font-size: 1.05em;
 }
@@ -1295,37 +1240,44 @@ onMounted(() => {
   min-width: 240px;
   max-width: 280px;
 }
+
 .user-info-card {
   display: flex;
   align-items: center;
   gap: 16px;
 }
+
 .user-info-meta {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+
 .user-info-name {
   font-size: 18px;
   font-weight: bold;
   color: #333;
   margin-bottom: 4px;
 }
+
 .user-info-email {
   font-size: 14px;
   color: #8c8c8c;
 }
+
 .user-info-divider {
   height: 1px;
   background: #eee;
   margin: 16px 0 12px 0;
   width: 100%;
 }
+
 .user-info-logout-btn {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .ai-chat-icon-wrapper {
   position: relative;
   display: inline-block;
@@ -1343,6 +1295,7 @@ onMounted(() => {
   z-index: 2;
   box-shadow: 0 0 2px #52c41a;
 }
+
 .fullscreen-toggle-icon {
   display: inline-flex;
   align-items: center;
@@ -1352,6 +1305,7 @@ onMounted(() => {
   color: #606266;
   transition: color 0.3s;
 }
+
 .fullscreen-toggle-icon:hover {
   color: #409eff;
 }
@@ -1365,6 +1319,7 @@ onMounted(() => {
   cursor: pointer;
   color: #606266;
 }
+
 .notification-dot {
   position: absolute;
   right: 2px;
@@ -1376,24 +1331,28 @@ onMounted(() => {
   border: 2px solid #fff;
   z-index: 2;
 }
-.notification-popover {
+
+:deep(.notification-popover) {
   padding: 16px 20px 16px 20px;
   border-radius: 10px;
 }
-.notification-title {
+
+:deep(.notification-title) {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 12px;
   color: #333;
 }
-.notification-item {
+
+:deep(.notification-item) {
   font-size: 14px;
   margin-bottom: 8px;
   color: #666;
   display: flex;
   align-items: center;
 }
-.notification-item-icon {
+
+:deep(.notification-item-icon) {
   margin-right: 8px;
   font-size: 16px;
   color: #409eff;

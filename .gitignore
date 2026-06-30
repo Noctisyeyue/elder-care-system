@@ -17,6 +17,9 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
+# Config (contains secrets)
+backend/src/main/resources/application.yml
+
 # Logs
 *.log
 

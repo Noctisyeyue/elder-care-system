@@ -253,6 +253,17 @@ public class CommonServiceImpl implements CommonService {
             }
             data.setDietConfigured(!dietCalendarSetMealMappings.isEmpty());
         }
+        // 查询待审核用户
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("status", "0");
+        userQueryWrapper.eq("del_flag", "0");
+        try {
+            data.setPendingUserCount(userMapper.selectCount(userQueryWrapper));
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("获取待审核用户数量数据库错误");
+            return result;
+        }
         // 查询待处理退住申请
         QueryWrapper<CheckOutRecord> checkOutRecordQueryWrapper = new QueryWrapper<>();
         checkOutRecordQueryWrapper.eq("status", "2");
