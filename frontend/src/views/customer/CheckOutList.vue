@@ -82,7 +82,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getMyCheckOutApplications } from '@/api/customer'
+import { getMyCheckOutApplications, cancelCheckOut } from '@/api/customer'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 

@@ -81,31 +81,8 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="renewalDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="() => { renewalDialogVisible = false; openPayDialog(); }">确定</el-button>
+          <el-button type="primary" @click="() => { renewalDialogVisible = false; confirmRenewal(); }">确定</el-button>
         </span>
-      </template>
-    </el-dialog>
-    <!-- 支付二维码弹窗 -->
-    <el-dialog v-model="payDialogVisible" title=" " width="500px" :close-on-click-modal="false" :show-close="true">
-      <div style="display: flex; align-items: flex-start;">
-        <div style="flex: 1; padding-right: 20px;">
-          <div style="font-size: 22px; font-weight: bold; margin-bottom: 30px;">确认付款</div>
-          <div style="margin-bottom: 16px; font-size: 18px;">客户姓名：<b>{{ payInfo.customerName }}</b></div>
-          <div style="margin-bottom: 16px; font-size: 18px;">项目名称：<b>{{ payInfo.itemName }}</b></div>
-          <div style="margin-bottom: 16px; font-size: 18px;">购买份数：<b>{{ payInfo.quantity }}</b></div>
-          <div style="margin-bottom: 16px; font-size: 18px;">总金额：<b style="color: #e74c3c; font-size: 28px;">￥{{ payInfo.totalAmount.toFixed(2) }}</b></div>
-          <div style="margin-bottom: 16px; font-size: 16px; color: #888;">{{ payCountdown }} 秒后自动取消支付</div>
-        </div>
-        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-          <img :src="payInfo.qrCodeUrl" alt="二维码" style="width: 180px; height: 180px; margin-bottom: 10px; border: 4px solid #f5f5f5; border-radius: 8px;" />
-          <div style="margin-top: 10px; color: #409EFF; font-size: 16px;">
-            <el-icon style="vertical-align: middle;"><i class="el-icon-check"></i></el-icon> 扫码支付
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <el-button @click="handlePayCancel">取消支付</el-button>
-        <el-button type="primary" @click="handlePayConfirm">确认支付</el-button>
       </template>
     </el-dialog>
   </div>
@@ -117,7 +94,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCustomerList, getMyCustomers } from '@/api/customer'
 import { getPurchasedItems, renewNursingItem } from '@/api/health'
-import codePng from '@/assets/code.png'
+
 
 const router = useRouter()
 const customerId = localStorage.getItem('purchasedNursingItemsCustomerId')
@@ -144,46 +121,6 @@ const renewalForm = reactive({
   itemId: '',
   customerId: '',
 })
-
-// 支付弹窗相关
-const payDialogVisible = ref(false)
-const payCountdown = ref(60)
-let payCountdownTimer = null
-const payInfo = ref({
-  customerName: '',
-  itemName: '',
-  quantity: 0,
-  totalAmount: 0,
-  qrCodeUrl: codePng,
-})
-const openPayDialog = () => {
-  payInfo.value.customerName = renewalForm.customerName
-  payInfo.value.itemName = renewalForm.name
-  payInfo.value.quantity = renewalForm.newQuantity
-  payInfo.value.totalAmount = Number(renewalForm.price) * Number(renewalForm.newQuantity)
-  payCountdown.value = 60
-  payDialogVisible.value = true
-  if (payCountdownTimer) clearInterval(payCountdownTimer)
-  payCountdownTimer = setInterval(() => {
-    payCountdown.value--
-    if (payCountdown.value <= 0) {
-      clearInterval(payCountdownTimer)
-      payDialogVisible.value = false
-      ElMessage.info('支付超时，已自动取消')
-    }
-  }, 1000)
-}
-const closePayDialog = () => {
-  payDialogVisible.value = false
-  if (payCountdownTimer) clearInterval(payCountdownTimer)
-}
-const handlePayCancel = () => {
-  closePayDialog()
-}
-const handlePayConfirm = async () => {
-  closePayDialog()
-  await confirmRenewal()
-}
 
 const formatDate = (dateString) => {
   if (!dateString) return ''

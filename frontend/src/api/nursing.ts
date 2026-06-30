@@ -127,14 +127,13 @@ export function getCustomerNursingItems(customerId: number) {
 }
 
 /**
- * 为客户添加护理级别。
+ * 为客户添加护理级别和项目记录。
  *
- * @param customerId 客户ID
- * @param levelId 护理级别ID
+ * @param params 包含 customerId, levelId, items 的对象
  * @returns 添加处理结果
  */
-export function addCustomerNursingLevel(customerId: number, levelId: number) {
-  return post('/nursing/customer/add', { customerId, levelId })
+export function addCustomerNursingLevel(params: Record<string, unknown>) {
+  return post('/nursing/customer/add', params)
 }
 
 /**

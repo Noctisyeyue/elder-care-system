@@ -159,31 +159,6 @@
         <el-button type="primary" @click="handlePreSubmitNursingSetting">确定</el-button>
       </template>
     </el-dialog>
-  <!-- 付款弹窗 -->
-  <el-dialog v-model="payDialogVisible" title=" " width="600px" :close-on-click-modal="false" :show-close="true">
-    <div style="display: flex; align-items: flex-start;">
-      <!-- 左侧信息 -->
-      <div style="flex: 1; padding-right: 20px;">
-        <div style="font-size: 22px; font-weight: bold; margin-bottom: 30px;">确认付款</div>
-        <div style="margin-bottom: 16px; font-size: 18px;">客户姓名：<b>{{ payInfo.customerName }}</b></div>
-        <div style="margin-bottom: 16px; font-size: 18px;">服务级别：<b>{{ payInfo.serviceLevel }}</b></div>
-        <div style="margin-bottom: 16px; font-size: 18px;">购买数量：<b>{{ payInfo.totalCount }}</b></div>
-        <div style="margin-bottom: 16px; font-size: 18px;">总金额：<b style="color: #e74c3c; font-size: 28px;">￥{{ payInfo.totalAmount.toFixed(2) }}</b></div>
-        <div style="margin-bottom: 16px; font-size: 16px; color: #888;">{{ payCountdown }} 秒后自动取消支付</div>
-      </div>
-      <!-- 右侧二维码 -->
-      <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
-        <img :src="payInfo.qrCodeUrl" alt="二维码" style="width: 180px; height: 180px; margin-bottom: 10px; border: 4px solid #f5f5f5; border-radius: 8px;" />
-        <div style="margin-top: 10px; color: #409EFF; font-size: 16px;">
-          <el-icon style="vertical-align: middle;"><i class="el-icon-check"></i></el-icon> 扫码支付
-        </div>
-      </div>
-    </div>
-    <template #footer>
-      <el-button @click="handlePayCancel">取消支付</el-button>
-      <el-button type="primary" @click="handlePayConfirm">确认支付</el-button>
-    </template>
-  </el-dialog>
   </div>
 </template>
 
@@ -193,7 +168,7 @@ import { getCustomerList } from '@/api/customer'
 import { getNursingLevelList, getNursingLevelItems, getCustomerNursingItems, addCustomerNursingLevel, removeCustomerNursingLevel } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-import codePng from '@/assets/code.png'
+
 // 查询参数
 const queryName = ref('')
 const customerList = ref([
@@ -233,69 +208,15 @@ const itemPage = ref(1)
 const itemPageSize = ref(10)
 const itemTotal = ref(0)
 
-// 新增：付款弹窗显示状态
-const payDialogVisible = ref(false)
-// 新增：付款信息
-const payInfo = ref({
-  customerName: '',
-  serviceLevel: '',
-  totalCount: 0,
-  totalAmount: 0,
-  qrCodeUrl: codePng, // 使用本地assets下的code.png
-})
-// 计算总数量和总金额
-const calcPayInfo = () => {
-  const items = nursingForm.items.filter(item => item.buyCount > 0)
-  payInfo.value.customerName = currentCustomer.value?.customerName || ''
-  payInfo.value.serviceLevel = nursingLevelList.value.find(l => l.id === nursingForm.levelId)?.level || ''
-  payInfo.value.totalCount = items.reduce((sum, item) => sum + Number(item.buyCount), 0)
-  payInfo.value.totalAmount = items.reduce((sum, item) => sum + Number(item.buyCount) * Number(item.price), 0)
-}
-// 倒计时相关
-const payCountdown = ref(60)
-let payCountdownTimer = null
-
-// 打开支付弹窗时启动倒计时
-const openPayDialog = () => {
-  payCountdown.value = 60
-  payDialogVisible.value = true
-  if (payCountdownTimer) clearInterval(payCountdownTimer)
-  payCountdownTimer = setInterval(() => {
-    payCountdown.value--
-    if (payCountdown.value <= 0) {
-      clearInterval(payCountdownTimer)
-      payDialogVisible.value = false
-      ElMessage.info('支付超时，已自动取消')
-    }
-  }, 1000)
-}
-// 关闭支付弹窗时清理定时器
-const closePayDialog = () => {
-  payDialogVisible.value = false
-  if (payCountdownTimer) clearInterval(payCountdownTimer)
-}
-// 修改handlePreSubmitNursingSetting，弹窗用openPayDialog
+// 预提交护理设置
 const handlePreSubmitNursingSetting = () => {
-  if (!nursingForm.items.some(item => item.buyCount > 0)) {
-    submitNursingSetting() // 全为0直接提交
-  } else {
-    calcPayInfo()
-    openPayDialog()
-  }
-}
-// 修改handlePayCancel和handlePayConfirm
-const handlePayCancel = () => {
-  closePayDialog()
-}
-const handlePayConfirm = () => {
-  closePayDialog()
   submitNursingSetting()
 }
 
 // 查询客户列表
 const fetchCustomerList = async () => {
   const res = await getCustomerList({
-    name: queryName.value,
+    customerName: queryName.value,
     pageNum: page.value,
     pageSize: pageSize.value,
   })

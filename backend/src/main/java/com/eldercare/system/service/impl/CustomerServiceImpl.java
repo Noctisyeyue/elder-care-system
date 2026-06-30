@@ -481,7 +481,10 @@ public class CustomerServiceImpl implements CustomerService{
                 //根据床号将床的状态设置为free
                 roomService.updateBedStatus(roomNo, bedNo);
                 //将客户表的del_flag改为1
-                customerMapper.updateDelFlag(id, 1);
+                CheckOutRecord checkOutRecord = checkOutRecordMapper.selectById(id);
+                if (checkOutRecord != null) {
+                    customerMapper.updateDelFlag(checkOutRecord.getCustomerId(), 1);
+                }
                 //修改床位记录表，截止时间usage_end_date改为当前日期
                 //是否为历史记录标识符history改为0
                 bedRecordMapper.updateBedRecordUsageEndDate(id, date, "0");
