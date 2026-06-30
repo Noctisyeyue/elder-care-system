@@ -68,11 +68,23 @@ elder-care-system/
 |       |-- stores/           Pinia 状态管理
 |       |-- utils/            前端工具
 |       `-- views/            页面视图
+|-- docs/                     项目过程文档
+|   |-- plans/                设计与改造计划
+|   |-- reviews/              审核与修复记录
+|   `-- progress/             阶段进度记录
 |-- sql/
 |   |-- schema.sql            建表脚本
 |   `-- demo-data.sql         演示数据脚本
 `-- README.md
 ```
+
+## 项目文档
+
+| 文档 | 说明 |
+| --- | --- |
+| [角色权限改造计划](docs/plans/role-permission-plan.md) | 记录角色权限改造的设计方案和阶段计划 |
+| [角色权限审核记录](docs/reviews/role-permission-review.md) | 记录角色权限改造过程中的问题、审核结论和修复状态 |
+| [开发进度记录](docs/progress/PROGRESS.md) | 记录项目阶段性进度和当前待办 |
 
 ## 环境要求
 
