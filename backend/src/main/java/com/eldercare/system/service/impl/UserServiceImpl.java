@@ -18,7 +18,7 @@ import com.eldercare.system.dto.user.*;
 import com.eldercare.system.email.RedisConstant;
 import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
-import com.eldercare.system.vo.user.RoleNumVO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -277,6 +277,12 @@ public class UserServiceImpl implements UserService{
             result.setMessage("审核失败，用户不存在");
             return result;
         }
+        // 审核仅限护工，防止误审核管理员
+        if (!UserRoleConstant.CAREGIVER_ID.equals(user.getRoleId())) {
+            result.setCode(500);
+            result.setMessage("审核失败，仅护工需要审核");
+            return result;
+        }
         if (user.getStatus() != null && user.getStatus() != 0) {
             result.setCode(500);
             result.setMessage("审核失败，该账号非待审核状态");
@@ -295,10 +301,45 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * 禁用账号：将 status 改为 2，超级管理员不可被禁用
+     * 启用账号：将 status 从 2 改回 1，超级管理员不可被启用（本来就是启用状态）
      */
     @Override
-    public ApiResult disable(Long userId) {
+    public ApiResult enable(Long userId) {
+        ApiResult result = new ApiResult();
+        User user = userMapper.selectById(userId);
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("启用失败，用户不存在");
+            return result;
+        }
+        // 超级管理员自我保护
+        if (UserRoleConstant.SUPER_ADMIN_ID.equals(user.getRoleId())) {
+            result.setCode(500);
+            result.setMessage("启用失败，不允许操作超级管理员");
+            return result;
+        }
+        if (user.getStatus() == null || user.getStatus() != 2) {
+            result.setCode(500);
+            result.setMessage("启用失败，该账号未被禁用");
+            return result;
+        }
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("user_id", userId).set("status", 1);
+        if (userMapper.update(null, uw) > 0) {
+            result.setCode(200);
+            result.setMessage("启用成功");
+        } else {
+            result.setCode(500);
+            result.setMessage("启用失败，其他错误");
+        }
+        return result;
+    }
+
+    /**
+     * 禁用账号：将 status 改为 2，超级管理员不可被禁用，不可禁用自己
+     */
+    @Override
+    public ApiResult disable(Long userId, String token) {
         ApiResult result = new ApiResult();
         User user = userMapper.selectById(userId);
         if (user == null || "1".equals(user.getDelFlag())) {
@@ -311,6 +352,21 @@ public class UserServiceImpl implements UserService{
             result.setCode(500);
             result.setMessage("禁用失败，不允许禁用超级管理员");
             return result;
+        }
+        // 禁止禁用当前登录用户
+        try {
+            String t = token;
+            if (t != null && t.startsWith("Bearer "))
+                t = t.substring(7);
+            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(t);
+            Claim c = claims.get("userId");
+            if (c != null && userId.equals(Long.parseLong(c.asString()))) {
+                result.setCode(500);
+                result.setMessage("禁用失败，不能禁用自己的账号");
+                return result;
+            }
+        } catch (Exception ignored) {
+            // token 解析失败仅跳过自身保护，不禁用操作仍继续
         }
         UpdateWrapper<User> uw = new UpdateWrapper<>();
         uw.eq("user_id", userId).set("status", 2);
@@ -338,6 +394,12 @@ public class UserServiceImpl implements UserService{
         if (user == null || "1".equals(user.getDelFlag())) {
             result.setCode(500);
             result.setMessage("重置失败，用户不存在");
+            return result;
+        }
+        // 禁止重置超级管理员密码
+        if (UserRoleConstant.SUPER_ADMIN_ID.equals(user.getRoleId())) {
+            result.setCode(500);
+            result.setMessage("重置失败，不允许重置超级管理员密码");
             return result;
         }
         UpdateWrapper<User> uw = new UpdateWrapper<>();
@@ -428,17 +490,22 @@ public class UserServiceImpl implements UserService{
         }
 
         // 从 token 解析当前用户 ID，用于禁止删除自己的检查
-        Long currentUserId = null;
+        Long currentUserId;
         try {
             if (token != null && token.startsWith("Bearer "))
                 token = token.substring(7);
             Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
             Claim userIdClaim = claims.get("userId");
-            if (userIdClaim != null) {
-                currentUserId = Long.parseLong(userIdClaim.asString());
+            if (userIdClaim == null) {
+                result.setCode(401);
+                result.setMessage("删除失败，用户身份校验失败");
+                return result;
             }
-        } catch (Exception ignored) {
-            // token 解析失败则跳过自身保护（极端情况）
+            currentUserId = Long.parseLong(userIdClaim.asString());
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("删除失败，token解析失败");
+            return result;
         }
 
         int totalDeleted = 0;
@@ -569,7 +636,7 @@ public class UserServiceImpl implements UserService{
         // 获取所有角色名称
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("del_flag", "0");
-        queryWrapper.ne("role_key","admin");
+        queryWrapper.ne("role_key","super_admin"); //roleNum() 排除 super_admin
         try {
             roles = roleMapper.selectList(queryWrapper);
         } catch (Exception e) {

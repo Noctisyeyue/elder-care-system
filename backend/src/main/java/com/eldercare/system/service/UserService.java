@@ -38,7 +38,7 @@ public interface UserService {
     ApiResult register(CaregiverRegisterRequest request);
 
     /**
-     * 审核护工（将 status 从 0 改为 1）
+     * 审核护工（将 status 从 0 改为 1），仅限护工角色
      *
      * @param userId 用户 ID
      * @return 操作结果
@@ -46,12 +46,21 @@ public interface UserService {
     ApiResult audit(Long userId);
 
     /**
-     * 禁用账号（将 status 改为 2），超级管理员不可被禁用
+     * 启用账号（将 status 从 2 改回 1）
      *
      * @param userId 用户 ID
      * @return 操作结果
      */
-    ApiResult disable(Long userId);
+    ApiResult enable(Long userId);
+
+    /**
+     * 禁用账号（将 status 改为 2），超级管理员不可被禁用，不可禁用自己
+     *
+     * @param userId 用户 ID
+     * @param token  当前登录用户 token
+     * @return 操作结果
+     */
+    ApiResult disable(Long userId, String token);
 
     /**
      * 重置密码为默认密码（123456）

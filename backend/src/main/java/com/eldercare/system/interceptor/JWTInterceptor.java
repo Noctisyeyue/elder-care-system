@@ -39,6 +39,7 @@ public class JWTInterceptor implements HandlerInterceptor {
             "/user/update",
             "/user/del",
             "/user/audit",
+            "/user/enable",
             "/user/disable",
             "/user/resetPwd"
     );

@@ -68,11 +68,18 @@ public class UserController {
     public ApiResult audit(@RequestParam Long userId) {
         return userService.audit(userId);
     }
-    // 禁用账号（仅超级管理员，不可禁用超级管理员）
+    // 启用账号（仅超级管理员，将 status 从 2 改回 1）
+    @Operation(summary = "启用账号")
+    @PostMapping("/enable")
+    public ApiResult enable(@RequestParam Long userId) {
+        return userService.enable(userId);
+    }
+    // 禁用账号（仅超级管理员，不可禁用超管或自己）
     @Operation(summary = "禁用账号")
     @PostMapping("/disable")
-    public ApiResult disable(@RequestParam Long userId) {
-        return userService.disable(userId);
+    public ApiResult disable(@RequestParam Long userId,
+                             @RequestHeader(value = "Authorization", required = false) String token) {
+        return userService.disable(userId, token);
     }
     // 重置密码为默认密码（仅超级管理员）
     @Operation(summary = "重置密码")
