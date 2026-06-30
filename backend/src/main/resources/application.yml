@@ -86,5 +86,5 @@ elder-care:
     # OSS 密钥为敏感信息，真值见 application-local.yml
     access-key-id: your-access-key-id
     access-key-secret: your-access-key-secret
-    bucket-name: elder-care-system
+    bucket-name: neuhealth
     endpoint: oss-cn-beijing.aliyuncs.com
