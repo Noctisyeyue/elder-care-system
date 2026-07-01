@@ -64,7 +64,12 @@ public class MailService  {
     public void sendHtmlMail(String to, String subject, String content, String... cc) throws MessagingException, jakarta.mail.MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setFrom(from);
+        try {
+            // 设发件人显示名（解决 QQ 邮箱直接显示发件人昵称/头像的问题）
+            helper.setFrom(new InternetAddress(from, "东软颐养中心", "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new jakarta.mail.MessagingException("发件人编码异常", e);
+        }
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(content, true);

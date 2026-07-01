@@ -121,15 +121,11 @@ public class CommonServiceImpl implements CommonService {
         String code = StringUtil.randomSixCode();
 
         // 正文内容
-        String content = "亲爱的用户：\n" +
-                "您此次的验证码为：\n\n" +
-                code + "\n\n" +
-                "此验证码5分钟内有效，请立即进行下一步操作。 如非你本人操作，请忽略此邮件。\n" +
-                "感谢您的使用！";
+        String content = EmailTemplate.buildVerifyCodeHtml("找回密码", code);
 
         // 发送验证码
-        threadService.sendSimpleMail(email, "您此次的验证码为：" + code, content);
-        System.out.println("发送成功,您此次的验证码为："+ code+ content);
+        threadService.sendHtmlMail(email, "【东软颐养中心】您的密码找回验证码", content);
+        System.out.println("发送成功,您此次的验证码为："+ code);
         // 丢入缓存，设置5分钟过期
         redisTemplate.opsForValue().set(RedisConstant.EMAIL + email, code, RedisConstant.EXPIRE_FIVE_MINUTE, TimeUnit.SECONDS);
         return R.ok();
@@ -203,12 +199,8 @@ public class CommonServiceImpl implements CommonService {
 
         // 生成 6 位数字验证码
         String code = StringUtil.randomSixCode();
-        String content = "亲爱的用户：\n" +
-                "您此次的注册验证码为：\n\n" +
-                code + "\n\n" +
-                "此验证码5分钟内有效，请立即进行下一步操作。 如非你本人操作，请忽略此邮件。\n" +
-                "感谢您的使用！";
-        threadService.sendSimpleMail(email, "您此次的注册验证码为：" + code, content);
+        String content = EmailTemplate.buildVerifyCodeHtml("注册账号", code);
+        threadService.sendHtmlMail(email, "【东软颐养中心】您的注册验证码", content);
         System.out.println("注册验证码发送成功，email=" + email + "，code=" + code);
 
         // 验证码缓存 5 分钟
