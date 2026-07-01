@@ -645,7 +645,8 @@ public class NursingServiceImpl implements NursingService{
             nursingItemRecord.setNursingItemCode(nursingItem.getCode());
             nursingItemRecord.setPrice(nursingItem.getPrice());
             nursingItemRecord.setExecutionCycle(nursingItem.getExecutionCycle());
-            nursingItemRecord.setExecutionTimes(nursingItem.getExecutionTimes()*itemRecordAddParam.getBuyCount());
+            // executionTimes 保存单份护理项目总次数，展示/统计时再乘购买数量。
+            nursingItemRecord.setExecutionTimes(nursingItem.getExecutionTimes());
             nursingItemRecord.setExecutedTimes(0);
             nursingItemRecord.setPurchasingDate(itemRecordAddParam.getBuyDate());
             nursingItemRecord.setPurchasingTimes(itemRecordAddParam.getBuyCount());
