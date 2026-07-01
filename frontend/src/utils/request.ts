@@ -21,13 +21,23 @@ const LLMService = axios.create({
 /** 是否已显示错误提示，避免短时间内重复弹窗。 */
 let isErrorMessageShown = false
 
-/** 清理 sessionStorage 中的完整登录态 */
+/**
+ * 清理 sessionStorage 中的完整登录态。
+ *
+ * 登录态失效、401 跳转登录页、退出登录等场景都会复用这里。
+ */
 function clearAuthFromStorage() {
   ;['token', 'userId', 'realName', 'email', 'roleId', 'roleKey', 'roleName', 'status'].forEach((k) =>
     sessionStorage.removeItem(k),
   )
 }
 
+/**
+ * 请求拦截器：
+ * 1. 从 sessionStorage 读取 token
+ * 2. 统一拼接 Authorization 请求头
+ * 3. 保证后端 SecurityFilterChain 可以识别当前登录态
+ */
 service.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token')
@@ -42,6 +52,12 @@ service.interceptors.request.use(
   },
 )
 
+/**
+ * 响应拦截器：
+ * 1. 统一处理后端 ApiResult 结构
+ * 2. 对 401 自动清理登录态并跳转登录页
+ * 3. 对 403、500 等错误给出统一提示
+ */
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
@@ -55,6 +71,7 @@ service.interceptors.response.use(
         }, 3000)
       }
 
+      // 401 表示登录态失效，清理本地缓存并回到登录页
       if (res.code === 401) {
         clearAuthFromStorage()
         router.push('/login')
@@ -71,14 +88,17 @@ service.interceptors.response.use(
 
       switch (status) {
         case 401:
+          // HTTP 401：后端认为当前请求未认证或登录状态过期
           clearAuthFromStorage()
           ElMessage.error('未登录，请先登录')
           router.push('/login')
           break
         case 403:
+          // HTTP 403：已登录，但当前角色没有权限访问
           ElMessage.error('权限不足')
           break
         case 500:
+          // HTTP 500：服务端内部错误
           ElMessage.error('服务器内部错误')
           break
         default:
@@ -158,6 +178,11 @@ export function del<T = unknown>(url: string, config?: AxiosRequestConfig): Prom
 /**
  * 发送 LLM 流式 POST 请求。
  *
+ * 说明：
+ * 1. 使用 fetch 直接读取流式响应
+ * 2. 手动拼接 Authorization 头，复用当前登录态
+ * 3. 将分段内容通过回调不断推送给调用方
+ *
  * @param url 请求地址
  * @param data 请求体数据
  * @param onChunk 流式片段回调
@@ -198,6 +223,7 @@ export async function streamPost(
     const reader = response.body.getReader()
     const decoder = new TextDecoder('utf-8')
 
+    // 统计分片数量，便于后续排查流式响应是否完整
     let totalChunks = 0
 
     while (true) {
@@ -213,6 +239,7 @@ export async function streamPost(
       }
     }
 
+    // 所有分片读取完成后，通知调用方结束处理
     onComplete?.()
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '未知错误'
