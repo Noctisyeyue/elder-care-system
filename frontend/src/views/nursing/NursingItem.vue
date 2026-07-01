@@ -28,7 +28,7 @@
       <el-table-column prop="code" label="编号" width="150" />
       <el-table-column prop="name" label="名称" width="150" />
       <el-table-column prop="frequency" label="执行周期" width="120" />
-      <el-table-column prop="count" label="总次数" width="120" />
+      <el-table-column prop="count" label="单份总次数" width="120" />
       <el-table-column prop="desc" label="描述" />
       <el-table-column prop="status" label="状态" width="120" />
       <el-table-column label="操作" width="120">
@@ -58,7 +58,7 @@
         <el-form-item label="执行周期" prop="frequency">
           <el-input v-model="editDialog.form.frequency" />
         </el-form-item>
-        <el-form-item label="总次数" prop="count">
+        <el-form-item label="单份总次数" prop="count">
           <el-input v-model="editDialog.form.count" type="number" />
         </el-form-item>
         <el-form-item label="描述" prop="desc">

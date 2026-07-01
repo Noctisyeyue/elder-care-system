@@ -75,7 +75,7 @@
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="frequency" label="执行周次" />
           <el-table-column prop="count" label="已用次数" />
-          <el-table-column prop="totalCount" label="总次数" />
+          <el-table-column prop="totalCount" label="购买后总次数" />
           <el-table-column prop="buyDate" label="购买日期" />
           <el-table-column prop="buyCount" label="购买数量" />
           <el-table-column prop="expireDate" label="到期日期" />
@@ -94,7 +94,7 @@
         <el-table-column prop="code" label="编号" />
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="frequency" label="执行周次" />
-        <el-table-column prop="count" label="总次数" />
+        <el-table-column prop="count" label="单份总次数" />
         <el-table-column prop="buyDate" label="服务购买日期" width="150">
           <template #default="scope">
             <el-date-picker v-model="scope.row.buyDate" type="date" placeholder="选择日期" style="width: 130px" />
