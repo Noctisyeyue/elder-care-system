@@ -85,6 +85,8 @@ import { useRouter } from 'vue-router'
 import { post } from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { useMenuStore } from '@/stores/menu'
+import { buildMenuList } from '@/utils/menu'
 import type { FormRules } from 'element-plus'
 import { ElNotification } from 'element-plus';
 
@@ -117,6 +119,15 @@ const handleSubmit = async () => {
     })
 
     userStore.setUser(response)
+
+    const menuStore = useMenuStore()
+    const home =
+      response.roleKey === 'caregiver' ? '/home/caregiver' : '/home/admin'
+    if (response.status !== 0) {
+      menuStore.setMenuList(buildMenuList(response.roleKey), home)
+    } else {
+      menuStore.clearMenuList()
+    }
 
     // 按 roleKey + status 分流跳转
     let target = '/'

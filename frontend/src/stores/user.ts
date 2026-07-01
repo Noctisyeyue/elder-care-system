@@ -84,6 +84,9 @@ export const useUserStore = defineStore('user', {
         sessionStorage.removeItem(k)
         localStorage.removeItem(k)
       })
+      // 延迟导入避免循环依赖
+      import('@/stores/menu').then(({ useMenuStore }) => useMenuStore().clearMenuList())
+      import('@/stores/worktab').then(({ useWorktabStore }) => useWorktabStore().clearTabs())
     },
     /**
      * 从会话存储中恢复登录态。

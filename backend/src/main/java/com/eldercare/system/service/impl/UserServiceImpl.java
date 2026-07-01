@@ -788,4 +788,148 @@ public class UserServiceImpl implements UserService{
         return result;
     }
 
+    /**
+     * 获取当前登录用户资料
+     */
+    @Override
+    public ApiResult<UserProfileVO> getProfile() {
+        ApiResult<UserProfileVO> result = new ApiResult<>();
+        Long userId = getCurrentLoginUser().getUserId();
+        try {
+            User user = userMapper.selectById(userId);
+            if (user == null || "1".equals(user.getDelFlag())) {
+                result.setCode(500);
+                result.setMessage("用户不存在");
+                return result;
+            }
+            UserProfileVO vo = new UserProfileVO();
+            vo.setUserName(user.getUserName());
+            vo.setRealName(user.getRealName());
+            vo.setPhone(user.getPhone());
+            vo.setEmail(user.getEmail());
+            vo.setGender(user.getGender());
+            if (user.getRoleId() != null) {
+                Role role = roleMapper.selectById(user.getRoleId());
+                if (role != null) {
+                    vo.setRoleName(role.getRoleName());
+                }
+            }
+            result.setCode(200);
+            result.setData(vo);
+            result.setMessage("查询成功");
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("数据库错误");
+        }
+        return result;
+    }
+
+    /**
+     * 更新当前登录用户资料（禁止修改角色和状态）
+     */
+    @Override
+    public ApiResult updateProfile(UserProfileUpdateRequest request) {
+        ApiResult result = new ApiResult<>();
+        Long userId = getCurrentLoginUser().getUserId();
+        try {
+            User user = userMapper.selectById(userId);
+            if (user == null || "1".equals(user.getDelFlag())) {
+                result.setCode(500);
+                result.setMessage("用户不存在");
+                return result;
+            }
+            if (request.getRealName() != null) {
+                user.setRealName(request.getRealName());
+            }
+            if (request.getPhone() != null) {
+                user.setPhone(request.getPhone());
+            }
+            if (request.getEmail() != null) {
+                user.setEmail(request.getEmail());
+            }
+            if (request.getGender() != null) {
+                user.setGender(request.getGender());
+            }
+            userMapper.updateById(user);
+            result.setCode(200);
+            result.setMessage("保存成功");
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("保存失败");
+        }
+        return result;
+    }
+
+    /**
+     * 当前用户修改密码
+     */
+    @Override
+    public ApiResult changePassword(UserPasswordUpdateRequest request) {
+        ApiResult result = new ApiResult<>();
+        LoginUser loginUser = getCurrentLoginUser();
+        Long userId = loginUser.getUserId();
+
+        if (request.getOldPassword() == null || request.getOldPassword().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请输入当前密码");
+            return result;
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请输入新密码");
+            return result;
+        }
+        if (request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请再次输入新密码");
+            return result;
+        }
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            result.setCode(500);
+            result.setMessage("两次输入的新密码不一致");
+            return result;
+        }
+        if (!com.eldercare.system.email.StringUtil.checkPassword(request.getNewPassword())) {
+            result.setCode(500);
+            result.setMessage("新密码至少 6 位，规则与用户管理新增用户保持一致");
+            return result;
+        }
+        if (request.getOldPassword().equals(request.getNewPassword())) {
+            result.setCode(500);
+            result.setMessage("新密码不能与当前密码相同");
+            return result;
+        }
+
+        try {
+            User user = userMapper.selectById(userId);
+            if (user == null || "1".equals(user.getDelFlag())) {
+                result.setCode(500);
+                result.setMessage("用户不存在");
+                return result;
+            }
+            if (!PasswordUtil.checkPassword(request.getOldPassword(), user.getPassword())) {
+                result.setCode(500);
+                result.setMessage("当前密码错误");
+                return result;
+            }
+
+            UpdateWrapper<User> uw = new UpdateWrapper<>();
+            uw.eq("user_id", userId).set("password", hashPassword(request.getNewPassword()));
+            if (userMapper.update(null, uw) > 0) {
+                if (user.getEmail() != null) {
+                    redisService.deleteToken(user.getEmail());
+                }
+                result.setCode(200);
+                result.setMessage("密码修改成功，请使用新密码重新登录");
+            } else {
+                result.setCode(500);
+                result.setMessage("密码修改失败");
+            }
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("密码修改失败");
+        }
+        return result;
+    }
+
 }

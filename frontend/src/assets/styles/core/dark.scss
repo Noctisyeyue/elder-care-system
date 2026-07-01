@@ -1,0 +1,222 @@
+$font-color: rgba(#ffffff, 0.85);
+
+html.dark {
+  --default-bg-color: #070707;
+  --default-box-color: #161618;
+  --ui-gray-100: #252528;
+  --ui-gray-200: #2d2d30;
+  --ui-gray-300: #3a3a3e;
+  --ui-gray-400: #52525b;
+  --ui-gray-500: #9ca3af;
+  --ui-gray-600: #d1d5db;
+  --ui-gray-700: #e5e7eb;
+  --ui-gray-800: #f3f4f6;
+  --ui-gray-900: #f9fafb;
+  --ui-hover-color: rgba(64, 158, 255, 0.12);
+  --ui-active-color: rgba(64, 158, 255, 0.18);
+  --default-border: #2d2d30;
+  --welcome-card-bg: linear-gradient(135deg, rgba(64, 158, 255, 0.14) 0%, #161618 100%);
+
+  color-scheme: dark;
+
+  // Element Plus 核心变量
+  --el-bg-color: var(--default-box-color);
+  --el-bg-color-overlay: var(--default-box-color);
+  --el-bg-color-page: var(--default-bg-color);
+  --el-fill-color-blank: var(--default-box-color);
+  --el-text-color-primary: #{$font-color};
+  --el-text-color-regular: rgba(#ffffff, 0.75);
+  --el-text-color-secondary: var(--ui-gray-500);
+  --el-text-color-placeholder: var(--ui-gray-400);
+  --el-border-color: var(--default-border);
+  --el-border-color-light: var(--ui-gray-300);
+  --el-border-color-lighter: var(--ui-gray-200);
+  --el-mask-color: rgba(0, 0, 0, 0.65);
+
+  // 表格
+  --el-table-bg-color: var(--default-box-color);
+  --el-table-tr-bg-color: var(--default-box-color);
+  --el-table-header-bg-color: var(--ui-gray-100);
+  --el-table-row-hover-bg-color: var(--ui-hover-color);
+  --el-table-current-row-bg-color: var(--ui-active-color);
+  --el-table-border-color: var(--default-border);
+  --el-table-text-color: rgba(#ffffff, 0.85);
+  --el-table-header-text-color: rgba(#ffffff, 0.65);
+
+  // 卡片 / 弹层
+  --el-card-bg-color: var(--default-box-color);
+  --el-popover-bg-color: var(--default-box-color);
+  --el-popover-border-color: var(--default-border);
+  --el-dropdown-menuItem-hover-fill: var(--ui-hover-color);
+  --el-dropdown-menuItem-hover-color: var(--ui-gray-800);
+
+  // 输入框
+  --el-input-bg-color: var(--ui-gray-100);
+  --el-input-border-color: var(--default-border);
+  --el-input-text-color: #{$font-color};
+  --el-input-placeholder-color: var(--ui-gray-400);
+
+  // 菜单
+  --el-menu-bg-color: var(--default-box-color);
+  --el-menu-hover-bg-color: var(--ui-hover-color);
+  --el-menu-text-color: rgba(#ffffff, 0.75);
+  --el-menu-active-color: var(--theme-color);
+}
+
+// Popover / Tooltip / Dropdown 等浮层（teleport 到 body）
+html.dark {
+  .el-popover.el-popper,
+  .el-popper.is-light,
+  .el-tooltip.el-popper.is-dark,
+  .el-dropdown__popper.el-popper {
+    background: var(--default-box-color) !important;
+    border-color: var(--default-border) !important;
+    color: rgba(#ffffff, 0.85) !important;
+  }
+
+  .el-popper.is-light > .el-popper__arrow::before {
+    background: var(--default-box-color) !important;
+    border-color: var(--default-border) !important;
+  }
+
+  .el-dropdown-menu {
+    background: var(--default-box-color) !important;
+    border-color: var(--default-border) !important;
+  }
+
+  .el-dropdown-menu__item {
+    color: rgba(#ffffff, 0.75) !important;
+    font-size: 13px;
+
+    &:hover,
+    &:focus {
+      background-color: var(--ui-hover-color) !important;
+      color: var(--ui-gray-800) !important;
+    }
+  }
+
+  // 表格 hover 行
+  .el-table {
+    --el-table-bg-color: var(--default-box-color);
+    --el-table-tr-bg-color: var(--default-box-color);
+    --el-table-header-bg-color: var(--ui-gray-100);
+    --el-table-row-hover-bg-color: var(--ui-hover-color);
+    --el-table-border-color: var(--default-border);
+    --el-table-text-color: rgba(#ffffff, 0.85);
+    --el-table-header-text-color: rgba(#ffffff, 0.65);
+
+    th.el-table__cell {
+      background-color: var(--ui-gray-100) !important;
+      color: rgba(#ffffff, 0.65) !important;
+    }
+
+    tr:hover > td.el-table__cell {
+      background-color: var(--ui-hover-color) !important;
+    }
+
+    .el-table__body tr.current-row > td.el-table__cell {
+      background-color: var(--ui-active-color) !important;
+    }
+  }
+
+  .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+    background: var(--ui-gray-100) !important;
+  }
+
+  // 卡片
+  .el-card {
+    --el-card-bg-color: var(--default-box-color);
+    border-color: var(--default-border);
+    color: rgba(#ffffff, 0.85);
+  }
+
+  .el-card__header {
+    border-bottom-color: var(--default-border);
+    color: rgba(#ffffff, 0.85);
+  }
+
+  // 对话框 / 抽屉
+  .el-dialog,
+  .el-drawer {
+    background: var(--default-box-color) !important;
+    color: rgba(#ffffff, 0.85);
+  }
+
+  .el-dialog__header,
+  .el-drawer__header {
+    color: rgba(#ffffff, 0.85);
+  }
+
+  // 表单 label
+  .el-form-item__label {
+    color: rgba(#ffffff, 0.75);
+  }
+
+  // 选择器下拉
+  .el-select-dropdown,
+  .el-picker-panel {
+    background: var(--default-box-color) !important;
+    border-color: var(--default-border) !important;
+  }
+
+  .el-select-dropdown__item {
+    color: rgba(#ffffff, 0.75);
+    font-size: 13px;
+
+    &.is-hovering {
+      background-color: var(--ui-hover-color) !important;
+    }
+
+    &.is-selected {
+      color: var(--theme-color) !important;
+    }
+  }
+
+  // 通知 Popover
+  .notification-popover.el-popover.el-popper {
+    .notification-title {
+      color: rgba(#ffffff, 0.9);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .notification-item {
+      color: rgba(#ffffff, 0.75);
+      font-size: 13px;
+    }
+  }
+
+  // 用户菜单 Popover
+  .user-menu-popover.el-popover.el-popper {
+    background: var(--default-box-color) !important;
+    border-color: var(--default-border) !important;
+
+    .user-info-name {
+      color: rgba(#ffffff, 0.9) !important;
+    }
+
+    .user-info-email {
+      color: rgba(#ffffff, 0.55) !important;
+    }
+
+    .menu-item {
+      color: rgba(#ffffff, 0.75) !important;
+
+      &:hover {
+        background: var(--ui-hover-color) !important;
+        color: rgba(#ffffff, 0.9) !important;
+      }
+    }
+
+    .logout-btn {
+      color: rgba(#ffffff, 0.65) !important;
+      border-color: var(--ui-gray-400) !important;
+
+      &:hover {
+        color: #f56c6c !important;
+        border-color: #f56c6c !important;
+        background: rgba(245, 108, 108, 0.08) !important;
+      }
+    }
+  }
+}

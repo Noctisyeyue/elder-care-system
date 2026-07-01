@@ -143,4 +143,27 @@ public interface UserService {
      * @return 最新 status：0 待审核 1 启用 2 禁用
      */
     ApiResult<Integer> getStatus();
+
+    /**
+     * 获取当前登录用户资料
+     *
+     * @return 用户资料
+     */
+    ApiResult<UserProfileVO> getProfile();
+
+    /**
+     * 更新当前登录用户资料（仅 realName/phone/email/gender）
+     *
+     * @param request 更新参数
+     * @return 操作结果
+     */
+    ApiResult updateProfile(UserProfileUpdateRequest request);
+
+    /**
+     * 当前用户修改密码（校验旧密码后更新，并清除登录态）
+     *
+     * @param request 密码参数
+     * @return 操作结果
+     */
+    ApiResult changePassword(UserPasswordUpdateRequest request);
 }

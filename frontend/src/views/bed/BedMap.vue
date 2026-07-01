@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="bed-map-page">
     <!-- 楼层选择和统计 -->
-    <div style="display: flex; align-items: center; margin-bottom: 16px">
+    <div class="bed-map-toolbar">
       <el-select
         v-model="selectedBuilding"
         @change="onBuildingChange"
-        style="width: 120px; margin-right: 20px"
+        style="width: 120px"
         placeholder="选择楼栋"
       >
         <el-option
@@ -18,20 +18,20 @@
       <el-select
         v-model="selectedFloor"
         @change="fetchRoomList"
-        style="width: 120px; margin-right: 20px"
+        style="width: 120px"
       >
         <el-option v-for="floor in floorList" :key="floor" :label="floor" :value="floor" />
       </el-select>
-      <span style="margin-right: 20px">
+      <span class="stat-item">
         <img :src="totalBedSvg" alt="Total Beds" class="icon-bed" /> 总床位：{{ bedStats.total }}
       </span>
-      <span style="margin-right: 20px">
+      <span class="stat-item">
         <img :src="freeBedSvg" alt="Free Beds" class="icon-bed" /> 空闲：{{ bedStats.free }}
       </span>
-      <span style="margin-right: 20px">
+      <span class="stat-item">
         <img :src="usedBedSvg" alt="Used Beds" class="icon-bed" /> 有人：{{ bedStats.used }}
       </span>
-      <span>
+      <span class="stat-item">
         <img :src="outBedSvg" alt="Out Beds" class="icon-bed" /> 外出：{{ bedStats.out }}
       </span>
     </div>
@@ -54,7 +54,7 @@
                   <div class="bed-row">
                     <template v-for="(bed, bedIdx) in cell.beds.slice(0, 2)" :key="bed.bedNo">
                       <div :class="['bed-status-container', bed.status]">
-                        <el-tooltip placement="top" effect="light">
+                        <el-tooltip placement="top" :effect="tooltipEffect">
                           <template #content>
                             <div v-if="cell.details && cell.details[bedIdx]" class="customer-info-card">
                               <div class="customer-info-title">客户信息</div>
@@ -77,7 +77,7 @@
                   <div class="bed-row">
                     <template v-for="(bed, bedIdx) in cell.beds.slice(2, 4)" :key="bed.bedNo">
                       <div :class="['bed-status-container', bed.status]">
-                        <el-tooltip placement="top" effect="light">
+                        <el-tooltip placement="top" :effect="tooltipEffect">
                           <template #content>
                             <div v-if="cell.details && cell.details[bedIdx + 2]" class="customer-info-card">
                               <div class="customer-info-title">客户信息</div>
@@ -115,6 +115,21 @@ import totalBedSvg from '@/assets/total_bed.svg'
 import usedBedSvg from '@/assets/used_bed.svg'
 import { getBedMap, getFloorList } from '@/api/bed'
 import { BUILDING_OPTIONS, DEFAULT_BUILDING } from '@/utils/building'
+import { useSettingStore } from '@/stores/setting'
+import { ThemeMode } from '@/config/setting'
+import { usePreferredDark } from '@vueuse/core'
+
+const settingStore = useSettingStore()
+const prefersDark = usePreferredDark()
+
+const isDark = computed(() => {
+  const mode = settingStore.systemThemeMode
+  if (mode === ThemeMode.DARK) return true
+  if (mode === ThemeMode.LIGHT) return false
+  return prefersDark.value
+})
+
+const tooltipEffect = computed(() => (isDark.value ? 'dark' : 'light'))
 
 const buildingOptions = BUILDING_OPTIONS
 const selectedBuilding = ref(DEFAULT_BUILDING)
@@ -277,10 +292,30 @@ watch(
 </script>
 
 <style scoped>
+.bed-map-page {
+  color: var(--ui-gray-700);
+}
+
+.bed-map-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--ui-gray-700);
+}
+
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .icon-bed {
-  width: 20px; /* 调整图标大小 */
+  width: 20px;
   height: 20px;
-  vertical-align: middle; /* 使图标与文字对齐 */
+  vertical-align: middle;
   margin-right: 4px;
 }
 
@@ -289,42 +324,70 @@ watch(
   flex-direction: column;
   align-items: center;
   padding: 4px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  color: var(--ui-gray-600);
+  transition: background-color 0.2s;
+}
+
+.bed-status-container:hover {
+  background-color: var(--ui-hover-color);
+}
+
+.bed-status-container > div:last-child {
+  font-size: 12px;
+  color: var(--ui-gray-500);
+  margin-top: 2px;
+  font-weight: 500;
 }
 
 .bed-icon {
-  width: 30px; /* 床位图标大小 */
+  width: 30px;
   height: 30px;
-  margin-bottom: 4px; /* 图标和文字之间的间距 */
+  margin-bottom: 4px;
 }
 
 .custom-table-wrapper {
   overflow-y: auto;
   margin-top: 16px;
   height: calc(100vh - 200px);
+  border-radius: 10px;
+  border: 1px solid var(--default-border);
+  background: var(--default-box-color);
 }
+
 .custom-table {
   border-collapse: collapse;
   width: 100%;
-  background: #fff;
+  background: transparent;
 }
+
 .custom-table th,
 .custom-table td {
-  border: 1px solid #ccc;
+  border: 1px solid var(--default-border);
   text-align: center;
   padding: 8px;
   min-width: 80px;
 }
+
 .custom-table th {
-  background: #f8f8f8;
-  font-weight: bold;
+  background: var(--ui-gray-100);
+  color: var(--ui-gray-700);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 8px;
 }
+
+.custom-table td {
+  background: var(--default-box-color);
+}
+
 .beds-wrapper {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .bed-row {
   display: flex;
   flex-direction: row;
@@ -332,13 +395,13 @@ watch(
   justify-content: center;
 }
 
-/* 客户信息卡片样式 */
 .customer-info-card {
   font-size: 15px;
   padding: 18px 24px;
   line-height: 2;
   min-width: 150px;
 }
+
 .customer-info-title {
   font-size: 20px;
   font-weight: bold;

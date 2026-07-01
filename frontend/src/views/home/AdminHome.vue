@@ -165,12 +165,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { getUserCount, getUserAvatar, getUserEmail, getRoleNum } from '@/api/user'
 import { getCustomerCount, getCustomerMonthCount, getCustomerYearCount, getCheckOutList, getOutingList } from '@/api/customer'
 import { getFreeBedCount, getBedCount } from '@/api/bed'
 import { ElMessage } from 'element-plus'
 import { useRouter} from 'vue-router'
+import { useSettingStore } from '@/stores/setting'
 import {
     Avatar,
     UserFilled,
@@ -199,6 +200,146 @@ const yearCustomerNum = ref([])
 const userRoleNum = ref([])
 
 const router = useRouter()
+const settingStore = useSettingStore()
+
+function getChartTheme() {
+    const dark = document.documentElement.classList.contains('dark')
+    return {
+        text: dark ? 'rgba(255,255,255,0.85)' : '#303133',
+        subText: dark ? 'rgba(255,255,255,0.55)' : '#909399',
+        splitLine: dark ? 'rgba(255,255,255,0.12)' : '#e5e5e5',
+        pieBorder: dark ? '#161618' : '#ffffff',
+        labelLine: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)',
+        areaTop: dark ? 'rgba(64,158,255,0.35)' : 'rgb(200,210,255)',
+        areaBottom: dark ? 'rgba(64,158,255,0.05)' : 'rgb(255, 255, 255)',
+    }
+}
+
+function buildUserNumChartOption() {
+    const theme = getChartTheme()
+    return {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'item' },
+        legend: {
+            top: '90%',
+            left: 'center',
+            textStyle: {
+                fontSize: 16,
+                color: theme.text,
+            },
+        },
+        series: [{
+            name: 'Access From',
+            type: 'pie',
+            top: '-20%',
+            radius: ['50%', '40%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+                borderRadius: 20,
+                borderColor: theme.pieBorder,
+                borderWidth: 2,
+            },
+            label: {
+                show: true,
+                fontSize: 16,
+                color: theme.text,
+            },
+            labelLine: {
+                lineStyle: { color: theme.labelLine },
+                smooth: 0.2,
+                length: 50,
+                length2: 20,
+            },
+            emphasis: {
+                label: {
+                    show: true,
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                },
+            },
+            data: Array.isArray(userRoleNum.value) ? userRoleNum.value : [],
+            color: ['rgb(170,170,255)', 'rgb(109,147,255)', 'rgb(50,200,255)'],
+        }],
+    }
+}
+
+function buildYearCustomerChartOption() {
+    const theme = getChartTheme()
+    const yearData = Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []
+    return {
+        backgroundColor: 'transparent',
+        color: 'rgb(119,161,255)',
+        tooltip: { trigger: 'axis' },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
+        },
+        xAxis: [{
+            type: 'category',
+            boundaryGap: false,
+            data: yearData.map(item => item.month),
+            axisLabel: { color: theme.subText },
+            axisLine: { lineStyle: { color: theme.splitLine } },
+        }],
+        yAxis: [{
+            type: 'value',
+            axisLabel: { color: theme.subText },
+            axisLine: { show: false },
+            splitLine: {
+                lineStyle: {
+                    color: theme.splitLine,
+                    width: 1,
+                    type: 'dashed',
+                },
+            },
+        }],
+        series: [{
+            type: 'line',
+            smooth: true,
+            lineStyle: { width: 3 },
+            showSymbol: false,
+            areaStyle: {
+                opacity: 0.7,
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: theme.areaTop },
+                    { offset: 1, color: theme.areaBottom },
+                ]),
+            },
+            emphasis: { focus: 'series' },
+            data: yearData.map(item => item.num),
+        }],
+    }
+}
+
+function initCharts() {
+    userNumChartDom = document.getElementById('UserNumChart')
+    if (!userNumChartDom) {
+        ElMessage.error('图表容器未找到，请刷新页面重试')
+        return
+    }
+    userNumChart = echarts.init(userNumChartDom)
+    userNumChart.setOption(buildUserNumChartOption())
+
+    yearCustomerNumChartDom = document.getElementById('newCustomerNumChart')
+    if (!yearCustomerNumChartDom) {
+        ElMessage.error('图表容器未找到，请刷新页面重试')
+        return
+    }
+    yearCustomerNumChart = echarts.init(yearCustomerNumChartDom)
+    yearCustomerNumChart.setOption(buildYearCustomerChartOption())
+}
+
+function updateCharts() {
+    if (userNumChart) userNumChart.setOption(buildUserNumChartOption())
+    if (yearCustomerNumChart) yearCustomerNumChart.setOption(buildYearCustomerChartOption())
+}
+
+function handleChartResize() {
+    userNumChart?.resize()
+    yearCustomerNumChart?.resize()
+}
 
 // 查询表单数据
 const checkOutSearchForm = reactive({
@@ -222,11 +363,10 @@ const outingApplicationTotal = ref(0)
 
 // 图表数据
 var yearCustomerNumChartDom
-var yearCustomerNumChartOption
 var yearCustomerNumChart
 var userNumChartDom
-var userNumChartOption
 var userNumChart
+let themeObserver
 // 获取统计信息
 const fetchInfo = async () => {
     await Promise.all([
@@ -356,137 +496,22 @@ onMounted(() => {
     fetchCheckoutApplications()
     fetchOutingApplications()
     fetchInfo().then(() => {
-        nextTick(() => {
-            userNumChartOption = {
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    top: '90%',
-                    left: 'center',
-                    textStyle:{
-                        fontSize: 16,
-                    }
-                },
-                series: [{
-                    name: 'Access From',
-                    type: 'pie',
-                    top: '-20%',
-                    radius: ['50%', '40%'],
-                    avoidLabelOverlap: false,
-                    itemStyle: {
-                        borderRadius: 20,
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    },
-                    label: {
-                        show: true,
-                        fontSize: 16,
-                    },
-                    labelLine: {
-                        lineStyle: {
-                            color: 'rgba(0, 0, 0, 0.3)'
-                        },
-                        smooth: 0.2,
-                        length: 50,
-                        length2: 20
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: 20,
-                            fontWeight: 'bold'
-                        }
-                    },
-                    data: Array.isArray(userRoleNum.value) ? userRoleNum.value : [],
-                    color: [`rgb(170,170,255)`, 'rgb(109,147,255)', 'rgb(50,200,255)']
-                }]
-            };
-
-
-            userNumChartDom = document.getElementById('UserNumChart')
-            if (!userNumChartDom) {
-                ElMessage.error('图表容器未找到，请刷新页面重试')
-                return
-            }
-
-            userNumChart = echarts.init(userNumChartDom)
-            // 继续设置图表配置
-            userNumChart.setOption(userNumChartOption)
-
-            yearCustomerNumChartOption = {
-                color: 'rgb(119,161,255)',
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['Line 1']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: [
-                    {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: (Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []).map(item => item.month)
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value',
-                        splitLine: {
-                            lineStyle: {
-                                color: '#e5e5e5',
-                                width: 1,
-                                type: 'dashed'
-                            }
-                        }
-                    }
-                ],
-                series: [
-                    {
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3
-                        },
-                        showSymbol: false,
-                        areaStyle: {
-                            opacity: 0.7,
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: 'rgb(200,210,255)'
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgb(255, 255, 255)'
-                            }
-                            ])
-                        },
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: (Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []).map(item => item.num)
-                    }
-                ],
-            };
-
-            yearCustomerNumChartDom = document.getElementById('newCustomerNumChart')
-            if (!yearCustomerNumChartDom) {
-                ElMessage.error('图表容器未找到，请刷新页面重试')
-                return
-            }
-
-            yearCustomerNumChart = echarts.init(yearCustomerNumChartDom)
-            // 继续设置图表配置
-            yearCustomerNumChart.setOption(yearCustomerNumChartOption)
-        })
+        nextTick(() => initCharts())
     })
+    themeObserver = new MutationObserver(() => updateCharts())
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    window.addEventListener('resize', handleChartResize)
+})
+
+watch(() => settingStore.systemThemeMode, () => {
+    nextTick(() => updateCharts())
+})
+
+onUnmounted(() => {
+    themeObserver?.disconnect()
+    window.removeEventListener('resize', handleChartResize)
+    userNumChart?.dispose()
+    yearCustomerNumChart?.dispose()
 })
 </script>
 
@@ -549,26 +574,28 @@ onMounted(() => {
     height: 14px;
     font-size: 15px;
     line-height: 14px;
+    color: var(--ui-gray-600);
 }
 
 .info-card-number{
     margin-top: 10px;
     font-size: 28px;
     font-weight: 400;
+    color: var(--ui-gray-800);
 }
 
 .info-card-total-number{
     margin-top: 24px;
     font-size: 14px;
     font-weight: 400;
-    color: rgb(150,150,150)
+    color: var(--ui-gray-500);
 }
 
 .info-card-description{
     width: 100%;
     margin-top: 10px;
     font-size: 13px;
-    color: rgb(150, 150, 150);
+    color: var(--ui-gray-500);
 }
 
 .info-card-icon{
@@ -604,8 +631,10 @@ onMounted(() => {
 .info-chart{
     height: 380px;
     padding: 20px 10px;
-    background-color: white;
+    background-color: var(--default-box-color);
     margin-right: 20px;
+    border: 1px solid var(--default-border);
+    border-radius: 10px;
 }
 
 .info-chart :deep(.el-card__body){
@@ -622,17 +651,24 @@ onMounted(() => {
 }
 
 .info-title{
-    font-weight: 400;
+    font-weight: 500;
     text-align: left;
     padding: 0;
-    font-size: 18.5px
+    font-size: 16px;
+    color: var(--ui-gray-800);
 }
 
 .info-herf{
     font-size: 14px;
     font-weight: 400;
-    color: rgb(150, 150, 150);
+    color: var(--ui-gray-500);
     text-align: left;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.info-herf:hover{
+    color: var(--theme-color);
 }
 
 .info-chart-container{
@@ -649,9 +685,15 @@ onMounted(() => {
 
 .table-container{
     width: calc(100% - 20px);
-    background-color: white;
-    padding: 0px 10px;
+    background-color: transparent;
+    padding: 0 10px;
     max-height: 374px;
+}
+
+.home :deep(.el-pagination) {
+    --el-pagination-button-bg-color: var(--ui-gray-100);
+    --el-pagination-button-color: var(--ui-gray-600);
+    --el-pagination-hover-color: var(--theme-color);
 }
 
 </style>
