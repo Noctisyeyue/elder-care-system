@@ -27,8 +27,7 @@ defineOptions({ name: 'PageContent' })
 .page-content {
   flex: 1;
   padding: 16px;
-  overflow: auto;
+  overflow: hidden;
   background: var(--default-bg-color);
-  min-height: calc(100vh - var(--header-height) - 40px);
 }
 </style>

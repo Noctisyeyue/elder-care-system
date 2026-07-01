@@ -15,7 +15,10 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "@styles/core/el-light.scss" as *;\n`,
+        additionalData: `
+          @use "@styles/core/el-light.scss" as *;
+          @use "@styles/core/mixin.scss" as *;
+        `,
       },
     },
   },

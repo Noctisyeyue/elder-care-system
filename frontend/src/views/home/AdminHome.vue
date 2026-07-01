@@ -3,7 +3,7 @@
         <!-- 统计信息 -->
         <!-- 统计信息卡片 -->
         <div class="info-cards">
-            <el-card class="info-card">
+            <el-card class="info-card art-card-xs">
                 <div class="info-card-body">
                     <div class="info-card-info">
                         <div class="info-card-title">用户总数</div>
@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </el-card>
-            <el-card class="info-card">
+            <el-card class="info-card art-card-xs">
                 <div class="info-card-body">
                     <div class="info-card-info">
                         <div class="info-card-title">客户总数</div>
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </el-card>
-            <el-card class="info-card">
+            <el-card class="info-card art-card-xs">
                 <div class="info-card-body">
                     <div class="info-card-info">
                         <div class="info-card-title">空闲床位</div>
@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </el-card>
-            <el-card class="info-card" style="margin-right: 0;">
+            <el-card class="info-card art-card-xs" style="margin-right: 0;">
                 <div class="info-card-body">
                     <div class="info-card-info">
                         <div class="info-card-title">新增客户</div>
@@ -63,13 +63,13 @@
         </div>
         <!-- 统计信息图表 -->
         <div class="info-charts">
-            <el-card class="info-chart" style="flex: 3;">
+            <el-card class="info-chart art-card" style="flex: 3;">
                 <div class="info-title">用户分布</div>
                 <div class="info-chart-container" style="height: calc(100% - 40px);">
                     <div id="UserNumChart" style="width: 100%; height: 100%;"></div>
                 </div>
             </el-card>
-            <el-card class="info-chart" style="flex: 5; margin-right: 0px;">
+            <el-card class="info-chart art-card" style="flex: 5; margin-right: 0px;">
                 <div class="info-title">本年客户数量</div>
                 <div class="info-chart-container">
                     <div id="newCustomerNumChart" style="width: 100%; height: 100%;"></div>
@@ -78,7 +78,7 @@
         </div>
         <!-- 统计信息表格 -->
         <div class="info-tables">
-            <el-card class="info-card">
+            <el-card class="info-card art-card-sm">
                 <!-- 外出申请表格 -->
                 <div class="table-container">
                     <div class="table-title">
@@ -543,7 +543,6 @@ onUnmounted(() => {
 .info-card{
     flex: 1;
     margin-right: 20px;
-    border-radius: 10px;
 }
 
 .info-card :deep(.el-card__body){
@@ -633,8 +632,6 @@ onUnmounted(() => {
     padding: 20px 10px;
     background-color: var(--default-box-color);
     margin-right: 20px;
-    border: 1px solid var(--default-border);
-    border-radius: 10px;
 }
 
 .info-chart :deep(.el-card__body){

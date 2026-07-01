@@ -143,7 +143,6 @@ onUnmounted(() => document.removeEventListener('click', hideContextMenu))
   padding: 0 12px;
   height: 40px;
   background: var(--default-box-color);
-  border-top: 1px solid var(--default-border);
 }
 
 .tab-scroll {

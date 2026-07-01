@@ -1,25 +1,29 @@
 <template>
-  <div>
+  <div class="art-full-height">
     <!-- 查询栏 -->
-    <el-form :inline="true" class="search-form">
-      <el-form-item>
-        <el-input v-model="queryName" placeholder="请输入客户姓名" clearable @clear="fetchCustomerList"
-          style="width: 200px; margin-right: 10px">
-          <template #prefix>
-            <el-icon>
-              <Search />
-            </el-icon>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="fetchCustomerList">查询</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="bg-box rounded-custom-sm border-b-d p-4">
+      <el-form :inline="true" class="search-form">
+        <el-form-item>
+          <el-input v-model="queryName" placeholder="请输入客户姓名" clearable @clear="fetchCustomerList"
+            style="width: 200px; margin-right: 10px">
+            <template #prefix>
+              <el-icon>
+                <Search />
+              </el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="fetchCustomerList">查询</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
     <el-divider style="margin-top: 0; margin-bottom: 10px" />
 
     <!-- 客户信息表格 -->
-    <el-table :data="customerList" border style="width: 100%; margin-bottom: 20px">
+    <div class="art-table-card">
+      <el-card>
+        <el-table :data="customerList" border style="width: 100%">
       <el-table-column type="index" label="序号" width="90" />
       <el-table-column prop="customerName" label="客户姓名" width="120" />
       <el-table-column prop="age" label="年龄" width="90" />
@@ -41,9 +45,11 @@
     </el-table>
 
     <!-- 分页 -->
-    <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
-      :page-size="pageSize.value" :current-page="page" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
-      @current-change="handlePageChange" />
+        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
+          :page-size="pageSize.value" :current-page="page" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
+          @current-change="handlePageChange" />
+      </el-card>
+    </div>
 
     <!-- 设置护理级别弹窗 -->
     <el-dialog v-model="setNursingDialogVisible" title="客户护理设置" width="1200px">

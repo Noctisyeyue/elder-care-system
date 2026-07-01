@@ -2,24 +2,10 @@
   <div class="bed-map-page">
     <!-- 楼层选择和统计 -->
     <div class="bed-map-toolbar">
-      <el-select
-        v-model="selectedBuilding"
-        @change="onBuildingChange"
-        style="width: 120px"
-        placeholder="选择楼栋"
-      >
-        <el-option
-          v-for="item in buildingOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
+      <el-select v-model="selectedBuilding" @change="onBuildingChange" style="width: 120px" placeholder="选择楼栋">
+        <el-option v-for="item in buildingOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
-      <el-select
-        v-model="selectedFloor"
-        @change="fetchRoomList"
-        style="width: 120px"
-      >
+      <el-select v-model="selectedFloor" @change="fetchRoomList" style="width: 120px">
         <el-option v-for="floor in floorList" :key="floor" :label="floor" :value="floor" />
       </el-select>
       <span class="stat-item">
@@ -334,7 +320,7 @@ watch(
   background-color: var(--ui-hover-color);
 }
 
-.bed-status-container > div:last-child {
+.bed-status-container>div:last-child {
   font-size: 12px;
   color: var(--ui-gray-500);
   margin-top: 2px;

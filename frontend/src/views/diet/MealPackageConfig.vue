@@ -167,7 +167,7 @@
           <el-input v-model="editForm.name" placeholder="请输入套餐名" />
         </el-form-item>
         <el-form-item label="套餐类型">
-          <el-select v-model="editForm.isMuslim" placeholder="请选择">
+          <el-select v-model="editForm.isMuslim" placeholder="请选择" disabled>
             <el-option :value="'1'" label="清真套餐" />
             <el-option :value="'0'" label="普通套餐" />
           </el-select>
