@@ -3,6 +3,7 @@ package com.eldercare.system.exception;
 import com.eldercare.system.util.ApiResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +43,22 @@ public class GlobalExceptionHandler {
                 .orElse("参数校验失败");
         log.warn("参数校验失败: {}", message);
         return ApiResult.fail(400, message);
+    }
+
+    /**
+     * 权限不足（@PreAuthorize 拦截）→ 返回 403。
+     *
+     * <p>注解式权限校验通过 AOP 在 Controller 方法抛出 AccessDeniedException，
+     * 会优先于 Security 的 ExceptionTranslationFilter 被 @RestControllerAdvice 捕获，
+     * 因此需在此显式处理，避免落到兜底的 500。
+     *
+     * @param e 权限异常
+     * @return 统一响应结果
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ApiResult<Void> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("权限不足: {}", e.getMessage());
+        return ApiResult.fail(403, "权限不足");
     }
 
     /**

@@ -57,10 +57,9 @@ public interface UserService {
      * 禁用账号（将 status 改为 2），超级管理员不可被禁用，不可禁用自己
      *
      * @param userId 用户 ID
-     * @param token  当前登录用户 token
      * @return 操作结果
      */
-    ApiResult disable(Long userId, String token);
+    ApiResult disable(Long userId);
 
     /**
      * 重置密码为默认密码（123456）
@@ -84,7 +83,7 @@ public interface UserService {
      * @param userName 用户名列表
      * @return 操作结果
      */
-    ApiResult delete(List<String> userName, String token);
+    ApiResult delete(List<String> userName);
 
     /**
      * 修改用户信息
@@ -119,33 +118,29 @@ public interface UserService {
     /**
      * 上传用户头像
      *
-     * @param file  头像文件
-     * @param token 登录令牌
+     * @param file 头像文件
      * @return 头像访问地址
      */
-    ApiResult<String> uploadFile(MultipartFile file,String token);
+    ApiResult<String> uploadFile(MultipartFile file);
 
     /**
      * 获取当前用户头像
      *
-     * @param token 登录令牌
      * @return 头像访问地址
      */
-    ApiResult<String> getAvatar(String token);
+    ApiResult<String> getAvatar();
 
     /**
      * 获取当前用户邮箱
      *
-     * @param token 登录令牌
      * @return 邮箱地址
      */
-    ApiResult<String> getEmail(String token);
+    ApiResult<String> getEmail();
 
     /**
      * 获取当前用户在数据库中的最新状态（不读 JWT）
      *
-     * @param token 登录令牌
      * @return 最新 status：0 待审核 1 启用 2 禁用
      */
-    ApiResult<Integer> getStatus(String token);
+    ApiResult<Integer> getStatus();
 }

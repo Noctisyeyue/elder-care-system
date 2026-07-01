@@ -3,14 +3,15 @@ import com.eldercare.system.service.RedisService;
 import com.eldercare.system.service.UserService;
 
 import com.aliyuncs.exceptions.ClientException;
-import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eldercare.system.constant.UserRoleConstant;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
 import com.eldercare.system.config.JwtProperties;
+import com.eldercare.system.exception.BusinessException;
 import com.eldercare.system.mapper.*;
+import com.eldercare.system.security.LoginUser;
 import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.util.PasswordUtil;
 import com.eldercare.system.util.ImgUploadUtil;
@@ -21,6 +22,8 @@ import com.eldercare.system.util.ApiResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,6 +86,23 @@ public class UserServiceImpl implements UserService{
     private long jwtTtlMillis() {
         Long ttl = jwtProperties.getTtl();
         return ttl != null && ttl > 0 ? ttl : 72000000L;
+    }
+
+    /**
+     * 从 SecurityContextHolder 获取当前登录用户（principal 必须是 LoginUser）。
+     *
+     * <p>正常请求会先经 JwtAuthenticationFilter 写入 SecurityContext，理论不会为空；
+     * 此处保留防御性检查，避免配置错误时直接空指针或强转异常。
+     *
+     * @return 当前登录用户
+     * @throws BusinessException 当未登录或 principal 类型不符时抛出 401
+     */
+    private LoginUser getCurrentLoginUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof LoginUser loginUser)) {
+            throw new BusinessException(401, "用户身份校验失败");
+        }
+        return loginUser;
     }
 
     /**
@@ -339,7 +359,7 @@ public class UserServiceImpl implements UserService{
      * 禁用账号：将 status 改为 2，超级管理员不可被禁用，不可禁用自己
      */
     @Override
-    public ApiResult disable(Long userId, String token) {
+    public ApiResult disable(Long userId) {
         ApiResult result = new ApiResult();
         User user = userMapper.selectById(userId);
         if (user == null || "1".equals(user.getDelFlag())) {
@@ -354,26 +374,10 @@ public class UserServiceImpl implements UserService{
             return result;
         }
         // 禁止禁用当前登录用户
-        try {
-            String rawToken = token;
-            if (rawToken != null && rawToken.startsWith("Bearer "))
-                rawToken = rawToken.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(rawToken);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("禁用失败，用户身份校验失败");
-                return result;
-            }
-            Long currentUserId = Long.parseLong(userIdClaim.asString());
-            if (userId.equals(currentUserId)) {
-                result.setCode(500);
-                result.setMessage("禁用失败，不能禁用自己的账号");
-                return result;
-            }
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("禁用失败，token解析失败");
+        Long currentUserId = getCurrentLoginUser().getUserId();
+        if (userId.equals(currentUserId)) {
+            result.setCode(500);
+            result.setMessage("禁用失败，不能禁用自己的账号");
             return result;
         }
         UpdateWrapper<User> uw = new UpdateWrapper<>();
@@ -482,14 +486,13 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * 批量删除用户（仅超级管理员可调用，由拦截器保证）
+     * 批量删除用户（仅超级管理员可调用，由 Security 过滤器保证）
      *
      * @param userNameList 用户名列表
-     * @param token        当前登录令牌，用于防止删除自己
      * @return 操作结果
      */
     @Override
-    public ApiResult delete(List<String> userNameList, String token) {
+    public ApiResult delete(List<String> userNameList) {
         ApiResult result = new ApiResult();
         if (userNameList == null || userNameList.isEmpty()) {
             result.setCode(500);
@@ -497,24 +500,8 @@ public class UserServiceImpl implements UserService{
             return result;
         }
 
-        // 从 token 解析当前用户 ID，用于禁止删除自己的检查
-        Long currentUserId;
-        try {
-            if (token != null && token.startsWith("Bearer "))
-                token = token.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("删除失败，用户身份校验失败");
-                return result;
-            }
-            currentUserId = Long.parseLong(userIdClaim.asString());
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("删除失败，token解析失败");
-            return result;
-        }
+        // 当前登录用户 ID，用于禁止删除自己的检查
+        Long currentUserId = getCurrentLoginUser().getUserId();
 
         int totalDeleted = 0;
         for (String userName : userNameList) {
@@ -698,31 +685,13 @@ public class UserServiceImpl implements UserService{
     /**
      * 上传用户头像
      *
-     * @param file  头像文件
-     * @param token 登录令牌
+     * @param file 头像文件
      * @return 头像访问地址
      */
     @Override
-    public ApiResult<String> uploadFile(MultipartFile file,String token) {
+    public ApiResult<String> uploadFile(MultipartFile file) {
         ApiResult<String> result = new ApiResult<>();
-        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        Long userId = null;
-        try {
-            if (token != null && token.startsWith("Bearer "))
-                token = token.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("用户信息不存在");
-                return result;
-            }
-            userId = Long.parseLong(userIdClaim.asString());
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("Token解析失败");
-            return result;
-        }
+        Long userId = getCurrentLoginUser().getUserId();
 
         try {
             String originalFilename = file.getOriginalFilename();
@@ -747,30 +716,12 @@ public class UserServiceImpl implements UserService{
     /**
      * 获取当前用户头像
      *
-     * @param token 登录令牌
      * @return 头像访问地址
      */
     @Override
-    public ApiResult<String> getAvatar(String token) {
+    public ApiResult<String> getAvatar() {
         ApiResult<String> result = new ApiResult<>();
-        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        Long userId = null;
-        try {
-            if (token != null && token.startsWith("Bearer "))
-                token = token.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("用户信息不存在");
-                return result;
-            }
-            userId = Long.parseLong(userIdClaim.asString());
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("Token解析失败");
-            return result;
-        }
+        Long userId = getCurrentLoginUser().getUserId();
 
         // 获取用户头像
         try {
@@ -792,30 +743,12 @@ public class UserServiceImpl implements UserService{
     /**
      * 获取当前用户邮箱
      *
-     * @param token 登录令牌
      * @return 邮箱地址
      */
     @Override
-    public ApiResult<String> getEmail(String token) {
+    public ApiResult<String> getEmail() {
         ApiResult<String> result = new ApiResult<>();
-        //根据Token获取用户名，根据用户名找到用户ID，将审批人id添加到记录表
-        Long userId = null;
-        try {
-            if (token != null && token.startsWith("Bearer "))
-                token = token.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("用户信息不存在");
-                return result;
-            }
-            userId = Long.parseLong(userIdClaim.asString());
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("Token解析失败");
-            return result;
-        }
+        Long userId = getCurrentLoginUser().getUserId();
 
         try {
             String email = userMapper.selectEmail(userId);
@@ -833,25 +766,9 @@ public class UserServiceImpl implements UserService{
      * 获取当前用户在数据库中的最新状态（不读 JWT，供待审核护工刷新感知审核结果）
      */
     @Override
-    public ApiResult<Integer> getStatus(String token) {
+    public ApiResult<Integer> getStatus() {
         ApiResult<Integer> result = new ApiResult<>();
-        Long userId;
-        try {
-            if (token != null && token.startsWith("Bearer "))
-                token = token.substring(7);
-            Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
-            Claim userIdClaim = claims.get("userId");
-            if (userIdClaim == null) {
-                result.setCode(401);
-                result.setMessage("用户信息不存在");
-                return result;
-            }
-            userId = Long.parseLong(userIdClaim.asString());
-        } catch (Exception e) {
-            result.setCode(401);
-            result.setMessage("Token解析失败");
-            return result;
-        }
+        Long userId = getCurrentLoginUser().getUserId();
 
         try {
             User user = userMapper.selectById(userId);
