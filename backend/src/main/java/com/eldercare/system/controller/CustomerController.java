@@ -165,4 +165,10 @@ public class CustomerController {
     public ApiResult<List<Long>> yearCount(String year) {
         return customerService.yearCount(year);
     }
+
+    @Operation(summary = "获取客户护理级别分布")
+    @GetMapping("/nursingLevelDistribution")
+    public ApiResult<List<NursingLevelDistributionVO>> nursingLevelDistribution() {
+        return customerService.nursingLevelDistribution();
+    }
 }

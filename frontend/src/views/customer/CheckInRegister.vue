@@ -47,21 +47,21 @@
       <el-table :data="customerList" height="100%" stripe style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="customerName" label="客户姓名" width="90" />
+        <el-table-column prop="customerName" label="客户姓名" min-width="100" />
         <el-table-column prop="gender" label="性别" width="60" />
         <el-table-column prop="bloodType" label="血型" width="60" />
         <el-table-column prop="nation" label="民族" width="60" />
-        <el-table-column prop="familyMember" label="家属" width="90" />
-        <el-table-column prop="familyMemberTel" label="家属电话" width="120" />
-        <el-table-column prop="idNumber" label="身份证号" width="120" />
+        <el-table-column prop="familyMember" label="家属" min-width="90" />
+        <el-table-column prop="familyMemberTel" label="家属电话" min-width="120" />
+        <el-table-column prop="idNumber" label="身份证号" min-width="140" />
         <el-table-column prop="buildingNumber" label="楼号" width="90" />
         <el-table-column prop="roomNumber" label="房间号" width="100" />
         <el-table-column prop="bedNumber" label="床号" width="80" />
         <el-table-column prop="dateOfBirth" label="出生日期" width="120" />
         <el-table-column prop="checkInDate" label="入住时间" width="120" />
-        <el-table-column prop="nursingLevel" label="护理级别" width="90" />
-        <el-table-column prop="caregiver" label="护工" width="90" />
-        <el-table-column prop="physicalMentalStatus" label="身心状况" width="90" />
+        <el-table-column prop="nursingLevel" label="护理级别" min-width="90" />
+        <el-table-column prop="caregiver" label="护工" min-width="90" />
+        <el-table-column prop="physicalMentalStatus" label="身心状况" min-width="100" />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="scope">
             <el-button link type="primary" @click="editCustomer(scope.row)">

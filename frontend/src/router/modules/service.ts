@@ -3,11 +3,9 @@ import ServiceManageView from '@/views/health/ServiceManage.vue'
 import ServiceConcernView from '@/views/health/ServiceConcern.vue'
 import ServiceConfigView from '@/views/health/ServiceConfig.vue'
 import CaregiverView from '@/views/health/Caregiver.vue'
-import BuyNursingItemView from '@/views/health/BuyNursingItem.vue'
 import CaregiverDailyCareView from '@/views/health/CaregiverDailyCare.vue'
 import CaregiverNursingRecordsView from '@/views/health/CaregiverNursingRecords.vue'
 import CaregiverCustomerCareItemsView from '@/views/health/CaregiverCustomerCareItems.vue'
-import PurchasedNursingItemsView from '@/views/health/PurchasedNursingItems.vue'
 
 export const serviceRoutes: AppRouteRecord = {
   path: 'service',
@@ -51,18 +49,6 @@ export const serviceRoutes: AppRouteRecord = {
       },
     },
     {
-      path: 'nursingItem',
-      name: 'BuyNursingItem',
-      component: BuyNursingItemView,
-      meta: {
-        title: '购买护理项目',
-        icon: 'ri:shopping-cart-line',
-        roles: ['super_admin', 'admin'],
-        isHide: true,
-        keepAlive: true,
-      },
-    },
-    {
       path: 'dailyCare',
       name: 'DailyCare',
       component: CaregiverDailyCareView,
@@ -92,18 +78,6 @@ export const serviceRoutes: AppRouteRecord = {
         title: '客户护理',
         icon: 'ri:nurse-line',
         roles: ['caregiver'],
-        isHide: true,
-        keepAlive: true,
-      },
-    },
-    {
-      path: 'purchased-nursing-items',
-      name: 'PurchasedNursingItems',
-      component: PurchasedNursingItemsView,
-      meta: {
-        title: '已购护理',
-        icon: 'ri:shopping-bag-line',
-        roles: ['super_admin', 'admin'],
         isHide: true,
         keepAlive: true,
       },

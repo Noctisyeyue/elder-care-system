@@ -63,12 +63,7 @@ export function swapBeds(swapData: Record<string, unknown>) {
   return post('/bed/swap', swapData)
 }
 
-/** 空闲床位数统计 */
-export function getFreeBedCount() {
-  return get('/bed/freeBedCount')
-}
-
-/** 总床位数统计 */
-export function getBedCount() {
-  return get('/bed/bedCount')
+/** 床位状态分布统计 */
+export function getBedStatusDistribution() {
+  return get('/bed/statusDistribution')
 }

@@ -225,6 +225,7 @@ public class NursingServiceImpl implements NursingService{
           default -> "9";
         };
         QueryWrapper<NursingItem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("del_flag", "0");
         queryWrapper.eq("status", queryStatus);
         queryWrapper.like("nursing_item_name", "%"+params.getName()+"%");
         queryWrapper.orderByDesc("nursing_item_id");

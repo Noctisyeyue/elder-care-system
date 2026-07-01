@@ -1,3 +1,4 @@
+<!-- 父菜单--床位管理 -->
 <template>
   <router-view />
 </template>

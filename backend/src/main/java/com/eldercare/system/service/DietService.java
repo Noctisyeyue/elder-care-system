@@ -146,4 +146,11 @@ public interface DietService {
      * @return 套餐列表
      */
     ApiResult<List<SetMeal>> getDailyList(String date);
+
+    /**
+     * 获取本周膳食配餐量统计
+     *
+     * @return 本周每日配餐客户数量
+     */
+    ApiResult<List<WeeklyMealCountVO>> weeklyMealCount();
 }

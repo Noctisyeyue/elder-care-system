@@ -1,44 +1,55 @@
+<!-- 管理端--子菜单--护理级别 -->
 <template>
-  <div>
-    <!-- 顶部操作 -->
-    <div style="margin-bottom: 20px">
-      <el-button type="primary" @click="openEditDialog()">添加</el-button>
-    </div>
-    <div style="margin-bottom: 20px">
-      <el-radio-group v-model="query.status" @change="fetchLevelList">
-        <el-radio-button value="启用">启用</el-radio-button>
-        <el-radio-button value="停用">停用</el-radio-button>
-      </el-radio-group>
-    </div>
+  <div class="art-full-height">
+    <!-- 表格卡片 -->
+    <el-card class="art-table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-header-title">护理级别列表</span>
+        <div class="flex-c" style="gap: 8px;">
+          <el-button :type="query.status === '启用' ? 'primary' : ''" @click="query.status = '启用'; fetchLevelList()">
+            <SvgIcon icon="ri:checkbox-circle-line" :size="16" />
+            <span>启用</span>
+          </el-button>
+          <el-button :type="query.status === '停用' ? 'primary' : ''" @click="query.status = '停用'; fetchLevelList()">
+            <SvgIcon icon="ri:close-circle-line" :size="16" />
+            <span>停用</span>
+          </el-button>
+          <el-button type="success" @click="openEditDialog()">
+            <SvgIcon icon="ri:add-line" :size="16" />
+            <span>添加</span>
+          </el-button>
+        </div>
+      </div>
+      <el-table :data="levelList" height="100%" stripe style="width: 100%">
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="level" label="护理级别" />
+        <el-table-column prop="status" label="状态" />
+        <el-table-column label="操作" width="200">
+          <template #default="scope">
+            <el-button link type="primary" @click="openEditDialog(scope.row)">
+              <SvgIcon icon="ri:edit-line" :size="16" />
+              <span>修改</span>
+            </el-button>
+            <el-button link type="success" @click="goToItemConfig(scope.row)">
+              <SvgIcon icon="ri:settings-4-line" :size="16" />
+              <span>护理项目配置</span>
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination class="table-pagination" background
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        layout="total, prev, pager, next, sizes, jumper"
+        :total="total"
+        :page-sizes="[5, 10, 20, 50]"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange" />
+    </el-card>
 
-    <!-- 护理级别表格 -->
-    <el-table :data="levelList" style="width: 100%" border>
-      <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="level" label="护理级别" />
-      <el-table-column prop="status" label="状态" />
-      <el-table-column label="操作" width="200">
-        <template #default="scope">
-          <el-button type="text" @click="openEditDialog(scope.row)">修改</el-button>
-          <el-button type="text" @click="goToItemConfig(scope.row)" style="color: #67c23a"
-            >护理项目配置</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      class="pagination-right"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      :page-size="pageSize.value"
-      :current-page="page"
-      :page-sizes="[5, 10, 20, 50]"
-      @size-change="handleSizeChange"
-      @current-change="handlePageChange"
-      style="margin-top: 20px"
-    />
-
-    <!-- 添加/编辑护理级别弹窗 -->
-    <el-dialog v-model="editDialog.visible" :title="editDialog.title" width="400px">
+    <!-- 添加/编辑弹窗 -->
+    <el-dialog v-model="editDialog.visible" :title="editDialog.title" width="400px" align-center
+      @close="editDialog.visible = false">
       <el-form :model="editDialog.form" label-width="80px">
         <el-form-item label="护理级别">
           <el-input v-model="editDialog.form.level" :disabled="!!editDialog.form.id" />
@@ -63,48 +74,33 @@ import { ref, reactive, onMounted } from 'vue'
 import { getNursingLevelList, addNursingLevel, updateNursingLevel } from '@/api/nursing'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
+
+const router = useRouter()
 
 /** 查询条件。 */
-const query = reactive({
-  status: '启用',
-})
+const query = reactive({ status: '启用' })
 
 /** 护理级别列表。 */
 const levelList = ref([])
-
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-/**
- * 查询护理级别列表。
- *
- * @returns 无返回值
- */
 const fetchLevelList = async () => {
   const res = await getNursingLevelList({ status: query.status, pageNum: page.value, pageSize: pageSize.value })
   levelList.value = res.records || []
   total.value = res.total || 0
 }
 
-/** 编辑弹窗状态。 */
+/** 编辑弹窗。 */
 const editDialog = reactive({
   visible: false,
-  title: '添加/编辑(同一个模态框)',
-  form: {
-    id: null,
-    level: '',
-    status: '启用',
-  },
+  title: '',
+  form: { id: null, level: '', status: '启用' },
 })
 
-/**
- * 打开编辑弹窗。
- *
- * @param row 护理级别行数据
- * @returns 无返回值
- */
-const openEditDialog = (row) => {
+function openEditDialog(row) {
   if (row) {
     editDialog.title = '编辑护理级别'
     editDialog.form.id = row.id
@@ -119,96 +115,29 @@ const openEditDialog = (row) => {
   editDialog.visible = true
 }
 
-/**
- * 保存护理级别。
- *
- * @returns 无返回值
- */
-const saveLevel = async () => {
-  if (!editDialog.form.level) {
-    ElMessage.error('请输入护理级别名称')
-    return
-  }
+async function saveLevel() {
+  if (!editDialog.form.level) { ElMessage.error('请输入护理级别名称'); return }
   if (editDialog.form.id) {
-    // 修改
-    await updateNursingLevel({
-      id: editDialog.form.id,
-      status: editDialog.form.status,
-    })
+    await updateNursingLevel({ id: editDialog.form.id, status: editDialog.form.status })
   } else {
-    // 新增
-    await addNursingLevel({
-      level: editDialog.form.level,
-      status: editDialog.form.status,
-    })
+    await addNursingLevel({ level: editDialog.form.level, status: editDialog.form.status })
   }
   editDialog.visible = false
   fetchLevelList()
 }
 
-const router = useRouter()
-
-/**
- * 跳转到护理项目配置页。
- *
- * @param level 护理级别行数据
- * @returns 无返回值
- */
-const goToItemConfig = (level) => {
-  router.push({name: 'NursingItemSetting'})
-  if (localStorage.getItem('NursingItemSettingLevelId')) {
-    localStorage.removeItem('NursingItemSettingLevelId')
-  }
-  if (localStorage.getItem('NursingItemSettingLevelName')) {
-    localStorage.removeItem('NursingItemSettingLevelName')
-  }
+function goToItemConfig(level) {
   localStorage.setItem('NursingItemSettingLevelId', level.id)
   localStorage.setItem('NursingItemSettingLevelName', level.level)
+  router.push({ name: 'NursingItemSetting' })
 }
 
-/**
- * 处理页码变化。
- *
- * @param val 页码
- * @returns 无返回值
- */
-const handlePageChange = (val) => {
-  page.value = val
-  fetchLevelList()
-}
+function handlePageChange(val) { page.value = val; fetchLevelList() }
+function handleSizeChange(size) { pageSize.value = size; page.value = 1; fetchLevelList() }
 
-/**
- * 处理每页数量变化。
- *
- * @param size 每页数量
- * @returns 无返回值
- */
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  page.value = 1
-  fetchLevelList()
-}
-
-/**
- * 页面初始化时加载护理级别列表。
- *
- * @returns 无返回值
- */
-onMounted(() => {
-  fetchLevelList()
-})
+onMounted(fetchLevelList)
 </script>
 
 <style scoped>
-/* 待美化样式 */
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
-  overflow-y: auto;
-  max-height: calc(100vh - 337px);
-}
-
-.pagination-right {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
+/* 样式由全局管理 */
 </style>

@@ -1,3 +1,4 @@
+<!-- 父菜单--健康管家 -->
 <template>
   <router-view />
 </template>

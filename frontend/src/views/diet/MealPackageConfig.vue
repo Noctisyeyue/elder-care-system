@@ -1,38 +1,44 @@
+<!-- 管理端--子菜单--套餐配置 -->
 <template>
-  <div>
-    <!-- 顶部搜索区域 -->
+  <div class="art-full-height">
+    <!-- 搜索区域 -->
     <div class="search-section">
-      <el-input
-        v-model="searchQuery"
-        placeholder="请输入套餐名称搜索"
-        class="search-input"
-        clearable
-        @clear="handleSearch"
-        @input="handleSearch"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
-      <el-radio-group v-model="isMuslim" class="muslim-radio" @change="handleSearch">
-        <el-radio :label="null">全部</el-radio>
-        <el-radio :label="1">清真套餐</el-radio>
-        <el-radio :label="0">非清真套餐</el-radio>
-      </el-radio-group>
-      <!-- <el-date-picker
-        v-model="selectedDate"
-        type="date"
-        placeholder="选择日期"
-        format="YYYY-MM-DD"
-        value-format="YYYY-MM-DD"
-        :disabled-date="disablePastDates"
-        @change="handleSearch"
-      /> -->
-      <el-button type="primary" @click="openAddDialog">添加套餐</el-button>
+      <el-form :inline="true" class="search-form">
+        <el-form-item label="套餐名称">
+          <el-input v-model="searchQuery" placeholder="请输入套餐名称搜索" clearable @clear="handleSearch"
+            style="width: 200px">
+            <template #prefix>
+              <SvgIcon icon="ri:search-line" :size="16" />
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="openAddDialog">
+            <SvgIcon icon="ri:add-line" :size="16" />
+            <span>添加套餐</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
     </div>
 
     <!-- 套餐表格 -->
-    <el-table :data="packageList" style="width: 100%" border>
+    <el-card class="art-table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-header-title">套餐列表</span>
+        <div class="flex-c" style="gap: 8px;">
+          <el-button :type="isMuslim === null ? 'primary' : ''" @click="isMuslim = null; handleSearch()">
+            全部
+          </el-button>
+          <el-button :type="isMuslim === 1 ? 'primary' : ''" @click="isMuslim = 1; handleSearch()">
+            清真
+          </el-button>
+          <el-button :type="isMuslim === 0 ? 'primary' : ''" @click="isMuslim = 0; handleSearch()">
+            非清真
+          </el-button>
+        </div>
+      </div>
+      <el-table :data="packageList" height="100%" stripe>
+      <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="name" label="套餐名" min-width="120" />
       <el-table-column label="套餐类型" min-width="100">
         <template #default="scope">
@@ -83,22 +89,19 @@
           <el-button type="danger" link @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
-    </el-table>
-    <div class="pagination-container">
-      <el-pagination
-        class="pagination-right"
-        layout="total, sizes, prev, pager, next, jumper"
+      </el-table>
+      <el-pagination class="table-pagination" background
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        layout="total, prev, pager, next, sizes, jumper"
         :total="total"
-        :page-size="pageSize"
-        :current-page="currentPage"
         :page-sizes="[5, 10, 20, 50]"
         @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+        @current-change="handleCurrentChange" />
+    </el-card>
 
     <!-- 添加套餐弹窗 -->
-    <el-dialog v-model="addDialogVisible" title="添加套餐" width="400px">
+    <el-dialog v-model="addDialogVisible" title="添加套餐" width="400px" align-center>
       <el-form label-width="80px">
         <el-form-item label="日期">
           <el-date-picker v-model="selectedDate" type="date" value-format="YYYY-MM-DD" disabled />
@@ -125,7 +128,7 @@
     <el-dialog
       v-model="configDialogVisible"
       :title="`${selectedPackage?.name || ''} - 套餐配置`"
-      width="60%"
+      width="60%" align-center
     >
       <div class="meal-config">
         <el-tabs v-model="activeMealType">
@@ -161,7 +164,7 @@
     </el-dialog>
 
     <!-- 修改套餐弹窗 -->
-    <el-dialog v-model="editDialogVisible" title="修改套餐" width="400px">
+    <el-dialog v-model="editDialogVisible" title="修改套餐" width="400px" align-center>
       <el-form label-width="80px">
         <el-form-item label="套餐名">
           <el-input v-model="editForm.name" placeholder="请输入套餐名" />
@@ -191,7 +194,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import MealSelector from '@/components/MealSelector.vue'
 import { getAvailableDishes, getSetMealList, saveSetMealDishes, updateSetMeal, removeSetMeal } from '@/api/diet'

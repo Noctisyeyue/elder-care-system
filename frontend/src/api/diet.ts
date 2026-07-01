@@ -160,3 +160,8 @@ export function saveDietCalendar(params: Record<string, unknown>) {
 export function uploadDishImage(formData: FormData) {
   return post('/diet/img/upload', formData)
 }
+
+/** 本周膳食配餐量统计 */
+export function getWeeklyMealCount() {
+  return get('/diet/weeklyMealCount')
+}

@@ -1,44 +1,49 @@
+<!-- 管理端--子菜单--膳食配置 -->
 <template>
-  <div>
+  <div class="art-full-height">
     <!-- 搜索和日期选择区域 -->
     <div class="search-section">
-      <el-input
-        v-model="searchQuery"
-        placeholder="请输入客户姓名搜索"
-        class="search-input"
-        clearable
-        @clear="handleSearch"
-        @input="handleSearch"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
-      <el-radio-group v-model="isMuslimRadio" class="muslim-radio" @change="handleSearch">
-        <el-radio :label="null">全部</el-radio>
-        <el-radio :label="1">清真</el-radio>
-        <el-radio :label="0">非清真</el-radio>
-      </el-radio-group>
-      <el-date-picker
-        v-model="selectedDate"
-        type="date"
-        placeholder="选择日期"
-        format="YYYY-MM-DD"
-        value-format="YYYY-MM-DD"
-        :disabled-date="disablePastDates"
-        @change="handleDateChange"
-      />
-      <el-button type="primary" @click="openBatchPackageDialog">套餐配置</el-button>
+      <el-form :inline="true" class="search-form">
+        <el-form-item label="客户姓名">
+          <el-input v-model="searchQuery" placeholder="请输入客户姓名搜索" clearable @clear="handleSearch"
+            style="width: 200px">
+            <template #prefix>
+              <SvgIcon icon="ri:search-line" :size="16" />
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="配餐日期">
+          <el-date-picker v-model="selectedDate" type="date" placeholder="选择日期" format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD" :disabled-date="disablePastDates" @change="handleDateChange" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="openBatchPackageDialog">
+            <SvgIcon icon="ri:settings-4-line" :size="16" />
+            <span>套餐配置</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
     </div>
 
     <!-- 客户膳食列表 -->
-    <el-table
-      :data="customerDiets"
-      style="width: 100%"
-      border
-      @selection-change="handleSelectionChange"
-    >
+    <el-card class="art-table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-header-title">客户膳食列表</span>
+        <div class="flex-c" style="gap: 8px;">
+          <el-button :type="isMuslimRadio === null ? 'primary' : ''" @click="isMuslimRadio = null; handleSearch()">
+            全部
+          </el-button>
+          <el-button :type="isMuslimRadio === 1 ? 'primary' : ''" @click="isMuslimRadio = 1; handleSearch()">
+            清真
+          </el-button>
+          <el-button :type="isMuslimRadio === 0 ? 'primary' : ''" @click="isMuslimRadio = 0; handleSearch()">
+            非清真
+          </el-button>
+        </div>
+      </div>
+      <el-table :data="customerDiets" height="100%" stripe @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
+      <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="customerName" label="客户姓名" width="120" />
       <el-table-column prop="age" label="年龄" width="80" />
       <el-table-column prop="gender" label="性别" width="80" />
@@ -88,28 +93,20 @@
           <el-button v-else type="info" link disabled> 仅可查看 </el-button>
         </template>
       </el-table-column>
-    </el-table>
-
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        class="pagination-right"
-        layout="total, sizes, prev, pager, next, jumper"
+      </el-table>
+      <el-pagination class="table-pagination" background
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        layout="total, prev, pager, next, sizes, jumper"
         :total="total"
-        :page-size="pageSize"
-        :current-page="currentPage"
         :page-sizes="[5, 10, 20, 50]"
         @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+        @current-change="handleCurrentChange" />
+    </el-card>
 
     <!-- 膳食配置对话框 -->
-    <el-dialog
-      v-model="configDialogVisible"
-      :title="`${selectedCustomer?.customerName} - 膳食配置`"
-      width="60%"
-    >
+    <el-dialog v-model="configDialogVisible" :title="`${selectedCustomer?.customerName} - 膳食配置`"
+      width="60%" align-center>
       <div class="meal-config">
         <el-tabs v-model="activeMealType">
           <el-tab-pane label="早餐" name="breakfast">
@@ -144,7 +141,7 @@
     </el-dialog>
 
     <!-- 批量套餐配置弹窗 -->
-    <el-dialog v-model="batchPackageDialogVisible" title="批量套餐配置" width="400px">
+    <el-dialog v-model="batchPackageDialogVisible" title="批量套餐配置" width="400px" align-center>
       <el-form label-width="80px">
         <el-form-item label="日期">
           <el-date-picker v-model="batchPackageDate" type="date" value-format="YYYY-MM-DD" disabled />
@@ -164,7 +161,7 @@
     </el-dialog>
 
     <!-- 单个客户套餐配置弹窗 -->
-    <el-dialog v-model="singlePackageDialogVisible" title="套餐配置" width="400px">
+    <el-dialog v-model="singlePackageDialogVisible" title="套餐配置" width="400px" align-center>
       <el-form label-width="80px">
         <el-form-item label="日期">
           <el-date-picker v-model="selectedDate" type="date" value-format="YYYY-MM-DD" disabled />
@@ -187,14 +184,18 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDietCustomerList, getDietAvailableDishes, saveDishes, saveCustomerSetMeal, getDailySetMealList } from '@/api/diet'
 import MealSelector from '@/components/MealSelector.vue'
 
 // 状态定义
 const searchQuery = ref('')
-const selectedDate = ref(new Date().toISOString().split('T')[0])
+function getTodayStr() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+const selectedDate = ref(getTodayStr())
 const customerDiets = ref([])
 const configDialogVisible = ref(false)
 const selectedCustomer = ref(null)

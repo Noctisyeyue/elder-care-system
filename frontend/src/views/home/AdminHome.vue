@@ -1,696 +1,782 @@
+<!-- 管理端--首页 -->
 <template>
-    <div class="home">
-        <!-- 统计信息 -->
-        <!-- 统计信息卡片 -->
-        <div class="info-cards">
-            <el-card class="info-card art-card-xs">
-                <div class="info-card-body">
-                    <div class="info-card-info">
-                        <div class="info-card-title">用户总数</div>
-                        <div style="width: 100%; display: flex;">
-                            <div class="info-card-number">{{userNum}}</div>
-                        </div>
-                        <div class="info-card-description">在职护工、医生、护士总数</div>
-                    </div>
-                    <div class="info-card-icon">
-                        <el-icon class="icon"><Avatar /></el-icon>
-                    </div>
-                </div>
-            </el-card>
-            <el-card class="info-card art-card-xs">
-                <div class="info-card-body">
-                    <div class="info-card-info">
-                        <div class="info-card-title">客户总数</div>
-                        <div style="width: 100%; display: flex;">
-                            <div class="info-card-number">{{customerNum}}</div>
-                        </div>
-                        <div class="info-card-description">正在服务的客户总数</div>
-                    </div>
-                    <div class="info-card-icon">
-                        <el-icon class="icon"><UserFilled /></el-icon>
-                    </div>
-                </div>
-            </el-card>
-            <el-card class="info-card art-card-xs">
-                <div class="info-card-body">
-                    <div class="info-card-info">
-                        <div class="info-card-title">空闲床位</div>
-                        <div style="width: 100%; display: flex;">
-                            <div class="info-card-number">{{freeBedNum}}</div>
-                            <div class="info-card-total-number">/{{bedNum}}</div>
-                        </div>
-                        <div class="info-card-description">剩余床位与总床位的比例</div>
-                    </div>
-                    <div class="info-card-icon">
-                        <el-icon class="icon"><Moon /></el-icon>
-                    </div>
-                </div>
-            </el-card>
-            <el-card class="info-card art-card-xs" style="margin-right: 0;">
-                <div class="info-card-body">
-                    <div class="info-card-info">
-                        <div class="info-card-title">新增客户</div>
-                        <div style="width: 100%; display: flex;">
-                            <div class="info-card-number">{{newCustomerNum}}</div>
-                        </div>
-                        <div class="info-card-description">今日新入住的客户数量</div>
-                    </div>
-                    <div class="info-card-icon">
-                        <el-icon class="icon"><User /></el-icon>
-                    </div>
-                </div>
-            </el-card>
+  <div class="home-dashboard">
+    <!-- 统计卡片区 -->
+    <div class="info-cards">
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">用户总数</div>
+            <div class="info-card-number">{{ userNum }}</div>
+            <div class="info-card-description">在职护工、医生、护士总数</div>
+          </div>
+          <div class="info-card-icon icon-users">
+            <SvgIcon icon="ri:team-line" :size="24" />
+          </div>
         </div>
-        <!-- 统计信息图表 -->
-        <div class="info-charts">
-            <el-card class="info-chart art-card" style="flex: 3;">
-                <div class="info-title">用户分布</div>
-                <div class="info-chart-container" style="height: calc(100% - 40px);">
-                    <div id="UserNumChart" style="width: 100%; height: 100%;"></div>
-                </div>
-            </el-card>
-            <el-card class="info-chart art-card" style="flex: 5; margin-right: 0px;">
-                <div class="info-title">本年客户数量</div>
-                <div class="info-chart-container">
-                    <div id="newCustomerNumChart" style="width: 100%; height: 100%;"></div>
-                </div>
-            </el-card>
+      </el-card>
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">客户总数</div>
+            <div class="info-card-number">{{ customerNum }}</div>
+            <div class="info-card-description">正在服务的客户总数</div>
+          </div>
+          <div class="info-card-icon icon-customers">
+            <SvgIcon icon="ri:user-heart-line" :size="24" />
+          </div>
         </div>
-        <!-- 统计信息表格 -->
-        <div class="info-tables">
-            <el-card class="info-card art-card-sm">
-                <!-- 外出申请表格 -->
-                <div class="table-container">
-                    <div class="table-title">
-                        <div class="info-title">外出申请</div>
-                        <div class="info-herf" @click="detail('/customer/out')">查看详情</div>
-                    </div>
-                    <el-divider style="margin: 0;" />
-                    <div id="table">
-                        <el-table
-                            :data="outingApplicationList"
-                            style="width: 100%"
-                            v-loading="loading"
-                            :empty-text="loading ? '加载中...' : '暂无数据'"
-                        >
-                            <el-table-column type="index" label="序号" width="60"></el-table-column>
-                            <el-table-column prop="customerName" label="客户姓名" width="120"></el-table-column>
-                            <el-table-column prop="approvalStatus" label="审批状态" width="100">
-                                <template #default="{ row }">
-                                <el-tag :type="getStatusType(row.approvalStatus)">
-                                    {{ row.approvalStatus }}
-                                </el-tag>
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="outingReason" label="外出原因"></el-table-column>
-                        </el-table>
-                        <div class="pagination-container">
-                            <el-pagination
-                            class="pagination-right"
-                            layout="total, sizes, prev, pager, next, jumper"
-                            :total="outingApplicationTotal"
-                            :page-size="outingSearchForm.pageSize"
-                            :current-page="outingSearchForm.pageNum"
-                            :page-sizes="[5, 10, 20, 50]"
-                            @size-change="(size) => { outingSearchForm.pageSize = size; outingSearchForm.pageNum = 1; fetchOutingApplications(); }"
-                            @current-change="handleOutingApplicationPageChange"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </el-card>
-            <el-card class="info-card" style="margin-right: 0;">
-                <!-- 退住申请表格 -->
-                <div class="table-container">
-                    <div class="table-title">
-                        <div class="info-title">退住申请</div>
-                        <div class="info-herf" @click="detail('/customer/checkOut')">查看详情</div>
-                    </div>
-                    <el-divider style="margin: 0;" />
-                    <div id="table">
-                        <el-table
-                            :data="checkoutApplicationList"
-                            style="width: 100%"
-                            v-loading="loading"
-                            :empty-text="loading ? '加载中...' : '暂无数据'"
-                        >
-                            <el-table-column type="index" label="序号" width="60"></el-table-column>
-                            <el-table-column prop="customerName" label="客户姓名" width="120"></el-table-column>
-                            <el-table-column prop="approvalStatus" label="审批状态" width="100">
-                                <template #default="{ row }">
-                                <el-tag :type="getStatusType(row.approvalStatus)">
-                                    {{ row.approvalStatus }}
-                                </el-tag>
-                                </template>
-                            </el-table-column>
-                            <el-table-column prop="checkOutReason" label="退住原因"></el-table-column>
-                        </el-table>
-                        <div class="pagination-container">
-                            <el-pagination
-                            class="pagination-right"
-                            layout="total, sizes, prev, pager, next, jumper"
-                            :total="checkoutApplicationTotal"
-                            :page-size="checkOutSearchForm.pageSize"
-                            :current-page="checkOutSearchForm.pageNum"
-                            :page-sizes="[5, 10, 20, 50]"
-                            @size-change="(size) => { checkOutSearchForm.pageSize = size; checkOutSearchForm.pageNum = 1; fetchCheckoutApplications(); }"
-                            @current-change="handleCheckoutApplicationPageChange"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </el-card>
+      </el-card>
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">空闲床位</div>
+            <div class="info-card-number">
+              {{ freeBedNum }}
+              <span class="info-card-total-number">/{{ bedNum }}</span>
+            </div>
+            <div class="info-card-description">剩余床位与总床位的比例</div>
+          </div>
+          <div class="info-card-icon icon-beds">
+            <SvgIcon icon="ri:hotel-bed-line" :size="24" />
+          </div>
         </div>
+      </el-card>
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">新增客户</div>
+            <div class="info-card-number">{{ newCustomerNum }}</div>
+            <div class="info-card-description">本月新入住的客户数量</div>
+          </div>
+          <div class="info-card-icon icon-new">
+            <SvgIcon icon="ri:user-add-line" :size="24" />
+          </div>
+        </div>
+      </el-card>
     </div>
+
+    <!-- 核心图表区：1行2列（左3:右7） -->
+    <div class="core-charts">
+      <el-card class="chart-card" shadow="never" style="flex: 3;">
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">床位状态分布</span>
+          </div>
+        </template>
+        <div class="chart-body" id="BedStatusChart"></div>
+      </el-card>
+      <el-card class="chart-card" shadow="never" style="flex: 7;">
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">年度入住趋势</span>
+          </div>
+        </template>
+        <div class="chart-body" id="YearTrendChart"></div>
+      </el-card>
+    </div>
+
+    <!-- 多维分析区：1行3列 -->
+    <div class="analysis-charts">
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">客户护理级别分布</span>
+        </template>
+        <div class="chart-body" id="NursingLevelChart"></div>
+      </el-card>
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">人员角色分布</span>
+        </template>
+        <div class="chart-body" id="RoleDistChart"></div>
+      </el-card>
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">本周膳食配餐量</span>
+        </template>
+        <div class="chart-body" id="WeeklyMealChart"></div>
+      </el-card>
+    </div>
+
+    <!-- 底部表格区 -->
+    <div class="info-tables">
+      <el-card class="table-card" shadow="never">
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">外出申请</span>
+            <span class="link-more" @click="detail('/customer/out')">查看详情</span>
+          </div>
+        </template>
+        <div class="table-wrapper">
+          <el-table
+            :data="outingApplicationList"
+            v-loading="loading"
+            :empty-text="loading ? '加载中...' : '暂无数据'"
+            size="default"
+          >
+            <el-table-column type="index" label="序号" width="60" />
+            <el-table-column prop="customerName" label="客户姓名" width="120" />
+            <el-table-column prop="approvalStatus" label="审批状态" width="100">
+              <template #default="{ row }">
+                <el-tag :type="getStatusType(row.approvalStatus)" size="small">
+                  {{ row.approvalStatus }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="outingReason" label="外出原因" show-overflow-tooltip />
+          </el-table>
+        </div>
+        <div class="table-pagination">
+          <el-pagination
+            background
+            v-model:current-page="outingSearchForm.pageNum"
+            v-model:page-size="outingSearchForm.pageSize"
+            layout="prev, pager, next"
+            :total="outingApplicationTotal"
+            small
+            @size-change="() => {}"
+            @current-change="handleOutingApplicationPageChange"
+          />
+        </div>
+      </el-card>
+
+      <el-card class="table-card" shadow="never">
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">退住申请</span>
+            <span class="link-more" @click="detail('/customer/checkOut')">查看详情</span>
+          </div>
+        </template>
+        <div class="table-wrapper">
+          <el-table
+            :data="checkoutApplicationList"
+            v-loading="loading"
+            :empty-text="loading ? '加载中...' : '暂无数据'"
+            size="default"
+          >
+            <el-table-column type="index" label="序号" width="60" />
+            <el-table-column prop="customerName" label="客户姓名" width="120" />
+            <el-table-column prop="approvalStatus" label="审批状态" width="100">
+              <template #default="{ row }">
+                <el-tag :type="getStatusType(row.approvalStatus)" size="small">
+                  {{ row.approvalStatus }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="checkOutReason" label="退住原因" />
+          </el-table>
+        </div>
+        <div class="table-pagination">
+          <el-pagination
+            background
+            v-model:current-page="checkOutSearchForm.pageNum"
+            v-model:page-size="checkOutSearchForm.pageSize"
+            layout="prev, pager, next"
+            :total="checkoutApplicationTotal"
+            small
+            @size-change="() => {}"
+            @current-change="handleCheckoutApplicationPageChange"
+          />
+        </div>
+      </el-card>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { getUserCount, getUserAvatar, getUserEmail, getRoleNum } from '@/api/user'
-import { getCustomerCount, getCustomerMonthCount, getCustomerYearCount, getCheckOutList, getOutingList } from '@/api/customer'
-import { getFreeBedCount, getBedCount } from '@/api/bed'
+import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { getUserCount, getRoleNum } from '@/api/user'
+import {
+  getCustomerCount,
+  getCustomerMonthCount,
+  getCustomerYearCount,
+  getCheckOutList,
+  getOutingList,
+  getNursingLevelDistribution
+} from '@/api/customer'
+import { getBedStatusDistribution } from '@/api/bed'
+import { getWeeklyMealCount } from '@/api/diet'
 import { ElMessage } from 'element-plus'
-import { useRouter} from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useSettingStore } from '@/stores/setting'
-import {
-    Avatar,
-    UserFilled,
-    User,
-    Moon,
-} from '@element-plus/icons-vue'
-// 图表引用
-import * as echarts from 'echarts/core';
-import {
-  TitleComponent,
-  ToolboxComponent,
-  TooltipComponent,
-  GridComponent,
-  LegendComponent,
-} from 'echarts/components';
-import { LineChart, PieChart } from 'echarts/charts';
-import { UniversalTransition, LabelLayout } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
+import SvgIcon from '@/components/base/svg-icon/index.vue'
+import * as echarts from 'echarts/core'
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
+import { LineChart, PieChart, BarChart } from 'echarts/charts'
+import { CanvasRenderer } from 'echarts/renderers'
 
 const userNum = ref(0)
 const customerNum = ref(0)
 const freeBedNum = ref(0)
 const bedNum = ref(0)
+const usedBedNum = ref(0)
+const outBedNum = ref(0)
 const newCustomerNum = ref(0)
 const yearCustomerNum = ref([])
 const userRoleNum = ref([])
+const nursingLevelData = ref([])
+const weeklyMealData = ref([])
 
 const router = useRouter()
 const settingStore = useSettingStore()
+const loading = ref(false)
 
-function getChartTheme() {
-    const dark = document.documentElement.classList.contains('dark')
-    return {
-        text: dark ? 'rgba(255,255,255,0.85)' : '#303133',
-        subText: dark ? 'rgba(255,255,255,0.55)' : '#909399',
-        splitLine: dark ? 'rgba(255,255,255,0.12)' : '#e5e5e5',
-        pieBorder: dark ? '#161618' : '#ffffff',
-        labelLine: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)',
-        areaTop: dark ? 'rgba(64,158,255,0.35)' : 'rgb(200,210,255)',
-        areaBottom: dark ? 'rgba(64,158,255,0.05)' : 'rgb(255, 255, 255)',
-    }
-}
-
-function buildUserNumChartOption() {
-    const theme = getChartTheme()
-    return {
-        backgroundColor: 'transparent',
-        tooltip: { trigger: 'item' },
-        legend: {
-            top: '90%',
-            left: 'center',
-            textStyle: {
-                fontSize: 16,
-                color: theme.text,
-            },
-        },
-        series: [{
-            name: 'Access From',
-            type: 'pie',
-            top: '-20%',
-            radius: ['50%', '40%'],
-            avoidLabelOverlap: false,
-            itemStyle: {
-                borderRadius: 20,
-                borderColor: theme.pieBorder,
-                borderWidth: 2,
-            },
-            label: {
-                show: true,
-                fontSize: 16,
-                color: theme.text,
-            },
-            labelLine: {
-                lineStyle: { color: theme.labelLine },
-                smooth: 0.2,
-                length: 50,
-                length2: 20,
-            },
-            emphasis: {
-                label: {
-                    show: true,
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                },
-            },
-            data: Array.isArray(userRoleNum.value) ? userRoleNum.value : [],
-            color: ['rgb(170,170,255)', 'rgb(109,147,255)', 'rgb(50,200,255)'],
-        }],
-    }
-}
-
-function buildYearCustomerChartOption() {
-    const theme = getChartTheme()
-    const yearData = Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []
-    return {
-        backgroundColor: 'transparent',
-        color: 'rgb(119,161,255)',
-        tooltip: { trigger: 'axis' },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true,
-        },
-        xAxis: [{
-            type: 'category',
-            boundaryGap: false,
-            data: yearData.map(item => item.month),
-            axisLabel: { color: theme.subText },
-            axisLine: { lineStyle: { color: theme.splitLine } },
-        }],
-        yAxis: [{
-            type: 'value',
-            axisLabel: { color: theme.subText },
-            axisLine: { show: false },
-            splitLine: {
-                lineStyle: {
-                    color: theme.splitLine,
-                    width: 1,
-                    type: 'dashed',
-                },
-            },
-        }],
-        series: [{
-            type: 'line',
-            smooth: true,
-            lineStyle: { width: 3 },
-            showSymbol: false,
-            areaStyle: {
-                opacity: 0.7,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: theme.areaTop },
-                    { offset: 1, color: theme.areaBottom },
-                ]),
-            },
-            emphasis: { focus: 'series' },
-            data: yearData.map(item => item.num),
-        }],
-    }
-}
-
-function initCharts() {
-    userNumChartDom = document.getElementById('UserNumChart')
-    if (!userNumChartDom) {
-        ElMessage.error('图表容器未找到，请刷新页面重试')
-        return
-    }
-    userNumChart = echarts.init(userNumChartDom)
-    userNumChart.setOption(buildUserNumChartOption())
-
-    yearCustomerNumChartDom = document.getElementById('newCustomerNumChart')
-    if (!yearCustomerNumChartDom) {
-        ElMessage.error('图表容器未找到，请刷新页面重试')
-        return
-    }
-    yearCustomerNumChart = echarts.init(yearCustomerNumChartDom)
-    yearCustomerNumChart.setOption(buildYearCustomerChartOption())
-}
-
-function updateCharts() {
-    if (userNumChart) userNumChart.setOption(buildUserNumChartOption())
-    if (yearCustomerNumChart) yearCustomerNumChart.setOption(buildYearCustomerChartOption())
-}
-
-function handleChartResize() {
-    userNumChart?.resize()
-    yearCustomerNumChart?.resize()
-}
-
-// 查询表单数据
-const checkOutSearchForm = reactive({
-  customerName: '',
-  pageNum: 1,
-  pageSize: 10,
-})
-const outingSearchForm = reactive({
-  customerName: '',
-  pageNum: 1,
-  pageSize: 10,
-})
-
-// 退住申请列表数据
+/** 退住申请（固定每页3条） */
+const checkOutSearchForm = reactive({ customerName: '', pageNum: 1, pageSize: 3 })
 const checkoutApplicationList = ref([])
 const checkoutApplicationTotal = ref(0)
 
-// 外出申请列表数据
+/** 外出申请（固定每页3条） */
+const outingSearchForm = reactive({ customerName: '', pageNum: 1, pageSize: 3 })
 const outingApplicationList = ref([])
 const outingApplicationTotal = ref(0)
 
-// 图表数据
-var yearCustomerNumChartDom
-var yearCustomerNumChart
-var userNumChartDom
-var userNumChart
+let bedStatusChart, yearTrendChart, nursingLevelChart, roleDistChart, weeklyMealChart
 let themeObserver
-// 获取统计信息
-const fetchInfo = async () => {
-    await Promise.all([
-        fetchUserNumInfo(),
-        fetchCustomerNumInfo(),
-        fetchFreeBedNumInfo(),
-        fetchNewCustomerNumInfo(),
-        fetchYearCustomerNumInfo(),
-        fetchUserRoleNumInfo(),
-        fetchBedNumInfo(),
-    ]);
-}
 
-const fetchUserNumInfo = async () => {
-    const response = await getUserCount()
-    userNum.value = response
-}
-
-const fetchCustomerNumInfo = async () => {
-    const response = await getCustomerCount()
-    customerNum.value = response
-}
-
-const fetchFreeBedNumInfo = async () => {
-    const response = await getFreeBedCount()
-    freeBedNum.value = response
-}
-
-const fetchBedNumInfo = async () => {
-    const response = await getBedCount()
-    bedNum.value = response
-}
-
-const fetchNewCustomerNumInfo = async () => {
-    const currentDate = new Date()
-    const month = (currentDate.getMonth()+1)<10?("0" + (currentDate.getMonth()+1)):(currentDate.getMonth()+1)
-    const date = currentDate.getFullYear() + "-" + month
-    const response = await getCustomerMonthCount(date)
-    newCustomerNum.value = response
-}
-
-const fetchYearCustomerNumInfo = async () => {
-    const currentDate = new Date()
-    const year = currentDate.getFullYear()
-    const response = await getCustomerYearCount(year)
-    var result = []
-    const monthes = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    for (var i = 0; i < 12; i++) {
-        result[i] = ({month: monthes[i],num: response[i]})
-    }
-    yearCustomerNum.value = result
-}
-
-const fetchUserRoleNumInfo = async () => { 
-    const response = await getRoleNum()
-    userRoleNum.value = response
-}
-
-// 获取退住申请列表
-const fetchCheckoutApplications = async () => {
-    const response = await getCheckOutList({
-        pageNum: checkOutSearchForm.pageNum,
-        pageSize: checkOutSearchForm.pageSize,
-        customerName: checkOutSearchForm.customerName, // 用于模糊查询
-    })
-    checkoutApplicationList.value = response.records || []
-    checkoutApplicationTotal.value = response.total || 0
-}
-
-// 获取外出申请列表
-const fetchOutingApplications = async () => {
-    const response = await getOutingList({
-        pageNum: outingSearchForm.pageNum,
-        pageSize: outingSearchForm.pageSize,
-        customerName: outingSearchForm.customerName,
-    })
-    outingApplicationList.value = response.records || []
-    outingApplicationTotal.value = response.total || 0
-}
-
-// 退住申请分页变化
-const handleCheckoutApplicationPageChange = (page) => {
-    checkOutSearchForm.pageNum = page
-    fetchCheckoutApplications()
-}
-
-// 外出申请分页变化
-const handleOutingApplicationPageChange = (page) => {
-    outingSearchForm.pageNum = page
-    fetchOutingApplications()
-}
-
-// 获取状态标签类型
-const getStatusType = (status) => {
-  switch (status) {
-    case '已提交':
-      return 'warning'
-    case '通过':
-      return 'success'
-    case '不通过':
-      return 'danger'
-    default:
-      return 'info'
+/**
+ * 获取暗色模式下的图表主题色
+ */
+function getChartTheme() {
+  const dark = document.documentElement.classList.contains('dark')
+  return {
+    text: dark ? 'rgba(255,255,255,0.85)' : '#303133',
+    subText: dark ? 'rgba(255,255,255,0.55)' : '#909399',
+    splitLine: dark ? 'rgba(255,255,255,0.12)' : '#e5e5e5',
+    pieBorder: dark ? '#161618' : '#ffffff',
   }
 }
 
-// 跳转详情页面
-function detail(path) {
-  router.push(path)
+/**
+ * 初始化床位状态环形图
+ */
+function initBedStatusChart() {
+  const dom = document.getElementById('BedStatusChart')
+  if (!dom) return
+  bedStatusChart = echarts.init(dom)
+  const t = getChartTheme()
+  bedStatusChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {c}张 ({d}%)' },
+    legend: {
+      bottom: 0,
+      left: 'center',
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: { color: t.subText, fontSize: 12 },
+    },
+    series: [{
+      type: 'pie',
+      radius: ['55%', '75%'],
+      center: ['50%', '42%'],
+      avoidLabelOverlap: true,
+      itemStyle: {
+        borderRadius: 6,
+        borderColor: t.pieBorder,
+        borderWidth: 2,
+      },
+      label: {
+        show: true,
+        position: 'center',
+        formatter: `{total|${bedNum.value}}\n{name|总床位}`,
+        rich: {
+          total: { fontSize: 26, fontWeight: 'bold', color: t.text, lineHeight: 36 },
+          name: { fontSize: 12, color: t.subText },
+        },
+      },
+      emphasis: {
+        label: { show: true },
+        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.15)' },
+      },
+      data: [
+        { value: freeBedNum.value, name: '空闲', itemStyle: { color: '#22c55e' } },
+        { value: usedBedNum.value, name: '占用', itemStyle: { color: '#3b82f6' } },
+        { value: outBedNum.value, name: '外出', itemStyle: { color: '#f97316' } },
+      ],
+    }],
+  })
 }
 
-// 图表初始化
-echarts.use([
-  TitleComponent,
-  ToolboxComponent,
-  TooltipComponent,
-  GridComponent,
-  LegendComponent,
-  LineChart,
-  CanvasRenderer,
-  UniversalTransition,
-  PieChart,
-  LabelLayout
-]);
+/**
+ * 初始化年度入住趋势折线图
+ */
+function initYearTrendChart() {
+  const dom = document.getElementById('YearTrendChart')
+  if (!dom) return
+  yearTrendChart = echarts.init(dom)
+  const t = getChartTheme()
+  const data = Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []
+  yearTrendChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis' },
+    grid: {
+      left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true,
+    },
+    xAxis: {
+      type: 'category', boundaryGap: false,
+      data: data.map(i => i.month),
+      axisLabel: { color: t.subText, fontSize: 12 },
+      axisLine: { lineStyle: { color: t.splitLine } },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: t.subText, fontSize: 12 },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+    },
+    series: [{
+      type: 'line', smooth: true, symbol: 'circle', symbolSize: 6, showSymbol: false,
+      lineStyle: { width: 3, color: '#409eff' },
+      itemStyle: { color: '#409eff', borderWidth: 2, borderColor: '#fff' },
+      areaStyle: {
+        opacity: 0.8,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
+          { offset: 1, color: 'rgba(64, 158, 255, 0.02)' },
+        ]),
+      },
+      emphasis: { focus: 'series' },
+      data: data.map(i => i.num),
+    }],
+  })
+}
 
-onMounted(() => {
-    fetchCheckoutApplications()
-    fetchOutingApplications()
-    fetchInfo().then(() => {
-        nextTick(() => initCharts())
-    })
-    themeObserver = new MutationObserver(() => updateCharts())
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-    window.addEventListener('resize', handleChartResize)
+/**
+ * 初始化护理级别分布横向柱状图
+ */
+function initNursingLevelChart() {
+  const dom = document.getElementById('NursingLevelChart')
+  if (!dom) return
+  nursingLevelChart = echarts.init(dom)
+  const t = getChartTheme()
+  const data = nursingLevelData.value
+  nursingLevelChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '10%', bottom: '3%', top: '3%', containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLabel: { color: t.subText, fontSize: 11 },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+    },
+    yAxis: {
+      type: 'category', data: data.map(i => i.name),
+      axisLabel: { color: t.text, fontSize: 12 },
+      axisLine: { show: false }, axisTick: { show: false },
+    },
+    series: [{
+      type: 'bar', barWidth: 14, data: data.map(i => i.value),
+      itemStyle: {
+        borderRadius: [0, 7, 7, 0],
+        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: '#60a5fa' }, { offset: 1, color: '#3b82f6' },
+        ]),
+      },
+    }],
+  })
+}
+
+/**
+ * 初始化人员角色分布饼图
+ */
+function initRoleDistChart() {
+  const dom = document.getElementById('RoleDistChart')
+  if (!dom) return
+  roleDistChart = echarts.init(dom)
+  const t = getChartTheme()
+  const data = Array.isArray(userRoleNum.value) ? userRoleNum.value : []
+  roleDistChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+    legend: {
+      bottom: 0, left: 'center',
+      itemWidth: 8, itemHeight: 8,
+      textStyle: { color: t.subText, fontSize: 11 },
+    },
+    series: [{
+      type: 'pie', radius: ['45%', '65%'], center: ['50%', '42%'],
+      itemStyle: { borderRadius: 4, borderColor: t.pieBorder, borderWidth: 2 },
+      label: { show: false },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.15)' } },
+      data: data.map(i => ({ value: i.value, name: i.name })),
+      color: ['#409eff', '#22c55e', '#f97316', '#8b5cf6'],
+    }],
+  })
+}
+
+/**
+ * 初始化本周配餐量柱状图
+ */
+function initWeeklyMealChart() {
+  const dom = document.getElementById('WeeklyMealChart')
+  if (!dom) return
+  weeklyMealChart = echarts.init(dom)
+  const t = getChartTheme()
+  const data = weeklyMealData.value
+  weeklyMealChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '5%', containLabel: true },
+    xAxis: {
+      type: 'category', data: data.map(i => i.dayOfWeek),
+      axisLabel: { color: t.subText, fontSize: 11 },
+      axisLine: { lineStyle: { color: t.splitLine } },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: t.subText, fontSize: 11 },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
+    },
+    series: [{
+      type: 'bar', barWidth: 16, data: data.map(i => i.count),
+      itemStyle: {
+        borderRadius: [6, 6, 0, 0],
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#34d399' }, { offset: 1, color: '#22c55e' },
+        ]),
+      },
+    }],
+  })
+}
+
+/** 初始化所有图表 */
+function initAllCharts() {
+  nextTick(() => {
+    initBedStatusChart()
+    initYearTrendChart()
+    initNursingLevelChart()
+    initRoleDistChart()
+    initWeeklyMealChart()
+  })
+}
+
+/** 更新所有图表 */
+function updateAllCharts() {
+  if (bedStatusChart) initBedStatusChart()
+  if (yearTrendChart) initYearTrendChart()
+  if (nursingLevelChart) initNursingLevelChart()
+  if (roleDistChart) initRoleDistChart()
+  if (weeklyMealChart) initWeeklyMealChart()
+}
+
+function handleResize() {
+  bedStatusChart?.resize(); yearTrendChart?.resize()
+  nursingLevelChart?.resize(); roleDistChart?.resize(); weeklyMealChart?.resize()
+}
+
+async function fetchUserNumInfo() { userNum.value = await getUserCount() }
+async function fetchCustomerNumInfo() { customerNum.value = await getCustomerCount() }
+
+/**
+ * 获取床位状态分布数据
+ */
+async function fetchBedInfo() {
+  const res = await getBedStatusDistribution()
+  freeBedNum.value = res?.free || 0
+  usedBedNum.value = res?.used || 0
+  outBedNum.value = res?.out || 0
+  bedNum.value = res?.total || 0
+}
+
+async function fetchNewCustomerNumInfo() {
+  const d = new Date()
+  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  newCustomerNum.value = await getCustomerMonthCount(date)
+}
+
+async function fetchYearCustomerNumInfo() {
+  const year = new Date().getFullYear()
+  const res = await getCustomerYearCount(String(year))
+  const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  yearCustomerNum.value = (res || []).map((num, i) => ({ month: m[i], num }))
+}
+
+async function fetchUserRoleNumInfo() { userRoleNum.value = await getRoleNum() || [] }
+async function fetchNursingLevelData() { nursingLevelData.value = await getNursingLevelDistribution() || [] }
+async function fetchWeeklyMealData() { weeklyMealData.value = await getWeeklyMealCount() || [] }
+
+async function fetchInfo() {
+  await Promise.all([
+    fetchUserNumInfo(), fetchCustomerNumInfo(), fetchBedInfo(),
+    fetchNewCustomerNumInfo(), fetchYearCustomerNumInfo(), fetchUserRoleNumInfo(),
+    fetchNursingLevelData(), fetchWeeklyMealData(),
+  ])
+}
+
+async function fetchCheckoutApplications() {
+  const res = await getCheckOutList({
+    pageNum: checkOutSearchForm.pageNum, pageSize: checkOutSearchForm.pageSize, customerName: checkOutSearchForm.customerName,
+  })
+  checkoutApplicationList.value = res.records || []
+  checkoutApplicationTotal.value = res.total || 0
+}
+
+async function fetchOutingApplications() {
+  const res = await getOutingList({
+    pageNum: outingSearchForm.pageNum, pageSize: outingSearchForm.pageSize, customerName: outingSearchForm.customerName,
+  })
+  outingApplicationList.value = res.records || []
+  outingApplicationTotal.value = res.total || 0
+}
+
+function handleCheckoutApplicationPageChange(page) { checkOutSearchForm.pageNum = page; fetchCheckoutApplications() }
+function handleOutingApplicationPageChange(page) { outingSearchForm.pageNum = page; fetchOutingApplications() }
+
+function getStatusType(status) {
+  switch (status) {
+    case '已提交': return 'warning'
+    case '通过': return 'success'
+    case '不通过': return 'danger'
+    default: return 'info'
+  }
+}
+
+function detail(path) { router.push(path) }
+
+echarts.use([TitleComponent, TooltipComponent, GridComponent, LegendComponent, LineChart, PieChart, BarChart, CanvasRenderer])
+
+onMounted(async () => {
+  await fetchInfo()
+  await fetchOutingApplications()
+  await fetchCheckoutApplications()
+  initAllCharts()
+  themeObserver = new MutationObserver(() => updateAllCharts())
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  window.addEventListener('resize', handleResize)
 })
 
-watch(() => settingStore.systemThemeMode, () => {
-    nextTick(() => updateCharts())
-})
+watch(() => settingStore.systemThemeMode, () => nextTick(() => updateAllCharts()))
 
 onUnmounted(() => {
-    themeObserver?.disconnect()
-    window.removeEventListener('resize', handleChartResize)
-    userNumChart?.dispose()
-    yearCustomerNumChart?.dispose()
+  themeObserver?.disconnect()
+  window.removeEventListener('resize', handleResize)
+  bedStatusChart?.dispose(); yearTrendChart?.dispose(); nursingLevelChart?.dispose()
+  roleDistChart?.dispose(); weeklyMealChart?.dispose()
 })
 </script>
 
 <style scoped>
-.pagination-container {
-    margin: 10px 0;
-    display: flex;
-    justify-content: flex-end; /* 将分页器靠右对齐 */
+.home-dashboard {
+  padding: 4px;
 }
 
-.pagination-right {
-    display: flex;
-    justify-content: flex-end;
+/* ========== 通用卡片规范 ========== */
+:deep(.el-card) {
+  border-radius: 10px;
+  border: 1px solid var(--default-border);
+  background: var(--default-box-color);
+  transition: all 0.25s ease;
 }
 
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
-    overflow-y: auto;
-    height: 198px;
+:deep(.el-card:hover) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
-.info-cards{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 20px;
+:deep(.el-card__header) {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--default-border);
 }
 
-.info-card{
-    flex: 1;
-    margin-right: 20px;
+:deep(.el-card__body) {
+  padding: 18px;
 }
 
-.info-card :deep(.el-card__body){
-    padding: 20px 10px;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
-.el-card.is-always-shadow{
-    box-shadow: none;
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-gray-800);
+  position: relative;
+  padding-left: 10px;
 }
 
-.info-card-body{
-    height: 100px;
-    display: flex;
-    flex-direction: row;
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: #409eff;
 }
 
-.info-card-info{
-    height: 100px;
-    flex: 1;
-    margin: 0 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.link-more {
+  font-size: 13px;
+  color: var(--ui-gray-500);
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
-.info-card-title{
-    width: 100%;
-    height: 14px;
-    font-size: 15px;
-    line-height: 14px;
-    color: var(--ui-gray-600);
+.link-more:hover {
+  color: #409eff;
 }
 
-.info-card-number{
-    margin-top: 10px;
-    font-size: 28px;
-    font-weight: 400;
-    color: var(--ui-gray-800);
+/* ========== 统计卡片 ========== */
+.info-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.info-card-total-number{
-    margin-top: 24px;
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ui-gray-500);
+.info-card {
+  flex: 1;
+  min-width: 220px;
 }
 
-.info-card-description{
-    width: 100%;
-    margin-top: 10px;
-    font-size: 13px;
-    color: var(--ui-gray-500);
+.info-card :deep(.el-card__body) {
+  padding: 18px 20px;
 }
 
-.info-card-icon{
-    flex: 1%;
-    display: contents;
+.info-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.icon{
-    top: 0;
-    right: 20px;
-    bottom: 0;
-    width: 52px;
-    height: 52px;
-    margin: auto;
-    overflow: hidden;
-    font-size: 22px;
-    line-height: 52px;
-    color: var(--el-color-primary) !important;
-    text-align: center;
-    background-color: var(--el-color-primary-light-9);
-    border-radius: 12px;
+.info-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.info-charts{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 20px;
-    height: 420px;
+.info-card-title {
+  font-size: 14px;
+  color: var(--ui-gray-500);
+  line-height: 1;
 }
 
-.info-chart{
-    height: 380px;
-    padding: 20px 10px;
-    background-color: var(--default-box-color);
-    margin-right: 20px;
+.info-card-number {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--ui-gray-800);
+  line-height: 1.2;
+  display: flex;
+  align-items: baseline;
 }
 
-.info-chart :deep(.el-card__body){
-    height: 100%;
-    padding: 0;
+.info-card-total-number {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ui-gray-400);
+  margin-left: 4px;
 }
 
-.table-title{
-    height: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+.info-card-description {
+  font-size: 12px;
+  color: var(--ui-gray-400);
+  line-height: 1;
 }
 
-.info-title{
-    font-weight: 500;
-    text-align: left;
-    padding: 0;
-    font-size: 16px;
-    color: var(--ui-gray-800);
+.info-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.info-herf{
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ui-gray-500);
-    text-align: left;
-    cursor: pointer;
-    transition: color 0.2s;
+.icon-users { background: rgba(64, 158, 255, 0.1); color: #409eff; }
+.icon-customers { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.icon-beds { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.icon-new { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+
+/* ========== 图表区域 ========== */
+.core-charts {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  height: 360px;
 }
 
-.info-herf:hover{
-    color: var(--theme-color);
+.analysis-charts {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  height: 300px;
 }
 
-.info-chart-container{
-    height: calc(100% - 40px);
+.chart-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.info-tables{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 20px;
+.chart-card :deep(.el-card__body) {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
-.table-container{
-    width: calc(100% - 20px);
-    background-color: transparent;
-    padding: 0 10px;
-    max-height: 374px;
+.chart-body {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
 }
 
-.home :deep(.el-pagination) {
-    --el-pagination-button-bg-color: var(--ui-gray-100);
-    --el-pagination-button-color: var(--ui-gray-600);
-    --el-pagination-hover-color: var(--theme-color);
+/* ========== 表格区域 ========== */
+.info-tables {
+  display: flex;
+  gap: 16px;
 }
 
+.table-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: hidden;
+}
+
+:deep(.el-table th) {
+  background: var(--art-gray-100);
+  color: var(--ui-gray-700);
+  font-weight: 600;
+}
+
+.table-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--default-border);
+}
+
+@media (max-width: 1200px) {
+  .analysis-charts { flex-wrap: wrap; height: auto; }
+  .analysis-charts .chart-card { min-width: calc(50% - 8px); height: 300px; }
+}
+
+@media (max-width: 768px) {
+  .core-charts, .info-tables { flex-direction: column; height: auto; }
+  .analysis-charts .chart-card { min-width: 100%; }
+}
+
+/* 强制表格单元格单行省略，不显示tooltip */
+:deep(.el-table .cell) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>

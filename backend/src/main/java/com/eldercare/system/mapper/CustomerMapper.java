@@ -8,6 +8,7 @@ import com.eldercare.system.vo.customer.CustomerCheckOutVO;
 import com.eldercare.system.vo.customer.CustomerVO;
 import com.eldercare.system.vo.customer.CustomerNoCaregiverVO;
 import com.eldercare.system.vo.customer.CustomerOutingVO;
+import com.eldercare.system.vo.customer.NursingLevelDistributionVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -58,4 +59,11 @@ public interface CustomerMapper extends BaseMapper<Customer> {
     void removeAllCustomers(int caregiverId);
 
     void updateNursingLevelById(Customer customer);
+
+    /**
+     * 查询客户护理级别分布
+     *
+     * @return 护理级别分布列表
+     */
+    List<NursingLevelDistributionVO> selectNursingLevelDistribution();
 }

@@ -1,3 +1,4 @@
+<!-- 父菜单--系统管理 -->
 <template>
   <router-view />
 </template>
