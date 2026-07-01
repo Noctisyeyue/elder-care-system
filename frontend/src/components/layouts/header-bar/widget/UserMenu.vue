@@ -10,14 +10,20 @@
   >
     <template #reference>
       <div class="user-menu-trigger">
-        <el-avatar :size="36" :src="avatarUrl" />
+        <el-avatar v-if="avatarUrl" :size="36" :src="avatarUrl" @error="handleAvatarError" />
+        <div v-else class="text-avatar text-avatar-sm" :style="textAvatar.style">
+          {{ textAvatar.initial }}
+        </div>
         <el-icon class="trigger-arrow max-md:!hidden"><ArrowDown /></el-icon>
       </div>
     </template>
 
     <div class="user-menu-panel">
       <div class="user-info-card">
-        <el-avatar :size="40" :src="avatarUrl" />
+        <el-avatar v-if="avatarUrl" :size="40" :src="avatarUrl" @error="handleAvatarError" />
+        <div v-else class="text-avatar text-avatar-md" :style="textAvatar.style">
+          {{ textAvatar.initial }}
+        </div>
         <div class="user-info-meta">
           <div class="user-info-name">{{ userStore.realName || '未登录' }}</div>
           <div class="user-info-email">{{ displayEmail }}</div>
@@ -48,17 +54,19 @@ import { useUserStore } from '@/stores/user'
 import { getUserAvatar, getUserEmail } from '@/api/user'
 import { mittBus } from '@/utils/mitt'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
+import { getTextAvatar, normalizeAvatarUrl } from '@/utils/avatar'
 
 defineOptions({ name: 'UserMenu' })
 
 const router = useRouter()
 const userStore = useUserStore()
-const avatarUrl = ref('https://img95.699pic.com/element/40112/2503.png_300.png')
+const avatarUrl = ref('')
 const email = ref('')
 
 const displayEmail = computed(
   () => email.value || userStore.email || '未绑定邮箱',
 )
+const textAvatar = computed(() => getTextAvatar(userStore.realName || userStore.email))
 
 function goCenter() {
   router.push('/user/center')
@@ -73,13 +81,18 @@ function logout() {
   router.replace('/login')
 }
 
+function handleAvatarError() {
+  avatarUrl.value = ''
+  return true
+}
+
 onMounted(async () => {
   try {
     const [avatar, userEmail] = await Promise.all([
-      getUserAvatar(),
+      getUserAvatar().catch(() => ''),
       getUserEmail(),
     ])
-    avatarUrl.value = avatar
+    avatarUrl.value = normalizeAvatarUrl(avatar)
     email.value = userEmail
   } catch {
     email.value = userStore.email
@@ -104,6 +117,29 @@ onMounted(async () => {
 .trigger-arrow {
   font-size: 12px;
   color: var(--ui-gray-500);
+}
+
+.text-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+.text-avatar-sm {
+  width: 36px;
+  height: 36px;
+  font-size: 15px;
+}
+
+.text-avatar-md {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
 }
 
 .user-menu-panel {

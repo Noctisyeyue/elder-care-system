@@ -6,7 +6,16 @@
         <el-card class="profile-card">
           <div class="profile-bg" :style="{ backgroundImage: `url(${profileBg})` }"></div>
           <div class="profile-body">
-            <el-avatar :size="80" :src="avatarUrl" />
+            <el-avatar
+              v-if="avatarUrl"
+              :size="80"
+              :src="avatarUrl"
+              class="profile-image-avatar"
+              @error="handleAvatarError"
+            />
+            <div v-else class="profile-avatar" :style="textAvatar.style">
+              {{ textAvatar.initial }}
+            </div>
             <h3>{{ profile.realName || '未设置' }}</h3>
             <p class="role">{{ profile.roleName || userStore.roleName }}</p>
             <ul class="info-list">
@@ -202,7 +211,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -219,6 +228,7 @@ import {
   type PasswordUpdateForm,
 } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { getTextAvatar, normalizeAvatarUrl } from '@/utils/avatar'
 import profileBg from '@/assets/profile_background.jpg'
 
 defineOptions({ name: 'UserCenter' })
@@ -231,9 +241,10 @@ const avatarInput = ref<HTMLInputElement>()
 const editing = ref(false)
 const saving = ref(false)
 const changingPwd = ref(false)
-const avatarUrl = ref('https://img95.699pic.com/element/40112/2503.png_300.png')
+const avatarUrl = ref('')
 
 const profile = ref<Partial<UserProfile>>({})
+const textAvatar = computed(() => getTextAvatar(profile.value.realName || userStore.realName || profile.value.email))
 const form = reactive<ProfileUpdateForm>({
   realName: '',
   phone: '',
@@ -371,10 +382,10 @@ async function handleChangeEmail() {
 async function loadProfile() {
   const [profileData, avatar] = await Promise.all([
     getProfile(),
-    getUserAvatar().catch(() => avatarUrl.value),
+    getUserAvatar().catch(() => ''),
   ])
   profile.value = profileData
-  avatarUrl.value = avatar as string
+  avatarUrl.value = normalizeAvatarUrl(avatar)
   Object.assign(form, {
     realName: profileData.realName || '',
     phone: profileData.phone || '',
@@ -411,20 +422,29 @@ function triggerAvatarUpload() {
   avatarInput.value?.click()
 }
 
+function handleAvatarError() {
+  avatarUrl.value = ''
+  return true
+}
+
 async function handleAvatarChange(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
   if (!file) return
   if (!['image/jpeg', 'image/png'].includes(file.type)) {
     ElMessage.error('请上传 JPG 或 PNG 格式图片')
+    input.value = ''
     return
   }
   if (file.size / 1024 / 1024 > 2) {
     ElMessage.error('图片大小不能超过 2MB')
+    input.value = ''
     return
   }
   const formData = new FormData()
   formData.append('file', file)
-  avatarUrl.value = await uploadAvatar(formData)
+  avatarUrl.value = normalizeAvatarUrl(await uploadAvatar(formData))
+  input.value = ''
   ElMessage.success('头像更新成功')
 }
 
@@ -473,7 +493,22 @@ onMounted(() => {
   padding-bottom: 20px;
 }
 
-.profile-body :deep(.el-avatar) {
+.profile-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border: 3px solid var(--default-box-color);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+.profile-image-avatar {
   border: 3px solid var(--default-box-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
