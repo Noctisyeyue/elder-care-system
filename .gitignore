@@ -22,3 +22,6 @@ Thumbs.db
 
 # 敏感配置（本地真值，切勿提交；保留主配置 application.yml）
 backend/src/main/resources/application-*.yml
+
+# 本地文档 / 计划 / 评审
+docs/
