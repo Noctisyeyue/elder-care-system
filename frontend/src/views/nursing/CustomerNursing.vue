@@ -36,7 +36,7 @@
       <el-table-column label="操作" width="240">
         <template #default="scope">
           <div class="operation-buttons">
-            <el-button type="primary" size="small" @click="openSetNursingDialog(scope.row)">设置护理级别</el-button>
+            <el-button type="primary" size="small" @click="openSetNursingDialog(scope.row)">切换护理级别</el-button>
             <el-button v-if="scope.row.levelId" type="danger" size="small"
               @click="removeNursingLevel(scope.row)">移除护理级别</el-button>
           </div>
@@ -57,17 +57,18 @@
         <el-form-item label="当前护理级别" v-if="currentCustomer?.levelId">
           <el-tag type="success">{{ currentCustomer.nursingLevel }}</el-tag>
         </el-form-item>
-        <el-form-item label="修改护理级别">
+        <el-form-item label="目标护理级别">
           <el-select v-model="nursingForm.levelId" placeholder="请选择护理级别" @change="fetchNursingItems">
             <el-option v-for="item in nursingLevelList" :key="item.id" :label="item.level" :value="item.id" />
           </el-select>
 
         </el-form-item>
+        <div class="dialog-hint">选择后将覆盖当前护理级别的项目配置。</div>
       </el-form>
 
       <!-- 当前护理项目列表 -->
       <div v-if="currentCustomer?.levelId" style="margin-bottom: 20px">
-        <h4>当前护理项目</h4>
+        <h4>当前级别护理项目</h4>
         <el-table :data="currentNursingItems" border style="margin-bottom: 20px">
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="编号" />
@@ -87,7 +88,7 @@
         </el-table>
       </div>
 
-      <h4>新增护理项目</h4>
+      <h4>目标级别护理项目</h4>
       <el-table :data="nursingForm.items" border style="margin-bottom: 10px">
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="code" label="编号" />
@@ -331,6 +332,12 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+.dialog-hint {
+  margin: -4px 0 16px 100px;
+  color: #64748b;
+  font-size: 13px;
 }
 
 :deep(.el-table__body-wrapper .el-scrollbar__wrap) {
