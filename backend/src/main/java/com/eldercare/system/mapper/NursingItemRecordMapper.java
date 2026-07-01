@@ -2,6 +2,7 @@ package com.eldercare.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.eldercare.system.entity.NursingItemRecord;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface NursingItemRecordMapper extends BaseMapper<NursingItemRecord> {
     void removeById(Long id);
 
     void updateTimes(Long customerId, String name, Integer times);
+
+    int updateTimesByRecordId(@Param("id") Long id, @Param("times") Integer times);
 }

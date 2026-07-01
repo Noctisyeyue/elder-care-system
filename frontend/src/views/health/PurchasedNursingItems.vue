@@ -26,7 +26,7 @@
               {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }} 
             </el-tag>
                 <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small" class="status-tag">
-                  {{ row.remain <= 0 ? '欠费' : '数量正常' }} 
+                  {{ row.remain <= 0 ? '次数用尽' : '次数正常' }} 
                 </el-tag>
           </div>
         </template>

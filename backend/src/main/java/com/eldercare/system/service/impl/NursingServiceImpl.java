@@ -13,6 +13,7 @@ import com.eldercare.system.vo.nursing.*;
 import com.eldercare.system.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -847,8 +848,35 @@ public class NursingServiceImpl implements NursingService{
      * @return 添加处理结果
      */
     @Override
+    @Transactional
     public ApiResult addRecord(NursingRecordRequest record, String token) {
         ApiResult result = new ApiResult();
+        if (record.getTimes() == null || record.getTimes() <= 0) {
+            result.setCode(400);
+            result.setMessage("护理次数必须大于0");
+            return result;
+        }
+        NursingItemRecord itemRecord;
+        try {
+            itemRecord = nursingItemRecordMapper.selectById(record.getItemId());
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询客户护理项目记录数据库错误");
+            throw e;
+        }
+        if (itemRecord == null || !"0".equals(itemRecord.getDelFlag())
+                || !itemRecord.getCustomerId().equals(record.getCustomerId())) {
+            result.setCode(404);
+            result.setMessage("客户护理项目不存在");
+            return result;
+        }
+        int totalTimes = itemRecord.getExecutionTimes() * itemRecord.getPurchasingTimes();
+        int remainingTimes = totalTimes - itemRecord.getExecutedTimes();
+        if (record.getTimes() > remainingTimes) {
+            result.setCode(400);
+            result.setMessage("护理次数不能超过剩余次数");
+            return result;
+        }
         //从token中获取用户id
         NursingRecord nursingRecord = new NursingRecord();
         nursingRecord.setCustomerId(record.getCustomerId());
@@ -878,10 +906,13 @@ public class NursingServiceImpl implements NursingService{
         nursingRecord.setNursingTimes(record.getTimes());
         nursingRecord.setNursingDate(record.getNursingTime());
         try {
+            int updated = nursingItemRecordMapper.updateTimesByRecordId(record.getItemId(), record.getTimes());
+            if (updated == 0) {
+                result.setCode(400);
+                result.setMessage("护理次数不能超过剩余次数");
+                return result;
+            }
             nursingRecordMapper.insert(nursingRecord);
-            //根据客户id和护理项目id在nursing_item_record表中查询一条数据
-            //修改这条数据的已执行次数，在原次数上加record.getTimes()
-            nursingItemRecordMapper.updateTimes(record.getCustomerId(), record.getName(), record.getTimes());
             result.setCode(200);
             result.setMessage("添加成功");
 

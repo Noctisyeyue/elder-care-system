@@ -38,7 +38,7 @@
             <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
               {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }} </el-tag>
                 <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small">
-                  {{ row.remain <= 0 ? '欠费' : '数量正常' }} </el-tag>
+                  {{ row.remain <= 0 ? '次数用尽' : '次数正常' }} </el-tag>
           </div>
         </template>
       </el-table-column>
@@ -56,12 +56,15 @@
 
     <!-- 护理记录弹窗 -->
     <el-dialog v-model="nursingDialogVisible" title="添加护理记录" width="30%">
-      <el-form :model="nursingForm" label-width="100px">
+      <el-form :model="nursingForm" label-width="120px" class="nursing-record-form">
         <el-form-item label="护理时间" required>
           <el-date-picker v-model="nursingForm.nursingTime" type="date" value-format="YYYY-MM-DD" disabled />
         </el-form-item>
-        <el-form-item label="已护理次数" required>
-          <el-input-number v-model="nursingForm.times" :min="1" />
+        <el-form-item label="剩余次数">
+          <el-input v-model="nursingForm.remain" disabled />
+        </el-form-item>
+        <el-form-item label="本次护理次数" required>
+          <el-input-number v-model="nursingForm.times" :min="1" :max="nursingForm.remain" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -95,6 +98,7 @@ const nursingForm = reactive({
   itemId: '',
   itemName: '',
   itemCode: '',
+  remain: 0,
 })
 const searchForm = reactive({
   itemName: '',
@@ -146,9 +150,9 @@ const handleSearch = () => {
 
 const openNursingDialog = (item) => {
   const isExpired = new Date(item.expireDate) < new Date()
-  const isOwed = item.remain <= 0
-  if (isExpired || isOwed) {
-    ElMessage.error('该护理项目已到期或欠费，请联系管理员续费')
+  const isUsedUp = item.remain <= 0
+  if (isExpired || isUsedUp) {
+    ElMessage.error('该护理项目已到期或次数用尽，请联系管理员续费')
     return
   }
   nursingForm.nursingTime = new Date().toISOString().slice(0, 10)
@@ -156,12 +160,17 @@ const openNursingDialog = (item) => {
   nursingForm.itemId = item.id
   nursingForm.itemName = item.name
   nursingForm.itemCode = item.code
+  nursingForm.remain = item.remain
   nursingDialogVisible.value = true
 }
 
 const submitNursingRecord = async () => {
   if (!nursingForm.nursingTime || !nursingForm.times) {
     ElMessage.warning('请填写完整信息')
+    return
+  }
+  if (nursingForm.times > nursingForm.remain) {
+    ElMessage.warning('本次护理次数不能超过剩余次数')
     return
   }
   await addNursingRecord({
@@ -204,5 +213,9 @@ onMounted(fetchNursingItems)
   display: flex;
   gap: 8px;
   justify-content: flex-start;
+}
+
+:deep(.nursing-record-form .el-form-item__label) {
+  white-space: nowrap;
 }
 </style>

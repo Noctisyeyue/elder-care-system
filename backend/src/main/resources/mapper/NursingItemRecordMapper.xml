@@ -30,4 +30,11 @@
         and n.customer_id = #{customerId}
         and n.del_flag = '0'
     </update>
+    <update id="updateTimesByRecordId">
+        update nursing_item_record n
+        set n.executed_times = n.executed_times + #{times}
+        where n.nursing_item_record_id = #{id}
+        and n.executed_times + #{times} &lt;= n.execution_times * n.purchasing_times
+        and n.del_flag = '0'
+    </update>
 </mapper>
