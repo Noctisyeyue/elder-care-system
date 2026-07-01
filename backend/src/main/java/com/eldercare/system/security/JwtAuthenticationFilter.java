@@ -33,9 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /** 待审核账号（status=0）允许访问的接口白名单 */
     private static final Set<String> PENDING_REVIEW_WHITELIST = Set.of(
-            "/user/email/get",
-            "/user/avatar/get",
-            "/user/avatar/upload",
             "/user/status/get"
     );
 
