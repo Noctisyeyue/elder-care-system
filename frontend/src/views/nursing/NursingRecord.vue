@@ -177,9 +177,7 @@ const handleRemoveNursingRecord = (record) => {
   ElMessageBox.confirm('确定要移除该护理记录吗？', '警告', {
     type: 'warning',
   }).then(async () => {
-    await removeNursingRecord({
-      nursingRecordId: record.id,
-    })
+    await removeNursingRecord(record.id)
     ElMessage.success('移除成功')
     fetchNursingRecords()
   })

@@ -109,11 +109,11 @@ export function getNursingRecordList(params: Record<string, unknown>) {
 /**
  * 删除护理记录。
  *
- * @param id 护理记录ID
+ * @param nursingRecordId 护理记录ID
  * @returns 删除处理结果
  */
-export function removeNursingRecord(id: number) {
-  return post('/nursing/record/remove', { id })
+export function removeNursingRecord(nursingRecordId: number) {
+  return post('/nursing/record/remove', { nursingRecordId })
 }
 
 /**
