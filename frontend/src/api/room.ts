@@ -27,5 +27,5 @@ export function getRoomBeds(roomNumber: string, building: string) {
  * @param status 床位状态
  */
 export function updateBedStatus(building: string, roomNumber: string, bedNumber: string, status: string) {
-  return put(`/room/${roomNumber}/bed/${bedNumber}/status`, { building, status })
+  return put(`/room/${roomNumber}/bed/${bedNumber}/status`, { status }, { params: { building } })
 }
