@@ -34,6 +34,7 @@ export const userRoutes: AppRouteRecord = {
         icon: 'ri:user-3-line',
         isHide: true,
         isHideTab: false,
+        isFirstLevel: true,
         roles: ['super_admin', 'admin', 'caregiver'],
         keepAlive: true,
       },
@@ -41,7 +42,20 @@ export const userRoutes: AppRouteRecord = {
   ],
 }
 
-/** 系统管理侧边栏菜单（含个人中心入口） */
+/** 个人中心侧边栏菜单项（与首页同级） */
+export const userCenterMenu: AppRouteRecord = {
+  path: '/user/center',
+  name: 'UserCenterMenu',
+  meta: {
+    title: '个人中心',
+    icon: 'ri:user-3-line',
+    isFirstLevel: true,
+    roles: ['super_admin', 'admin', 'caregiver'],
+    keepAlive: true,
+  },
+}
+
+/** 系统管理侧边栏菜单（仅超管可见） */
 export const systemMenu: AppRouteRecord = {
   path: '/user',
   name: 'SystemMenu',
@@ -51,11 +65,6 @@ export const systemMenu: AppRouteRecord = {
       path: '/user/list',
       name: 'UserListMenu',
       meta: { title: '基础数据维护', icon: 'ri:database-2-line', roles: ['super_admin'] },
-    },
-    {
-      path: '/user/center',
-      name: 'UserCenterMenu',
-      meta: { title: '个人中心', icon: 'ri:user-3-line', roles: ['super_admin'] },
     },
   ],
 }
