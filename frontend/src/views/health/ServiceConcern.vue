@@ -63,51 +63,6 @@
         />
       <!-- </el-col>
     </el-row> -->
-
-    <!-- 续费对话框 -->
-    <el-dialog v-model="renewalDialogVisible" title="护理项目续费" width="50%">
-      <el-form :model="renewalForm" label-width="150px">
-        <el-form-item label="客户姓名">
-          <el-input v-model="renewalForm.customerName" disabled />
-        </el-form-item>
-        <el-form-item label="项目编号">
-          <el-input v-model="renewalForm.code" disabled />
-        </el-form-item>
-        <el-form-item label="项目名称">
-          <el-input v-model="renewalForm.name" disabled />
-        </el-form-item>
-        <el-form-item label="价格">
-          <el-input v-model="renewalForm.price" disabled />
-        </el-form-item>
-        <el-form-item label="原剩余执行次数">
-          <el-input v-model="renewalForm.originalQuantity" disabled />
-        </el-form-item>
-        <el-form-item label="购买份数">
-          <el-input-number
-            v-model="renewalForm.newQuantity"
-            :min="1"
-            @change="calculateTotalQuantity"
-          />
-        </el-form-item>
-        <el-form-item label="购买后剩余执行次数">
-          <el-input v-model="renewalForm.totalQuantity" disabled />
-        </el-form-item>
-        <el-form-item label="服务到期时间">
-          <el-date-picker
-            v-model="renewalForm.expireDate"
-            type="date"
-            placeholder="选择日期"
-            value-format="YYYY-MM-DD"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="renewalDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmRenewal">确定</el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 

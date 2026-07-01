@@ -2,24 +2,16 @@
   <div>
     <!-- 查询条件 -->
     <div style="margin-bottom: 10px">
-      <el-input
-        v-model="query.name"
-        placeholder="请输入护理项目名称"
-        clearable
-        @clear="fetchList"
-        style="width: 200px; margin-right: 10px"
-        ><template #prefix>
-          <el-icon><Search /></el-icon>
+      <el-input v-model="query.name" placeholder="请输入护理项目名称" clearable @clear="fetchList"
+        style="width: 200px; margin-right: 10px"><template #prefix>
+          <el-icon>
+            <Search />
+          </el-icon>
         </template>
       </el-input>
       <el-button type="primary" @click="fetchList">查询</el-button>
       <el-button type="success" @click="openEditDialog()">添加</el-button>
-      <el-button
-        type="danger"
-        :disabled="multipleSelection.length === 0"
-        @click="deleteSelectedItems"
-        >批量删除</el-button
-      >
+      <el-button type="danger" :disabled="multipleSelection.length === 0" @click="deleteSelectedItems">批量删除</el-button>
     </div>
     <el-divider style="margin-top: 0; margin-bottom: 10px" />
     <div style="margin-bottom: 20px">
@@ -37,7 +29,7 @@
       <el-table-column prop="name" label="名称" width="150" />
       <el-table-column prop="price" label="价格" width="90" />
       <el-table-column prop="frequency" label="执行周期" width="120" />
-      <el-table-column prop="count" label="执行次数" width="120" />
+      <el-table-column prop="count" label="总次数" width="120" />
       <el-table-column prop="desc" label="描述" />
       <el-table-column prop="status" label="状态" width="120" />
       <el-table-column label="操作" width="120">
@@ -50,15 +42,9 @@
 
     <!-- 分页 -->
     <div style="margin: 20px 0">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[5, 10, 20, 50]"
-        :total="total"
-        @current-change="fetchList"
-        @size-change="fetchList"
-        layout="total, sizes, prev, pager, next, jumper"
-      />
+      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[5, 10, 20, 50]"
+        :total="total" @current-change="fetchList" @size-change="fetchList"
+        layout="total, sizes, prev, pager, next, jumper" />
     </div>
 
     <!-- 添加/编辑弹窗 -->
@@ -76,7 +62,7 @@
         <el-form-item label="执行周期" prop="frequency">
           <el-input v-model="editDialog.form.frequency" />
         </el-form-item>
-        <el-form-item label="执行次数" prop="count">
+        <el-form-item label="总次数" prop="count">
           <el-input v-model="editDialog.form.count" type="number" />
         </el-form-item>
         <el-form-item label="描述" prop="desc">
@@ -136,7 +122,7 @@ const rules = {
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
   price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
   frequency: [{ required: true, message: '请输入执行周期', trigger: 'blur' }],
-  count: [{ required: true, message: '请输入执行次数', trigger: 'blur' }],
+  count: [{ required: true, message: '请输入可行次数', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 }
 
@@ -277,7 +263,7 @@ const deleteSelectedItems = () => {
     })
     .catch(() => {
       ElMessage.info('已取消删除')
-  })
+    })
 }
 
 /**
@@ -296,7 +282,7 @@ onMounted(() => {
   justify-content: flex-end;
 }
 
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
+:deep(.el-table__body-wrapper .el-scrollbar__wrap) {
   overflow-y: auto;
   max-height: calc(100vh - 340px);
 }

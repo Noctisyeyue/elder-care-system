@@ -3,15 +3,12 @@
     <!-- 查询栏 -->
     <el-form :inline="true" class="search-form">
       <el-form-item>
-        <el-input
-          v-model="queryName"
-          placeholder="请输入客户姓名"
-          clearable
-          @clear="fetchCustomerList"
-          style="width: 200px; margin-right: 10px"
-        >
+        <el-input v-model="queryName" placeholder="请输入客户姓名" clearable @clear="fetchCustomerList"
+          style="width: 200px; margin-right: 10px">
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
           </template>
         </el-input>
       </el-form-item>
@@ -35,24 +32,15 @@
       <el-table-column prop="nursingLevel" label="护理级别" min-width="100" />
       <el-table-column label="操作" width="120">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="viewNursingRecords(scope.row)"
-            >查看护理记录</el-button
-          >
+          <el-button type="primary" size="small" @click="viewNursingRecords(scope.row)">查看护理记录</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 分页 -->
-    <el-pagination
-      class="pagination-right"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      :page-size="pageSize"
-      :current-page="page"
-      :page-sizes="[5, 10, 20, 50]"
-      @size-change="(size) => { pageSize = size; page = 1; fetchCustomerList(); }"
-      @current-change="handlePageChange"
-    />
+    <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
+      :page-size="pageSize" :current-page="page" :page-sizes="[5, 10, 20, 50]"
+      @size-change="(size) => { pageSize = size; page = 1; fetchCustomerList(); }" @current-change="handlePageChange" />
 
     <!-- 护理记录弹窗 -->
     <el-dialog v-model="nursingRecordDialogVisible" title="护理记录" width="1000px">
@@ -77,29 +65,22 @@
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="护理项目编号" min-width="120" />
           <el-table-column prop="name" label="护理项目名称" min-width="150" />
-          <el-table-column prop="times" label="护理数量" min-width="100" />
+          <el-table-column prop="times" label="已护理次数" min-width="100" />
           <el-table-column prop="nursingStaff" label="护理人员" min-width="100" />
           <el-table-column prop="staffPhone" label="护理人员手机" min-width="140" />
           <el-table-column prop="nursingTime" label="护理时间" min-width="180" />
           <el-table-column label="操作" min-width="100">
             <template #default="scope">
-              <el-button type="danger" size="small" @click="handleRemoveNursingRecord(scope.row)"
-                >移除</el-button
-              >
+              <el-button type="danger" size="small" @click="handleRemoveNursingRecord(scope.row)">移除</el-button>
             </template>
           </el-table-column>
         </el-table>
         <!-- 新增护理记录分页 -->
-        <el-pagination
-          class="pagination-right"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="nursingRecordTotal"
-          :page-size="nursingRecordPageSize"
-          :current-page="nursingRecordPage"
+        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper"
+          :total="nursingRecordTotal" :page-size="nursingRecordPageSize" :current-page="nursingRecordPage"
           :page-sizes="[5, 10, 20, 50]"
           @size-change="(size) => { nursingRecordPageSize = size; nursingRecordPage = 1; fetchNursingRecords(); }"
-          @current-change="handleNursingRecordPageChange"
-        />
+          @current-change="handleNursingRecordPageChange" />
       </div>
     </el-dialog>
   </div>
@@ -214,18 +195,20 @@ onMounted(() => {
   margin-bottom: 10px;
   margin-right: 20px;
 }
+
 .operation-buttons {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
 }
+
 .pagination-right {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
 
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
+:deep(.el-table__body-wrapper .el-scrollbar__wrap) {
   overflow-y: auto;
   max-height: calc(100vh - 286px);
 }

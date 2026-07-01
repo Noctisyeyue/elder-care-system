@@ -13,7 +13,7 @@
       <el-table-column prop="price" label="价格">
         <template #default="{ row }"> {{ row.price }} 元/次 </template>
       </el-table-column>
-      <el-table-column prop="remain" label="剩余执行次数">
+      <el-table-column prop="remain" label="剩余次数">
         <template #default="{ row }"> {{ row.remain }} 次 </template>
       </el-table-column>
       <el-table-column prop="expireDate" label="服务到期时间">
@@ -24,12 +24,13 @@
       <el-table-column prop="status" label="状态" width="150">
         <template #default="{ row }">
           <div class="status-tags">
-            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small" class="status-tag">
-              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }}
+            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small"
+              class="status-tag">
+              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }} 
             </el-tag>
-            <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small" class="status-tag">
-              {{ row.remain <= 0 ? '欠费' : '数量正常' }}
-            </el-tag>
+                <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small" class="status-tag">
+                  {{ row.remain <= 0 ? '欠费' : '数量正常' }} 
+                </el-tag>
           </div>
         </template>
       </el-table-column>
@@ -40,16 +41,11 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      class="pagination-right"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="itemPagination.total"
-      :page-size="itemPagination.pageSize"
-      :current-page="itemPagination.currentPage"
+    <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper"
+      :total="itemPagination.total" :page-size="itemPagination.pageSize" :current-page="itemPagination.currentPage"
       :page-sizes="[5, 10, 20, 50]"
       @size-change="(size) => { itemPagination.pageSize = size; itemPagination.currentPage = 1; searchPurchasedNursingItems(); }"
-      @current-change="handleItemCurrentChange"
-    />
+      @current-change="handleItemCurrentChange" />
     <!-- 续费对话框复用原有逻辑 -->
     <el-dialog v-model="renewalDialogVisible" title="护理项目续费" width="50%">
       <el-form :model="renewalForm" label-width="150px">
@@ -65,13 +61,13 @@
         <el-form-item label="价格">
           <el-input v-model="renewalForm.price" disabled />
         </el-form-item>
-        <el-form-item label="原剩余执行次数">
+        <el-form-item label="剩余次数">
           <el-input v-model="renewalForm.originalQuantity" disabled />
         </el-form-item>
         <el-form-item label="购买份数">
           <el-input-number v-model="renewalForm.newQuantity" :min="1" @change="calculateTotalQuantity" />
         </el-form-item>
-        <el-form-item label="购买后剩余执行次数">
+        <el-form-item label="购买后剩余次数">
           <el-input v-model="renewalForm.totalQuantity" disabled />
         </el-form-item>
         <el-form-item label="服务到期时间">
@@ -222,8 +218,8 @@ const goToBuyNursingItem = () => {
 
 const goBack = () => {
   router.push({
-      path: '/service/concern'
-    })
+    path: '/service/concern'
+  })
 }
 
 onMounted(() => {
@@ -238,17 +234,19 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
 }
+
 .status-tags {
   display: flex;
   gap: 8px;
   justify-content: flex-start;
 }
+
 .status-tag {
   min-width: 60px;
   text-align: center;
 }
 
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
+:deep(.el-table__body-wrapper .el-scrollbar__wrap) {
   overflow-y: auto;
   max-height: calc(100vh - 255px);
 }

@@ -3,15 +3,12 @@
     <!-- 查询栏 -->
     <el-form :inline="true" class="search-form">
       <el-form-item>
-        <el-input
-          v-model="queryName"
-          placeholder="请输入客户姓名"
-          clearable
-          @clear="fetchCustomerList"
-          style="width: 200px; margin-right: 10px"
-        >
+        <el-input v-model="queryName" placeholder="请输入客户姓名" clearable @clear="fetchCustomerList"
+          style="width: 200px; margin-right: 10px">
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
           </template>
         </el-input>
       </el-form-item>
@@ -30,37 +27,23 @@
       <el-table-column prop="buildingNumber" label="楼号" width="90" />
       <el-table-column prop="roomNumber" label="房间号" width="100" />
       <el-table-column prop="bedNumber" label="床号" width="80" />
-      <el-table-column prop="tel" label="联系电话"/>
+      <el-table-column prop="tel" label="联系电话" />
       <el-table-column prop="nursingLevel" label="护理级别" width="120" />
       <el-table-column label="操作" width="240">
         <template #default="scope">
           <div class="operation-buttons">
-            <el-button type="primary" size="small" @click="openSetNursingDialog(scope.row)"
-              >设置护理级别</el-button
-            >
-            <el-button
-              v-if="scope.row.levelId"
-              type="danger"
-              size="small"
-              @click="removeNursingLevel(scope.row)"
-              >移除护理级别</el-button
-            >
+            <el-button type="primary" size="small" @click="openSetNursingDialog(scope.row)">设置护理级别</el-button>
+            <el-button v-if="scope.row.levelId" type="danger" size="small"
+              @click="removeNursingLevel(scope.row)">移除护理级别</el-button>
           </div>
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 分页 -->
-    <el-pagination
-      class="pagination-right"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      :page-size="pageSize.value"
-      :current-page="page"
-      :page-sizes="[5, 10, 20, 50]"
-      @size-change="handleSizeChange"
-      @current-change="handlePageChange"
-    />
+    <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
+      :page-size="pageSize.value" :current-page="page" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
+      @current-change="handlePageChange" />
 
     <!-- 设置护理级别弹窗 -->
     <el-dialog v-model="setNursingDialogVisible" title="客户护理设置" width="1200px">
@@ -69,17 +52,8 @@
           <el-tag type="success">{{ currentCustomer.nursingLevel }}</el-tag>
         </el-form-item>
         <el-form-item label="修改护理级别">
-          <el-select
-            v-model="nursingForm.levelId"
-            placeholder="请选择护理级别"
-            @change="fetchNursingItems"
-          >
-            <el-option
-              v-for="item in nursingLevelList"
-              :key="item.id"
-              :label="item.level"
-              :value="item.id"
-            />
+          <el-select v-model="nursingForm.levelId" placeholder="请选择护理级别" @change="fetchNursingItems">
+            <el-option v-for="item in nursingLevelList" :key="item.id" :label="item.level" :value="item.id" />
           </el-select>
 
         </el-form-item>
@@ -94,15 +68,15 @@
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="price" label="价格" />
           <el-table-column prop="frequency" label="执行周次" />
-          <el-table-column prop="count" label="执行次数" />
+          <el-table-column prop="count" label="已用次数" />
+          <el-table-column prop="totalCount" label="总次数" />
           <el-table-column prop="buyDate" label="购买日期" />
           <el-table-column prop="buyCount" label="购买数量" />
           <el-table-column prop="expireDate" label="到期日期" />
           <el-table-column prop="status" label="状态">
             <template #default="scope">
               <el-tag :type="scope.row.expireDate < getToday() ? 'danger' : 'success'">
-                {{ scope.row.expireDate < getToday() ? '已过期' : '使用中' }}
-              </el-tag>
+                {{ scope.row.expireDate < getToday() ? '已过期' : '使用中' }} </el-tag>
             </template>
           </el-table-column>
         </el-table>
@@ -115,15 +89,10 @@
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="price" label="价格" />
         <el-table-column prop="frequency" label="执行周次" />
-        <el-table-column prop="count" label="执行次数" />
+        <el-table-column prop="count" label="总次数" />
         <el-table-column prop="buyDate" label="服务购买日期" width="150">
           <template #default="scope">
-            <el-date-picker
-              v-model="scope.row.buyDate"
-              type="date"
-              placeholder="选择日期"
-              style="width: 130px"
-            />
+            <el-date-picker v-model="scope.row.buyDate" type="date" placeholder="选择日期" style="width: 130px" />
           </template>
         </el-table-column>
         <el-table-column prop="buyCount" label="购买数量" width="120">
@@ -133,27 +102,14 @@
         </el-table-column>
         <el-table-column prop="expireDate" label="服务到期日期" width="150">
           <template #default="scope">
-            <el-date-picker
-              v-model="scope.row.expireDate"
-              type="date"
-              placeholder="选择日期"
-              style="width: 130px"
-            />
+            <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" style="width: 130px" />
           </template>
         </el-table-column>
       </el-table>
       <!-- 新增护理项目分页组件 -->
-      <el-pagination
-          class="pagination-right"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="itemTotal"
-          :page-size="itemPageSize"
-          :current-page="itemPage"
-          :page-sizes="[5, 10, 20, 50]"
-          @size-change="handleItemSizeChange"
-          @current-change="handleItemPageChange"
-          style="margin-top: 10px"
-       />
+      <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="itemTotal"
+        :page-size="itemPageSize" :current-page="itemPage" :page-sizes="[5, 10, 20, 50]"
+        @size-change="handleItemSizeChange" @current-change="handleItemPageChange" style="margin-top: 10px" />
       <template #footer>
         <el-button @click="setNursingDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handlePreSubmitNursingSetting">确定</el-button>
@@ -360,20 +316,21 @@ onMounted(() => {
   margin-bottom: 10px;
   margin-right: 20px;
 }
+
 .operation-buttons {
   display: flex;
   justify-content: flex-start;
   gap: 10px;
 }
+
 .pagination-right {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
 
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
+:deep(.el-table__body-wrapper .el-scrollbar__wrap) {
   overflow-y: auto;
   max-height: calc(100vh - 286px);
 }
 </style>
-
