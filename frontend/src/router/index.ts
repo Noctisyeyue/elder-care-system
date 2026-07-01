@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/Login.vue'
 import RegisterView from '@/views/Register.vue'
+import FindPasswordView from '@/views/FindPassword.vue'
 import PendingReviewView from '@/views/PendingReview.vue'
 import MainView from '@/views/Main.vue'
 import BedManageView from '@/views/bed/BedManage.vue'
@@ -56,6 +57,11 @@ const router = createRouter({
       path: '/register',
       name: 'RegisterView',
       component: RegisterView,
+    },
+    {
+      path: '/find-password',
+      name: 'FindPasswordView',
+      component: FindPasswordView,
     },
     {
       path: '/pending',
@@ -163,7 +169,7 @@ const router = createRouter({
 })
 
 /** 不需要登录即可访问的白名单路径 */
-const WHITELIST = ['/login', '/register']
+const WHITELIST = ['/login', '/register', '/find-password']
 
 /**
  * 全局路由守卫：统一处理登录态、待审核跳转、重复登录拦截。

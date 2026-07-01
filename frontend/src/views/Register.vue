@@ -1,69 +1,137 @@
 <template>
-  <div class="register-container">
-    <el-card class="register-card" shadow="hover">
-      <h2>护工注册</h2>
-      <el-form
-        :model="form"
-        :rules="rules"
-        ref="formRef"
-        label-position="top"
-        @submit.prevent="handleSubmit"
-      >
-        <el-form-item label="用户名" prop="userName">
-          <el-input v-model="form.userName" placeholder="4-20 位字母、数字或下划线" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入邮箱" />
-        </el-form-item>
-        <el-form-item label="验证码" prop="code">
-          <el-row :gutter="10">
-            <el-col :span="15">
-              <el-input v-model="form.code" placeholder="请输入 6 位验证码" />
-            </el-col>
-            <el-col :span="9">
-              <el-button
-                style="width: 100%"
-                :disabled="codeButtonDisabled"
-                @click="handleSendCode"
+  <div class="auth-page">
+    <LoginLeftView />
+    <div class="auth-right">
+      <div class="auth-right-wrap">
+        <div class="form">
+          <h3 class="title">护工注册</h3>
+          <p class="sub-title">请填写以下信息完成注册</p>
+          <el-form
+            ref="formRef"
+            :model="form"
+            :rules="rules"
+            label-width="80px"
+            style="margin-top: 25px"
+            @keyup.enter="handleSubmit"
+          >
+            <el-form-item label="用户名" prop="userName">
+              <el-input
+                v-model="form.userName"
+                size="large"
+                placeholder="4-20 位字母、数字或下划线"
+                class="custom-height"
               >
-                {{ codeButtonText }}
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input
+                v-model="form.email"
+                size="large"
+                placeholder="请输入邮箱"
+                class="custom-height"
+              >
+                <template #prefix>
+                  <el-icon><Message /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="验证码" prop="code">
+              <el-row :gutter="10">
+                <el-col :span="15">
+                  <el-input
+                    v-model="form.code"
+                    size="large"
+                    placeholder="6 位数字验证码"
+                    class="custom-height"
+                  >
+                    <template #prefix>
+                      <el-icon><Key /></el-icon>
+                    </template>
+                  </el-input>
+                </el-col>
+                <el-col :span="9">
+                  <el-button
+                    style="width: 100%; height: 40px"
+                    :disabled="codeButtonDisabled"
+                    @click="handleSendCode"
+                  >
+                    {{ codeButtonText }}
+                  </el-button>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+              <el-input
+                v-model="form.password"
+                type="password"
+                size="large"
+                placeholder="6-18 位密码"
+                class="custom-height"
+                show-password
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="真实姓名" prop="realName">
+              <el-input
+                v-model="form.realName"
+                size="large"
+                placeholder="请输入真实姓名"
+                class="custom-height"
+              >
+                <template #prefix>
+                  <el-icon><Postcard /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="phone">
+              <el-input
+                v-model="form.phone"
+                size="large"
+                placeholder="请输入手机号"
+                class="custom-height"
+              >
+                <template #prefix>
+                  <el-icon><Iphone /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="性别" prop="gender">
+              <el-select
+                v-model="form.gender"
+                placeholder="请选择性别"
+                size="large"
+                style="width: 100%"
+              >
+                <el-option label="男" value="男" />
+                <el-option label="女" value="女" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                type="primary"
+                size="large"
+                class="custom-height"
+                style="width: 100%"
+                :loading="loading"
+                @click="handleSubmit"
+              >
+                注 册
               </el-button>
-            </el-col>
-          </el-row>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="请输入 6-18 位密码"
-            show-password
-          />
-        </el-form-item>
-        <el-form-item label="真实姓名" prop="realName">
-          <el-input v-model="form.realName" placeholder="请输入真实姓名" />
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="form.gender" placeholder="请选择性别" style="width: 100%">
-            <el-option label="男" value="男" />
-            <el-option label="女" value="女" />
-          </el-select>
-        </el-form-item>
-        <el-button
-          type="primary"
-          native-type="submit"
-          style="width: 100%"
-          :loading="loading"
-        >
-          注册
-        </el-button>
-        <div class="footer-link">
-          已有账号？<span @click="goLogin">返回登录</span>
+            </el-form-item>
+          </el-form>
+          <div class="auth-footer-link">
+            已有账号？
+            <router-link to="/login" class="text-theme">返回登录</router-link>
+          </div>
         </div>
-      </el-form>
-    </el-card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,6 +141,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { register, sendRegisterCode } from '@/api/user'
+import { User, Message, Key, Lock, Postcard, Iphone } from '@element-plus/icons-vue'
+import LoginLeftView from '@/components/auth/LoginLeftView.vue'
 
 const router = useRouter()
 const formRef = ref<FormInstance>()
@@ -117,7 +187,7 @@ const rules: FormRules = {
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
 }
 
-// 验证码按钮倒计时
+// 验证码倒计时
 const codeButtonDisabled = ref(false)
 const codeButtonText = ref('获取验证码')
 let countdown = 60
@@ -149,7 +219,6 @@ const clearTimer = () => {
 onUnmounted(clearTimer)
 
 const handleSendCode = async () => {
-  // 先单独校验邮箱字段
   try {
     await formRef.value?.validateField('email')
   } catch {
@@ -160,7 +229,7 @@ const handleSendCode = async () => {
     ElMessage.success('验证码已发送，5 分钟内有效')
     startCountdown()
   } catch {
-    // 拦截器已弹出错误消息，这里无需重复提示
+    // 拦截器已弹出错误消息
   }
 }
 
@@ -182,45 +251,11 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
-
-const goLogin = () => {
-  router.push('/login')
-}
 </script>
 
 <style scoped>
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #f5f7fa;
-}
-
-.register-card {
-  width: 420px;
-  border-radius: 10px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
-  padding: 12px 24px 24px 24px;
-}
-
-.register-card h2 {
-  text-align: center;
-  margin-bottom: 24px;
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: #222;
-}
-
-.footer-link {
-  text-align: center;
-  margin-top: 12px;
-  font-size: 13px;
-  color: #666;
-}
-
-.footer-link span {
-  color: #409eff;
-  cursor: pointer;
+/* 收紧表单项间距，7 个字段在 650px 内不溢出 */
+:deep(.el-form-item) {
+  margin-bottom: 12px;
 }
 </style>
