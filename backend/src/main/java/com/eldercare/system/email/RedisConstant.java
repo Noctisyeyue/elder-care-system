@@ -7,6 +7,8 @@ public interface RedisConstant {
     String EMAIL_REQUEST_VERIFY = "EMAIL_REQUEST_VERIFY_"; // 邮箱请求的权限码
     String REGISTER_CODE = "REGISTER:CODE:"; // 注册验证码前缀
     String REGISTER_CODE_LIMIT = "REGISTER:CODE:LIMIT:"; // 注册验证码发送间隔防刷前缀
+    String EMAIL_CHANGE_CODE = "USER:EMAIL_CHANGE:CODE:"; // 邮箱修改验证码前缀
+    String EMAIL_CHANGE_LIMIT = "USER:EMAIL_CHANGE:LIMIT:"; // 邮箱修改验证码发送频率限制（按用户，60 秒）
 
     // 缓存时间
     int EXPIRE_TEN_SECOND = 10; // 10s

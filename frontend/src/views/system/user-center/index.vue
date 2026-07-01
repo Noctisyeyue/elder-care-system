@@ -1,6 +1,7 @@
 <template>
   <div class="user-center">
     <el-row :gutter="20">
+      <!-- 左侧资料卡 -->
       <el-col :xs="24" :md="8">
         <el-card class="profile-card">
           <div class="profile-bg" :style="{ backgroundImage: `url(${profileBg})` }"></div>
@@ -25,11 +26,14 @@
           </div>
         </el-card>
       </el-col>
+
+      <!-- 右侧设置区 -->
       <el-col :xs="24" :md="16">
+        <!-- 基本信息（可直接保存） -->
         <el-card>
           <template #header>
             <div class="card-header">
-              <span>基本设置</span>
+              <span>基本信息</span>
               <el-button v-if="!editing" type="primary" link @click="editing = true">编辑</el-button>
             </div>
           </template>
@@ -52,9 +56,6 @@
             <el-form-item label="手机" prop="phone">
               <el-input v-model="form.phone" />
             </el-form-item>
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" />
-            </el-form-item>
             <el-form-item v-if="editing">
               <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
               <el-button @click="cancelEdit">取消</el-button>
@@ -62,14 +63,39 @@
           </el-form>
         </el-card>
 
-        <el-card class="password-card">
+        <!-- 账号安全（邮箱只读，修改需验证码） -->
+        <el-card class="section-card">
+          <template #header>
+            <span>账号安全</span>
+          </template>
+          <p class="card-desc">邮箱用于登录、找回密码和接收验证码。修改邮箱需要验证新邮箱，修改成功后需要重新登录。</p>
+          <div class="security-items">
+            <div class="security-item">
+              <span class="security-label">用户名</span>
+              <span class="security-value">{{ profile.userName }}</span>
+              <span class="security-extra"></span>
+            </div>
+            <div class="security-item">
+              <span class="security-label">角色</span>
+              <span class="security-value">{{ profile.roleName || userStore.roleName }}</span>
+              <span class="security-extra"></span>
+            </div>
+            <div class="security-item">
+              <span class="security-label">当前邮箱</span>
+              <span class="security-value">{{ profile.email || '未绑定' }}</span>
+              <el-button type="primary" link @click="openEmailDialog">修改邮箱</el-button>
+            </div>
+          </div>
+        </el-card>
+
+        <!-- 密码安全 -->
+        <el-card class="section-card">
           <template #header>
             <div class="password-card-header">
               <h4>更改密码</h4>
               <p>为了账号安全，建议定期更换密码。修改成功后会自动退出登录。</p>
             </div>
           </template>
-
           <el-row :gutter="24">
             <el-col :xs="24" :lg="14">
               <el-form
@@ -110,7 +136,6 @@
                 </el-row>
               </el-form>
             </el-col>
-
             <el-col :xs="24" :lg="10">
               <div class="security-tips">
                 <h5>安全建议</h5>
@@ -122,7 +147,6 @@
               </div>
             </el-col>
           </el-row>
-
           <div class="password-actions">
             <el-button type="primary" :loading="changingPwd" @click="handleChangePassword">
               更新密码
@@ -131,11 +155,54 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 修改邮箱弹窗 -->
+    <el-dialog
+      v-model="emailDialogVisible"
+      title="修改邮箱"
+      width="480px"
+      :close-on-click-modal="false"
+      @closed="resetEmailForm"
+    >
+      <p class="email-dialog-tip">当前邮箱：{{ profile.email || '未绑定' }}</p>
+      <el-form
+        ref="emailFormRef"
+        :model="emailForm"
+        :rules="emailRules"
+        label-width="80px"
+      >
+        <el-form-item label="新邮箱" prop="newEmail">
+          <el-input v-model="emailForm.newEmail" placeholder="请输入新邮箱" />
+        </el-form-item>
+        <el-form-item label="验证码" prop="code">
+          <el-row :gutter="10" style="width: 100%">
+            <el-col :span="15">
+              <el-input v-model="emailForm.code" placeholder="6 位数字验证码" />
+            </el-col>
+            <el-col :span="9">
+              <el-button
+                style="width: 100%"
+                :disabled="emailCodeBtnDisabled"
+                @click="handleSendEmailCode"
+              >
+                {{ emailCodeBtnText }}
+              </el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="emailDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="changingEmail" @click="handleChangeEmail">
+          确认修改
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -145,6 +212,8 @@ import {
   getUserAvatar,
   uploadAvatar,
   changePassword,
+  sendEmailChangeCode,
+  changeEmail,
   type UserProfile,
   type ProfileUpdateForm,
   type PasswordUpdateForm,
@@ -168,14 +237,12 @@ const profile = ref<Partial<UserProfile>>({})
 const form = reactive<ProfileUpdateForm>({
   realName: '',
   phone: '',
-  email: '',
   gender: '',
 })
 
 const rules: FormRules = {
   realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
-  email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
 }
 
 const pwdForm = reactive<PasswordUpdateForm>({
@@ -205,6 +272,102 @@ const pwdRules: FormRules = {
   ],
 }
 
+// ====== 邮箱修改 ======
+const emailDialogVisible = ref(false)
+const emailFormRef = ref<FormInstance>()
+const changingEmail = ref(false)
+const emailForm = reactive({
+  newEmail: '',
+  code: '',
+})
+const emailRules: FormRules = {
+  newEmail: [
+    { required: true, message: '请输入新邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: ['blur', 'change'] },
+  ],
+  code: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { pattern: /^\d{6}$/, message: '验证码为 6 位数字', trigger: 'blur' },
+  ],
+}
+
+const emailCodeBtnDisabled = ref(false)
+const emailCodeBtnText = ref('获取验证码')
+let emailCountdown = 60
+let emailTimer: number | null = null
+
+const clearEmailTimer = () => {
+  if (emailTimer) {
+    clearInterval(emailTimer)
+    emailTimer = null
+  }
+}
+onUnmounted(clearEmailTimer)
+
+function openEmailDialog() {
+  emailDialogVisible.value = true
+}
+
+function resetEmailForm() {
+  emailForm.newEmail = ''
+  emailForm.code = ''
+  emailCodeBtnDisabled.value = false
+  emailCodeBtnText.value = '获取验证码'
+  clearEmailTimer()
+  emailFormRef.value?.clearValidate()
+}
+
+async function handleSendEmailCode() {
+  try {
+    await emailFormRef.value?.validateField('newEmail')
+  } catch {
+    return
+  }
+  // 前端校验：新邮箱不能等于当前邮箱
+  if (emailForm.newEmail === profile.value.email) {
+    ElMessage.warning('新邮箱不能与当前邮箱相同')
+    return
+  }
+  try {
+    await sendEmailChangeCode({ newEmail: emailForm.newEmail })
+    ElMessage.success('验证码已发送，5 分钟内有效')
+    emailCodeBtnDisabled.value = true
+    emailCountdown = 60
+    emailCodeBtnText.value = `${emailCountdown}s 后重获`
+    emailTimer = window.setInterval(() => {
+      emailCountdown--
+      if (emailCountdown <= 0) {
+        clearEmailTimer()
+        emailCodeBtnText.value = '获取验证码'
+        emailCodeBtnDisabled.value = false
+      } else {
+        emailCodeBtnText.value = `${emailCountdown}s 后重获`
+      }
+    }, 1000)
+  } catch {
+    // 拦截器已弹出错误
+  }
+}
+
+async function handleChangeEmail() {
+  if (!emailFormRef.value) return
+  try {
+    await emailFormRef.value.validate()
+  } catch {
+    return
+  }
+  changingEmail.value = true
+  try {
+    await changeEmail({ newEmail: emailForm.newEmail, code: emailForm.code })
+    ElMessage.success('邮箱修改成功，请重新登录')
+    userStore.logout()
+    router.replace('/login')
+  } finally {
+    changingEmail.value = false
+  }
+}
+
+// ====== 资料加载 ======
 async function loadProfile() {
   const [profileData, avatar] = await Promise.all([
     getProfile(),
@@ -215,7 +378,6 @@ async function loadProfile() {
   Object.assign(form, {
     realName: profileData.realName || '',
     phone: profileData.phone || '',
-    email: profileData.email || '',
     gender: profileData.gender || '',
   })
 }
@@ -225,7 +387,6 @@ function cancelEdit() {
   Object.assign(form, {
     realName: profile.value.realName || '',
     phone: profile.value.phone || '',
-    email: profile.value.email || '',
     gender: profile.value.gender || '',
   })
 }
@@ -353,10 +514,43 @@ onMounted(() => {
   align-items: center;
 }
 
-.password-card {
+/* 账号安全 & 密码卡片间距 */
+.section-card {
   margin-top: 20px;
 }
 
+.card-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ui-gray-500);
+  line-height: 1.6;
+}
+
+/* 账号安全列表项 */
+.security-items {
+  border-top: 1px solid var(--default-border);
+}
+
+.security-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--default-border);
+  font-size: 14px;
+}
+
+.security-label {
+  width: 80px;
+  flex-shrink: 0;
+  color: var(--ui-gray-500);
+}
+
+.security-value {
+  flex: 1;
+  color: var(--ui-gray-800);
+}
+
+/* 密码卡片 */
 .password-card-header h4 {
   margin: 0 0 6px;
   font-size: 16px;
@@ -408,6 +602,13 @@ onMounted(() => {
   margin-top: 8px;
   padding-top: 16px;
   border-top: 1px solid var(--default-border);
+}
+
+/* 邮箱弹窗 */
+.email-dialog-tip {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ui-gray-500);
 }
 
 @media (max-width: 992px) {

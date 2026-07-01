@@ -16,10 +16,13 @@ import com.eldercare.system.util.JWTUtil;
 import com.eldercare.system.util.PasswordUtil;
 import com.eldercare.system.util.ImgUploadUtil;
 import com.eldercare.system.dto.user.*;
+import com.eldercare.system.email.EmailTemplate;
 import com.eldercare.system.email.RedisConstant;
+import com.eldercare.system.service.ThreadService;
 import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
 
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -77,6 +80,10 @@ public class UserServiceImpl implements UserService{
     /** Redis 字符串模板，用于读取注册验证码 */
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    /** 异步邮件发送服务 */
+    @Autowired
+    private ThreadService threadService;
 
     /**
      * 获取 JWT 过期时间（毫秒），用于 Redis token 同步过期
@@ -672,11 +679,11 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public boolean getUserByEmail(String email) {
-        //如果在用户表中查到了邮箱，则返回true
+        // 检查邮箱是否已被使用（用 count 而非 selectOne，避免多行异常）
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("email", email);
         queryWrapper.eq("del_flag", "0");
-        return userMapper.selectOne(queryWrapper) != null;
+        return userMapper.selectCount(queryWrapper) > 0;
     }
 
     /** 本地上传目录 */
@@ -844,9 +851,7 @@ public class UserServiceImpl implements UserService{
             if (request.getPhone() != null) {
                 user.setPhone(request.getPhone());
             }
-            if (request.getEmail() != null) {
-                user.setEmail(request.getEmail());
-            }
+            // 邮箱不在此处更新，需走单独验证流程 POST /user/email/change
             if (request.getGender() != null) {
                 user.setGender(request.getGender());
             }
@@ -929,6 +934,153 @@ public class UserServiceImpl implements UserService{
             result.setCode(500);
             result.setMessage("密码修改失败");
         }
+        return result;
+    }
+
+    /**
+     * 发送邮箱修改验证码到新邮箱（校验邮箱格式、唯一性、60 秒防刷后异步发送）
+     *
+     * @param request 新邮箱参数
+     * @return 操作结果
+     */
+    @Override
+    public ApiResult sendEmailChangeCode(EmailChangeCodeRequest request) {
+        ApiResult result = new ApiResult<>();
+        LoginUser loginUser = getCurrentLoginUser();
+
+        // 1. 校验 newEmail 非空
+        if (request.getNewEmail() == null || request.getNewEmail().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请输入新邮箱");
+            return result;
+        }
+        // 2. 校验邮箱格式
+        if (!request.getNewEmail().matches("^[\\w.-]+@[\\w.-]+\\.\\w{2,}$")) {
+            result.setCode(500);
+            result.setMessage("邮箱格式不正确");
+            return result;
+        }
+        // 3. 查询当前用户
+        User user = userMapper.selectById(loginUser.getUserId());
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("用户不存在");
+            return result;
+        }
+        // 4. 新邮箱不能等于当前邮箱
+        if (request.getNewEmail().equals(user.getEmail())) {
+            result.setCode(500);
+            result.setMessage("新邮箱不能与当前邮箱相同");
+            return result;
+        }
+        // 5. 新邮箱未被其他用户使用
+        if (getUserByEmail(request.getNewEmail())) {
+            result.setCode(500);
+            result.setMessage("该邮箱已被使用");
+            return result;
+        }
+        // 6. 60 秒防刷
+        String limitKey = RedisConstant.EMAIL_CHANGE_LIMIT + loginUser.getUserId();
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(limitKey))) {
+            result.setCode(500);
+            result.setMessage("验证码发送过于频繁，请稍后再试");
+            return result;
+        }
+        // 7. 生成 6 位验证码
+        String code = String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
+        // 8. 异步发送邮件
+        threadService.sendHtmlMail(request.getNewEmail(), "东软颐养中心 - 邮箱修改验证",
+                EmailTemplate.buildVerifyCodeHtml("邮箱修改", code));
+        // 9. 写入 Redis（验证码 5 分钟，防刷 60 秒）
+        String codeKey = RedisConstant.EMAIL_CHANGE_CODE + loginUser.getUserId() + ":" + request.getNewEmail();
+        stringRedisTemplate.opsForValue().set(codeKey, code,
+                RedisConstant.EXPIRE_FIVE_MINUTE, java.util.concurrent.TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(limitKey, "1",
+                RedisConstant.EXPIRE_ONE_MINUTE, java.util.concurrent.TimeUnit.SECONDS);
+        result.setCode(200);
+        result.setMessage("验证码已发送");
+        return result;
+    }
+
+    /**
+     * 校验验证码并修改邮箱（验证码校验、邮箱唯一性二次确认后更新数据库并清除 Redis token）
+     *
+     * @param request 新邮箱 + 验证码
+     * @return 操作结果
+     */
+    @Override
+    public ApiResult changeEmail(EmailChangeRequest request) {
+        ApiResult result = new ApiResult<>();
+        LoginUser loginUser = getCurrentLoginUser();
+
+        // 1. 校验 newEmail 非空
+        if (request.getNewEmail() == null || request.getNewEmail().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请输入新邮箱");
+            return result;
+        }
+        // 2. 校验 code 非空
+        if (request.getCode() == null || request.getCode().isBlank()) {
+            result.setCode(500);
+            result.setMessage("请输入验证码");
+            return result;
+        }
+        // 3. 校验邮箱格式
+        if (!request.getNewEmail().matches("^[\\w.-]+@[\\w.-]+\\.\\w{2,}$")) {
+            result.setCode(500);
+            result.setMessage("邮箱格式不正确");
+            return result;
+        }
+        // 4. 校验验证码为 6 位数字
+        if (!request.getCode().matches("^\\d{6}$")) {
+            result.setCode(500);
+            result.setMessage("验证码格式不正确");
+            return result;
+        }
+        // 5. 查询当前用户
+        User user = userMapper.selectById(loginUser.getUserId());
+        if (user == null || "1".equals(user.getDelFlag())) {
+            result.setCode(500);
+            result.setMessage("用户不存在");
+            return result;
+        }
+        // 6. 新邮箱不能等于当前邮箱
+        if (request.getNewEmail().equals(user.getEmail())) {
+            result.setCode(500);
+            result.setMessage("新邮箱不能与当前邮箱相同");
+            return result;
+        }
+        // 7. 再次校验新邮箱未被其他用户使用
+        if (getUserByEmail(request.getNewEmail())) {
+            result.setCode(500);
+            result.setMessage("该邮箱已被使用");
+            return result;
+        }
+        // 8. 校验验证码
+        String codeKey = RedisConstant.EMAIL_CHANGE_CODE + loginUser.getUserId() + ":" + request.getNewEmail();
+        String rightCode = stringRedisTemplate.opsForValue().get(codeKey);
+        if (rightCode == null || !rightCode.equals(request.getCode())) {
+            result.setCode(500);
+            result.setMessage("验证码错误或已过期");
+            return result;
+        }
+        // 9. 删除验证码 key
+        stringRedisTemplate.delete(codeKey);
+        // 10. 更新邮箱并清除旧登录态
+        String oldEmail = user.getEmail();
+        UpdateWrapper<User> uw = new UpdateWrapper<>();
+        uw.eq("user_id", loginUser.getUserId()).set("email", request.getNewEmail());
+        if (userMapper.update(null, uw) == 0) {
+            result.setCode(500);
+            result.setMessage("邮箱修改失败");
+            return result;
+        }
+        // 11. 删除旧邮箱的 Redis token（强制重新登录）
+        if (oldEmail != null && !oldEmail.isBlank()) {
+            redisService.deleteToken(oldEmail);
+        }
+        result.setCode(200);
+        result.setMessage("邮箱修改成功，请重新登录");
         return result;
     }
 

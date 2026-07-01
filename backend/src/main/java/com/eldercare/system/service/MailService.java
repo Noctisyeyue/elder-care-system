@@ -65,7 +65,7 @@ public class MailService  {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         try {
-            // 设发件人显示名（解决 QQ 邮箱直接显示发件人昵称/头像的问题）
+            // 设发件人显示名（解决邮箱直接显示发件人昵称/头像的问题）
             helper.setFrom(new InternetAddress(from, "东软颐养中心", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new jakarta.mail.MessagingException("发件人编码异常", e);

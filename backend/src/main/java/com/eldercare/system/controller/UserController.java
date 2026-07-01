@@ -151,4 +151,16 @@ public class UserController {
     public ApiResult changePassword(@RequestBody UserPasswordUpdateRequest request) {
         return userService.changePassword(request);
     }
+
+    @Operation(summary = "发送邮箱修改验证码")
+    @PostMapping("/email/change/code")
+    public ApiResult sendEmailChangeCode(@RequestBody EmailChangeCodeRequest request) {
+        return userService.sendEmailChangeCode(request);
+    }
+
+    @Operation(summary = "确认修改邮箱")
+    @PostMapping("/email/change")
+    public ApiResult changeEmail(@RequestBody EmailChangeRequest request) {
+        return userService.changeEmail(request);
+    }
 }

@@ -181,11 +181,10 @@ export interface UserProfile {
   roleName: string
 }
 
-/** 资料更新表单 */
+/** 资料更新表单（邮箱不在此处修改，需走单独验证流程） */
 export interface ProfileUpdateForm {
   realName: string
   phone: string
-  email: string
   gender: string
 }
 
@@ -209,4 +208,25 @@ export interface PasswordUpdateForm {
 /** 当前用户修改密码 */
 export function changePassword(form: PasswordUpdateForm) {
   return post('/user/password/update', form)
+}
+
+/** 发送邮箱修改验证码 */
+export interface EmailChangeCodeParams {
+  newEmail: string
+}
+
+/** 确认修改邮箱 */
+export interface EmailChangeParams {
+  newEmail: string
+  code: string
+}
+
+/** 发送邮箱修改验证码到新邮箱 */
+export function sendEmailChangeCode(params: EmailChangeCodeParams) {
+  return post('/user/email/change/code', params)
+}
+
+/** 校验验证码并修改邮箱 */
+export function changeEmail(params: EmailChangeParams) {
+  return post('/user/email/change', params)
 }

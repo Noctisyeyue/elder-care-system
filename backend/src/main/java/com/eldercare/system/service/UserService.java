@@ -152,7 +152,7 @@ public interface UserService {
     ApiResult<UserProfileVO> getProfile();
 
     /**
-     * 更新当前登录用户资料（仅 realName/phone/email/gender）
+     * 更新当前登录用户资料（仅 realName/phone/gender，邮箱需走单独验证流程）
      *
      * @param request 更新参数
      * @return 操作结果
@@ -166,4 +166,20 @@ public interface UserService {
      * @return 操作结果
      */
     ApiResult changePassword(UserPasswordUpdateRequest request);
+
+    /**
+     * 发送邮箱修改验证码到新邮箱
+     *
+     * @param request 新邮箱参数
+     * @return 操作结果
+     */
+    ApiResult sendEmailChangeCode(EmailChangeCodeRequest request);
+
+    /**
+     * 校验验证码并修改邮箱（成功后清除当前登录态）
+     *
+     * @param request 新邮箱 + 验证码
+     * @return 操作结果
+     */
+    ApiResult changeEmail(EmailChangeRequest request);
 }
