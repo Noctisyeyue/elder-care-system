@@ -103,14 +103,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useSettingStore } from '@/stores/setting';
 import { getCaregiverHomeStats } from '@/api/health'
 import { ElCard, ElRow, ElCol, ElIcon } from 'element-plus';
 import { CaretTop, Check, Close, Upload, Delete, CaretBottom, Minus, SemiSelect } from '@element-plus/icons-vue';
 import * as echarts from 'echarts';
 
 const userStore = useUserStore();
+const settingStore = useSettingStore();
 const chartRef = ref(null);
 let chartInstance = null;
 const barChartRef = ref(null);
@@ -121,6 +123,247 @@ const pieChartRef = ref(null);
 let pieChartInstance = null;
 const checkoutPieChartRef = ref(null);
 let checkoutPieChartInstance = null;
+let themeObserver = null;
+
+function getChartTheme() {
+  const dark = document.documentElement.classList.contains('dark');
+  return {
+    dark,
+    text: dark ? 'rgba(255,255,255,0.85)' : '#303133',
+    subText: dark ? 'rgba(255,255,255,0.55)' : '#909399',
+    splitLine: dark ? 'rgba(255,255,255,0.12)' : '#e5e5e5',
+    pieBorder: dark ? '#161618' : '#ffffff',
+    labelLine: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)',
+    areaTop: dark ? 'rgba(64,158,255,0.35)' : 'rgb(200,210,255)',
+    areaBottom: dark ? 'rgba(64,158,255,0.05)' : 'rgb(255, 255, 255)',
+    inactiveColor: dark ? '#52525b' : '#e5e6eb',
+  };
+}
+
+function buildCarePieOption() {
+  const theme = getChartTheme();
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+    },
+    legend: {
+      top: '85%',
+      left: 'center',
+      orient: 'horizontal',
+      textStyle: { fontSize: 16, color: theme.text },
+      width: 240,
+      data: ['已完成', '未完成'],
+    },
+    series: [{
+      name: '护理统计',
+      type: 'pie',
+      top: '-15%',
+      radius: ['35%', '50%'],
+      center: ['50%', '50%'],
+      itemStyle: {
+        borderColor: theme.pieBorder,
+        borderWidth: 4,
+        borderRadius: 12,
+      },
+      label: {
+        show: true,
+        position: 'outside',
+        formatter: '{b}',
+        color: theme.text,
+        fontSize: 12,
+      },
+      labelLine: {
+        show: true,
+        length: 10,
+        length2: 10,
+        smooth: true,
+        lineStyle: { width: 3, type: 'solid', color: theme.labelLine },
+      },
+      data: [
+        { value: completedCareCount.value, name: '已完成', itemStyle: { color: theme.inactiveColor } },
+        { value: uncompletedCareCount.value, name: '未完成', itemStyle: { color: '#409EFF' } },
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    }],
+  };
+}
+
+function buildBarChartOption() {
+  return {
+    backgroundColor: 'transparent',
+    grid: {
+      left: '0%',
+      right: '0%',
+      bottom: '0%',
+      top: '10%',
+      containLabel: false,
+    },
+    xAxis: {
+      type: 'category',
+      show: false,
+      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    },
+    yAxis: { type: 'value', show: false },
+    series: [{
+      data: [5, 8, 3, 9, 6, 7],
+      type: 'bar',
+      barWidth: '50%',
+      itemStyle: {
+        color: '#409EFF',
+        borderRadius: [5, 5, 5, 5],
+      },
+    }],
+    tooltip: { show: false },
+  };
+}
+
+function buildLineChartOption() {
+  const theme = getChartTheme();
+  return {
+    backgroundColor: 'transparent',
+    color: 'rgb(119,161,255)',
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true,
+    },
+    tooltip: { trigger: 'axis' },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: serviceTrendData.value.months,
+      axisLabel: { color: theme.subText },
+      axisLine: { lineStyle: { color: theme.splitLine } },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: theme.subText },
+      axisLine: { show: false },
+      splitLine: {
+        lineStyle: { color: theme.splitLine, width: 1, type: 'dashed' },
+      },
+    },
+    series: [{
+      name: '服务客户数',
+      type: 'line',
+      smooth: true,
+      data: serviceTrendData.value.counts,
+      showSymbol: false,
+      itemStyle: { color: '#409EFF' },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: theme.areaTop },
+          { offset: 1, color: theme.areaBottom },
+        ]),
+      },
+    }],
+  };
+}
+
+function buildStatusPieOption(statusData, seriesName) {
+  const theme = getChartTheme();
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+    },
+    legend: {
+      top: '85%',
+      left: 'center',
+      orient: 'horizontal',
+      textStyle: { fontSize: 16, color: theme.text },
+      width: 240,
+    },
+    series: [{
+      name: seriesName,
+      type: 'pie',
+      top: '-15%',
+      radius: ['35%', '50%'],
+      center: ['50%', '50%'],
+      itemStyle: {
+        borderColor: theme.pieBorder,
+        borderWidth: 4,
+        borderRadius: 12,
+      },
+      label: {
+        show: true,
+        position: 'outside',
+        formatter: '{b}',
+        color: theme.text,
+        fontSize: 12,
+      },
+      labelLine: {
+        show: true,
+        length: 10,
+        length2: 10,
+        smooth: true,
+        lineStyle: { width: 3, type: 'solid', color: theme.labelLine },
+      },
+      data: [
+        { value: statusData.approved, name: '已通过', itemStyle: { color: '#409EFF' } },
+        { value: statusData.rejected, name: '不通过', itemStyle: { color: '#AAAAFF' } },
+        { value: statusData.submitted, name: '已提交', itemStyle: { color: '#87CEFA' } },
+        { value: statusData.cancelled, name: '已撤销', itemStyle: { color: theme.inactiveColor } },
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      },
+    }],
+  };
+}
+
+function initCharts() {
+  if (chartRef.value) {
+    chartInstance = echarts.init(chartRef.value);
+    chartInstance.setOption(buildCarePieOption());
+  }
+  if (barChartRef.value) {
+    barChartInstance = echarts.init(barChartRef.value);
+    barChartInstance.setOption(buildBarChartOption());
+  }
+  if (lineChartRef.value) {
+    lineChartInstance = echarts.init(lineChartRef.value);
+    lineChartInstance.setOption(buildLineChartOption());
+  }
+  if (pieChartRef.value) {
+    pieChartInstance = echarts.init(pieChartRef.value);
+    pieChartInstance.setOption(buildStatusPieOption(outingApplicationStatus.value, '外出申请'));
+  }
+  if (checkoutPieChartRef.value) {
+    checkoutPieChartInstance = echarts.init(checkoutPieChartRef.value);
+    checkoutPieChartInstance.setOption(buildStatusPieOption(checkoutApplicationStatus.value, '退住申请'));
+  }
+}
+
+function updateAllCharts() {
+  chartInstance?.setOption(buildCarePieOption());
+  barChartInstance?.setOption(buildBarChartOption());
+  lineChartInstance?.setOption(buildLineChartOption());
+  pieChartInstance?.setOption(buildStatusPieOption(outingApplicationStatus.value, '外出申请'));
+  checkoutPieChartInstance?.setOption(buildStatusPieOption(checkoutApplicationStatus.value, '退住申请'));
+}
+
+function handleChartResize() {
+  chartInstance?.resize();
+  barChartInstance?.resize();
+  lineChartInstance?.resize();
+  pieChartInstance?.resize();
+  checkoutPieChartInstance?.resize();
+}
 
 const dailyCareCount = ref(0);
 const compareCareCount = ref(0);
@@ -151,368 +394,9 @@ const checkoutApplicationStatus = ref({
   cancelled: 0,
 });
 
-// ECharts的配置
-const initChart = () => {
-  if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value);
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c} ({d}%)',
-      },
-      legend: {
-        top: '85%',
-        left: 'center',
-        orient: 'horizontal',
-        textStyle: {
-          fontSize: 16,
-        },
-        width: 240,
-        data: ['已完成', '未完成'],
-      },
-      series: [
-        {
-          name: '护理统计',
-          type: 'pie',
-          top: '-15%',
-          radius: ['35%', '50%'],
-          center: ['50%', '50%'],
-          itemStyle: {
-            borderColor: '#fff',
-            borderWidth: 4,
-            borderRadius: 12
-          },
-          label: {
-            show: true,
-            position: 'outside',
-            formatter: '{b}',
-            color: '#333',
-            fontSize: 12
-          },
-          labelLine: {
-            show: true,
-            length: 10,
-            length2: 10,
-            smooth: true,
-            lineStyle: {
-              width: 3,
-              type: 'solid'
-            }
-          },
-          data: [
-            { value: completedCareCount.value, name: '已完成', itemStyle: { color: '#e5e6eb' } },
-            { value: uncompletedCareCount.value, name: '未完成', itemStyle: { color: '#409EFF' } }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)',
-            },
-          },
-        }
-      ],
-    };
-    chartInstance.setOption(option);
-  }
-};
-
-const initBarChart = () => {
-  if (barChartRef.value) {
-    barChartInstance = echarts.init(barChartRef.value);
-    const option = {
-      grid: {
-        left: '0%',
-        right: '0%',
-        bottom: '0%',
-        top: '10%',
-        containLabel: false,
-      },
-      xAxis: {
-        type: 'category',
-        show: false,
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      },
-      yAxis: {
-        type: 'value',
-        show: false,
-      },
-      series: [
-        {
-          data: [5, 8, 3, 9, 6, 7],
-          type: 'bar',
-          barWidth: '50%',
-          itemStyle: {
-            color: '#409EFF',
-            borderRadius: [5, 5, 5, 5],
-          },
-        },
-      ],
-      tooltip: {
-        show: false,
-      },
-    };
-    barChartInstance.setOption(option);
-  }
-};
-
-const initLineChart = () => {
-  if (lineChartRef.value) {
-    lineChartInstance = echarts.init(lineChartRef.value);
-    const option = {
-      color: 'rgb(119,161,255)',
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true,
-      },
-      tooltip: {
-        trigger: 'axis',
-      },
-      xAxis: {
-        type: 'category',
-        boundaryGap: false,
-        data: serviceTrendData.value.months,
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: [
-        {
-          name: '服务客户数',
-          type: 'line',
-          smooth: true,
-          data: serviceTrendData.value.counts,
-          showSymbol: false,
-          itemStyle: { color: '#409EFF' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              {
-                  offset: 0,
-                  color: 'rgb(200,210,255)'
-              },
-              {
-                  offset: 1,
-                  color: 'rgb(255, 255, 255)'
-              },
-            ]),
-          },
-        },
-      ],
-    };
-    lineChartInstance.setOption(option);
-  }
-};
-
-const initPieChart = () => {
-  if (pieChartRef.value) {
-    pieChartInstance = echarts.init(pieChartRef.value);
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c} ({d}%)',
-      },
-      legend: {
-          top: '85%',
-          left: 'center',
-          orient: 'horizontal',
-          textStyle:{
-              fontSize: 16,
-          },
-          width:240,
-      },
-      series: [
-        {
-          name: '外出申请',
-          type: 'pie',
-          top: '-15%',
-          radius: ['35%', '50%'],
-          center: ['50%', '50%'],
-          itemStyle: {
-            borderColor: '#fff',
-            borderWidth: 4,
-            borderRadius: 12
-          },
-          label: {
-            show: true,
-            position: 'outside',
-            formatter: '{b}',
-            color: '#333',
-            //fontWeight: 'bold',
-            fontSize: 12
-          },
-          labelLine: {
-            show: true,
-            length: 10,
-            length2: 10,
-            smooth: true,
-            lineStyle: {
-              width: 3,
-              type: 'solid'
-            }
-          },
-          data: [
-            {
-              value: outingApplicationStatus.value.approved,
-              name: '已通过',
-              itemStyle: { color: '#409EFF' },
-            },
-            {
-              value: outingApplicationStatus.value.rejected,
-              name: '不通过',
-              itemStyle: { color: '#AAAAFF' },
-            },
-            {
-              value: outingApplicationStatus.value.submitted,
-              name: '已提交',
-              itemStyle: { color: '#87CEFA' },
-            },
-            {
-              value: outingApplicationStatus.value.cancelled,
-              name: '已撤销',
-              itemStyle: { color: '#e5e6eb' },
-            },
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)',
-            },
-          },
-        },
-      ],
-    };
-    pieChartInstance.setOption(option);
-  }
-};
-
-const initCheckoutPieChart = () => {
-  if (checkoutPieChartRef.value) {
-    checkoutPieChartInstance = echarts.init(checkoutPieChartRef.value);
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{b}: {c} ({d}%)',
-      },
-      legend: {
-          top: '85%',
-          left: 'center',
-          orient: 'horizontal',
-          textStyle:{
-              fontSize: 16,
-          },
-          width:240,
-      },
-      series: [
-        {
-          name: '退住申请',
-          type: 'pie',
-          top: '-15%',
-          radius: ['35%', '50%'],
-          center: ['50%', '50%'],
-          itemStyle: {
-            borderColor: '#fff',
-            borderWidth: 4,
-            borderRadius: 12
-          },
-          label: {
-            show: true,
-            position: 'outside',
-            formatter: '{b}',
-            color: '#333',
-            //fontWeight: 'bold',
-            fontSize: 12
-          },
-          labelLine: {
-            show: true,
-            length: 10,
-            length2: 10,
-            smooth: true,
-            lineStyle: {
-              width: 3,
-              type: 'solid'
-            }
-          },
-          data: [
-            {
-              value: checkoutApplicationStatus.value.approved,
-              name: '已通过',
-              itemStyle: { color: '#409EFF' },
-            },
-            {
-              value: checkoutApplicationStatus.value.rejected,
-              name: '不通过',
-              itemStyle: { color: '#AAAAFF' },
-            },
-            {
-              value: checkoutApplicationStatus.value.submitted,
-              name: '已提交',
-              itemStyle: { color: '#87CEFA' },
-            },
-            {
-              value: checkoutApplicationStatus.value.cancelled,
-              name: '已撤销',
-              itemStyle: { color: '#e5e6eb' },
-            },
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)',
-            },
-          },
-        },
-      ],
-    };
-    checkoutPieChartInstance.setOption(option);
-  }
-};
-
-// 更新图表数据
-const updateChart = () => {
-    if (chartInstance) {
-        chartInstance.setOption({
-            series: [{
-                data: [
-                    { value: completedCareCount.value, name: '已完成', itemStyle: { color: '#e5e6eb' } },
-                    { value: uncompletedCareCount.value, name: '未完成' }
-                ]
-            }]
-        });
-    }
-};
-
 // 模拟从后端获取数据
 const fetchData = async () => {
   try {
-    // 1. 先用模拟数据兜底
-    // dailyCareCount.value = 10;
-    // compareCareCount.value = 35;
-    // totalCareCount.value = 205216;
-    // completedCareCount.value = 150000;
-    // uncompletedCareCount.value = 55216;
-    // totalCaredPeople.value = 55231;
-    // serviceTrendData.value = {
-    //   months,
-    //   counts: [50, 25, 70, 35, 20, 45, 60, 55, 80, 65, 75, 90],
-    // };
-    // outingApplicationStatus.value = {
-    //   approved: 120,
-    //   rejected: 30,
-    //   submitted: 58,
-    //   cancelled: 10,
-    // };
-    // checkoutApplicationStatus.value = {
-    //   approved: 80,
-    //   rejected: 15,
-    //   submitted: 25,
-    //   cancelled: 5,
-    // };
-
-    // 2. 请求后端API，若有数据则覆盖
     const res = await getCaregiverHomeStats();
     if (res && typeof res === 'object') {
       if (typeof res.dailyCareCount === 'number') dailyCareCount.value = res.dailyCareCount;
@@ -545,17 +429,12 @@ const fetchData = async () => {
       }
     }
 
-    // 数据获取后更新图表
     await nextTick();
     if (!chartInstance) {
-      initChart();
+      initCharts();
     } else {
-      updateChart();
+      updateAllCharts();
     }
-    initBarChart();
-    initLineChart();
-    initPieChart();
-    initCheckoutPieChart();
   } catch (error) {
     console.error('获取护工首页数据失败:', error);
   }
@@ -563,11 +442,27 @@ const fetchData = async () => {
 
 onMounted(() => {
   fetchData();
+  themeObserver = new MutationObserver(() => updateAllCharts());
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', handleChartResize);
 });
 
-// 监听数据变化，并更新图表
+onUnmounted(() => {
+  themeObserver?.disconnect();
+  window.removeEventListener('resize', handleChartResize);
+  chartInstance?.dispose();
+  barChartInstance?.dispose();
+  lineChartInstance?.dispose();
+  pieChartInstance?.dispose();
+  checkoutPieChartInstance?.dispose();
+});
+
+watch(() => settingStore.systemThemeMode, () => {
+  nextTick(() => updateAllCharts());
+});
+
 watch([completedCareCount, uncompletedCareCount], () => {
-    updateChart();
+  chartInstance?.setOption(buildCarePieOption());
 }, { deep: true });
 </script>
 
@@ -578,11 +473,17 @@ watch([completedCareCount, uncompletedCareCount], () => {
 }
 
 .welcome-card {
-  background-color: #eef3ff; /* RGB(238, 243, 255) */
-  border: none;
+  --el-card-bg-color: transparent;
+  background: var(--welcome-card-bg) !important;
+  border: 1px solid var(--default-border);
   border-radius: 12px;
   height: 100%;
-  overflow: hidden; /* 确保图片圆角生效 */
+  overflow: hidden;
+}
+
+:deep(.welcome-card.el-card) {
+  --el-card-bg-color: transparent;
+  background: var(--welcome-card-bg) !important;
 }
 
 :deep(.welcome-card .el-card__body) {
@@ -598,11 +499,11 @@ watch([completedCareCount, uncompletedCareCount], () => {
 }
 
 .welcome-text h2 {
-  font-size: 28px; /* 增大字体 */
+  font-size: 28px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ui-gray-800);
   margin: 0;
-  margin-bottom: 50px; /* 增加与下方统计的间距 */
+  margin-bottom: 50px;
 }
 
 .stats-row {
@@ -617,7 +518,7 @@ watch([completedCareCount, uncompletedCareCount], () => {
 .stat-value {
   font-size: 22px;
   font-weight: bold;
-  color: #303133;
+  color: var(--ui-gray-800);
   display: flex;
   align-items: center;
 }
@@ -628,7 +529,7 @@ watch([completedCareCount, uncompletedCareCount], () => {
 
 .stat-label {
   font-size: 12px;
-  color: #909399;
+  color: var(--ui-gray-500);
   margin-top: 4px;
 }
 
@@ -647,7 +548,7 @@ watch([completedCareCount, uncompletedCareCount], () => {
 .stats-card {
   border-radius: 12px;
   height: 100%;
-  border: none;
+  border: 1px solid var(--default-border);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -668,14 +569,14 @@ watch([completedCareCount, uncompletedCareCount], () => {
 
 .stats-card-title {
   font-size: 14px;
-  color: #909399;
+  color: var(--ui-gray-500);
   margin-bottom: 5px;
 }
 
 .stats-card-value {
   font-size: 24px;
   font-weight: bold;
-  color: #303133;
+  color: var(--ui-gray-800);
 }
 
 .stats-card-chart {
@@ -690,7 +591,7 @@ watch([completedCareCount, uncompletedCareCount], () => {
 
 .trend-card {
   border-radius: 12px;
-  border: none;
+  border: 1px solid var(--default-border);
 }
 
 .trend-card-header {
@@ -700,18 +601,18 @@ watch([completedCareCount, uncompletedCareCount], () => {
 .trend-card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ui-gray-800);
 }
 
 .trend-card-subtitle {
   font-size: 14px;
-  color: #909399;
+  color: var(--ui-gray-500);
   margin-left: 10px;
 }
 
 .status-card {
   border-radius: 12px;
-  border: none;
+  border: 1px solid var(--default-border);
   width: 100%;
   height: 100%;
   display: flex;
@@ -728,12 +629,12 @@ watch([completedCareCount, uncompletedCareCount], () => {
 .status-card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ui-gray-800);
 }
 
 .status-card-subtitle {
   font-size: 14px;
-  color: #909399;
+  color: var(--ui-gray-500);
   margin-left: 10px;
 }
 
@@ -750,7 +651,7 @@ watch([completedCareCount, uncompletedCareCount], () => {
 
 .new-status-card {
   border-radius: 12px;
-  border: none;
+  border: 1px solid var(--default-border);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -768,13 +669,13 @@ watch([completedCareCount, uncompletedCareCount], () => {
 .new-status-title {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ui-gray-800);
   line-height: 1;
 }
 
 .new-status-subtitle {
   font-size: 13px;
-  color: #909399;
+  color: var(--ui-gray-500);
   margin-top: 4px;
   line-height: 1;
 }

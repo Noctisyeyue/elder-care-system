@@ -133,4 +133,22 @@ public class UserController {
     public ApiResult<Integer> getStatus() {
         return userService.getStatus();
     }
+
+    @Operation(summary = "获取当前用户资料")
+    @GetMapping("/profile/get")
+    public ApiResult<UserProfileVO> getProfile() {
+        return userService.getProfile();
+    }
+
+    @Operation(summary = "更新当前用户资料")
+    @PostMapping("/profile/update")
+    public ApiResult updateProfile(@RequestBody UserProfileUpdateRequest request) {
+        return userService.updateProfile(request);
+    }
+
+    @Operation(summary = "当前用户修改密码")
+    @PostMapping("/password/update")
+    public ApiResult changePassword(@RequestBody UserPasswordUpdateRequest request) {
+        return userService.changePassword(request);
+    }
 }

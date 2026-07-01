@@ -1,0 +1,68 @@
+.sidebar-menu {
+  height: 100vh;
+  background: var(--default-box-color);
+  border-right: 1px solid var(--default-border);
+  transition: width 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--header-height);
+    border-bottom: 1px solid var(--default-border);
+    gap: 12px;
+    padding: 0 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    .logo-image {
+      width: 24px;
+      height: 24px;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      color: var(--ui-gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+
+  .menu-scroll {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  :deep(.el-menu) {
+    border-right: none;
+    background: transparent;
+  }
+
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
+    transition: background-color 0.2s;
+  }
+
+  :deep(.el-menu-item.is-active) {
+    background-color: var(--ui-active-color) !important;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--theme-color);
+    }
+  }
+
+  :deep(.el-menu-item:hover),
+  :deep(.el-sub-menu__title:hover) {
+    background-color: var(--ui-hover-color) !important;
+  }
+}

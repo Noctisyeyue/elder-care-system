@@ -170,3 +170,43 @@ export function getUserEmail() {
 export function getUserStatus() {
   return get<number>('/user/status/get')
 }
+
+/** 用户资料 */
+export interface UserProfile {
+  userName: string
+  realName: string
+  phone: string
+  email: string
+  gender: string
+  roleName: string
+}
+
+/** 资料更新表单 */
+export interface ProfileUpdateForm {
+  realName: string
+  phone: string
+  email: string
+  gender: string
+}
+
+/** 获取当前用户资料 */
+export function getProfile() {
+  return get<UserProfile>('/user/profile/get')
+}
+
+/** 更新当前用户资料 */
+export function updateProfile(form: ProfileUpdateForm) {
+  return post('/user/profile/update', form)
+}
+
+/** 修改密码表单 */
+export interface PasswordUpdateForm {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
+/** 当前用户修改密码 */
+export function changePassword(form: PasswordUpdateForm) {
+  return post('/user/password/update', form)
+}

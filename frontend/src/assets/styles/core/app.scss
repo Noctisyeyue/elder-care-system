@@ -1,0 +1,166 @@
+:root {
+  --default-bg-color: #fafbfc;
+  --default-box-color: #ffffff;
+  --theme-color: #409eff;
+  --main-color: #409eff;
+  --ui-gray-100: #f9fafb;
+  --ui-gray-200: #f3f4f6;
+  --ui-gray-300: #e5e7eb;
+  --ui-gray-400: #d1d5db;
+  --ui-gray-500: #9ca3af;
+  --ui-gray-600: #6b7280;
+  --ui-gray-700: #4b5563;
+  --ui-gray-800: #374151;
+  --ui-gray-900: #1f2937;
+  --ui-hover-color: rgba(64, 158, 255, 0.08);
+  --ui-active-color: rgba(64, 158, 255, 0.12);
+  --sidebar-width-open: 230px;
+  --sidebar-width-close: 64px;
+  --header-height: 60px;
+  --default-border: #ebeef5;
+  --welcome-card-bg: linear-gradient(135deg, #eef3ff 0%, #f5f8ff 100%);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--default-bg-color);
+  color: var(--ui-gray-800);
+}
+
+.flex-c {
+  display: flex;
+  align-items: center;
+}
+
+.flex-b {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.h-15 {
+  height: var(--header-height);
+}
+
+.leading-15 {
+  line-height: var(--header-height);
+}
+
+.bg-box {
+  background-color: var(--default-box-color);
+}
+
+.gap-2\.5 {
+  gap: 0.625rem;
+}
+
+.c-p {
+  cursor: pointer;
+}
+
+.rounded-custom-sm {
+  border-radius: var(--radius-custom-sm);
+}
+
+.border-g-400 {
+  border-color: var(--ui-gray-400);
+}
+
+.text-g-500 {
+  color: var(--ui-gray-500);
+}
+
+.text-g-700 {
+  color: var(--ui-gray-700);
+}
+
+.mb-5 {
+  margin-bottom: 1.25rem;
+}
+
+.ml-3 {
+  margin-left: 0.75rem;
+}
+
+.w-40 {
+  width: 10rem;
+}
+
+.h-9 {
+  height: 2.25rem;
+}
+
+.px-2\.5 {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.size-1\.5 {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+.bg-danger-dot {
+  background-color: #f56c6c !important;
+}
+
+.bg-success-dot {
+  background-color: #67c23a !important;
+}
+
+.breathing-dot {
+  animation: breathing 2s ease-in-out infinite;
+}
+
+@keyframes breathing {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (max-width: 640px) {
+  .max-sm\:mb-3 {
+    margin-bottom: 0.75rem;
+  }
+  .max-sm\:ml-\[7px\] {
+    margin-left: 7px;
+  }
+  .max-sm\:\!hidden {
+    display: none !important;
+  }
+  .max-md\:\!hidden {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .max-lg\:\!hidden {
+    display: none !important;
+  }
+}
