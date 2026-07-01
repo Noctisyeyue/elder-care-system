@@ -5,7 +5,7 @@ import { customerRoutes, adminCustomerMenu, caregiverCustomerMenu } from './cust
 import { nursingRoutes } from './nursing'
 import { serviceRoutes, adminServiceMenu, caregiverServiceMenu } from './service'
 import { dietRoutes } from './diet'
-import { userRoutes, systemMenu } from './user'
+import { userRoutes, systemMenu, userCenterMenu } from './user'
 
 /** 布局内业务路由（router children） */
 export const layoutChildren: AppRouteRecord[] = [
@@ -31,4 +31,5 @@ export {
   adminServiceMenu,
   caregiverServiceMenu,
   systemMenu,
+  userCenterMenu,
 }

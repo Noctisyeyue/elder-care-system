@@ -16,24 +16,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { layoutChildren } from '@/router/modules'
-import { getRouteTitle } from '@/utils/menu'
+import { getBreadcrumbTitles } from '@/utils/menu'
 
 defineOptions({ name: 'Breadcrumb' })
 
 const route = useRoute()
 
-const breadcrumbs = computed(() => {
-  const path = route.path
-  const parts = path.split('/').filter(Boolean)
-  const crumbs: string[] = []
-  let acc = ''
-  for (const part of parts) {
-    acc += `/${part}`
-    const title = getRouteTitle(acc, layoutChildren)
-    if (title) crumbs.push(title)
-  }
-  return crumbs
-})
+const breadcrumbs = computed(() => getBreadcrumbTitles(route.path, layoutChildren))
 </script>
 
 <style scoped>
