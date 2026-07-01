@@ -120,7 +120,8 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--default-bg-color);
+  background: var(--default-box-color);
+  border-bottom: 1px solid var(--default-border);
   transition: box-shadow 0.2s;
 }
 
@@ -169,7 +170,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   padding: 2px 6px;
   border: 1px solid var(--ui-gray-400);
   border-radius: 4px;
-  background: var(--default-box-color);
+  background: var(--default-bg-color);
 }
 
 .chat-btn-wrap {

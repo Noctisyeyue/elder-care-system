@@ -32,6 +32,8 @@ export function useTheme() {
   function applyTheme() {
     applyDarkClass(resolveIsDark())
     setElementPrimary(settingStore.systemThemeColor)
+    document.documentElement.style.setProperty('--custom-radius', '0.75rem')
+    document.documentElement.setAttribute('data-box-mode', 'border-mode')
   }
 
   function toggleTheme() {

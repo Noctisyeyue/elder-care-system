@@ -1,17 +1,9 @@
+// ==================== CSS 变量 ====================
 :root {
   --default-bg-color: #fafbfc;
   --default-box-color: #ffffff;
   --theme-color: #409eff;
   --main-color: #409eff;
-  --ui-gray-100: #f9fafb;
-  --ui-gray-200: #f3f4f6;
-  --ui-gray-300: #e5e7eb;
-  --ui-gray-400: #d1d5db;
-  --ui-gray-500: #9ca3af;
-  --ui-gray-600: #6b7280;
-  --ui-gray-700: #4b5563;
-  --ui-gray-800: #374151;
-  --ui-gray-900: #1f2937;
   --ui-hover-color: rgba(64, 158, 255, 0.08);
   --ui-active-color: rgba(64, 158, 255, 0.12);
   --sidebar-width-open: 230px;
@@ -33,16 +25,9 @@ body {
   color: var(--ui-gray-800);
 }
 
-.flex-c {
-  display: flex;
-  align-items: center;
-}
-
-.flex-b {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+// ==================== 基础工具类 ====================
+// 注意：flex-c, flex-b, flex-cc, flex-cb, c-p, rounded-custom-sm,
+// border-*-d, text-g-* 等已迁移到 tailwind.css @layer utilities 中
 
 .flex-1 {
   flex: 1;
@@ -64,86 +49,291 @@ body {
   background-color: var(--default-box-color);
 }
 
-.gap-2\.5 {
-  gap: 0.625rem;
-}
-
-.c-p {
-  cursor: pointer;
-}
-
-.rounded-custom-sm {
-  border-radius: var(--radius-custom-sm);
-}
-
-.border-g-400 {
-  border-color: var(--ui-gray-400);
-}
-
-.text-g-500 {
-  color: var(--ui-gray-500);
-}
-
-.text-g-700 {
-  color: var(--ui-gray-700);
-}
-
 .mb-5 {
   margin-bottom: 1.25rem;
 }
 
-.ml-3 {
-  margin-left: 0.75rem;
+// ==================== 全局样式 ====================
+
+// backdrop 滤镜变量初始化
+*,
+::before,
+::after {
+  --tw-backdrop-blur: ;
+  --tw-backdrop-brightness: ;
+  --tw-backdrop-contrast: ;
+  --tw-backdrop-grayscale: ;
+  --tw-backdrop-hue-rotate: ;
+  --tw-backdrop-invert: ;
+  --tw-backdrop-opacity: ;
+  --tw-backdrop-saturate: ;
+  --tw-backdrop-sepia: ;
 }
 
-.w-40 {
-  width: 10rem;
+// 色弱模式
+.color-weak {
+  -webkit-filter: invert(80%);
+  filter: invert(80%);
 }
 
-.h-9 {
-  height: 2.25rem;
+// 页面内容区边框
+.page-content {
+  border: 1px solid var(--art-card-border) !important;
 }
 
-.px-2\.5 {
-  padding-left: 0.625rem;
-  padding-right: 0.625rem;
+// ==================== 卡片体系 ====================
+
+@mixin art-card-base($border-color, $shadow: none, $radius-diff: 4px) {
+  background: var(--default-box-color);
+  border: 1px solid #{$border-color} !important;
+  border-radius: calc(var(--custom-radius) + #{$radius-diff}) !important;
+  box-shadow: #{$shadow} !important;
+
+  --el-card-border-color: var(--default-border) !important;
 }
 
-.text-xs {
-  font-size: 0.75rem;
+.art-card,
+.art-card-sm,
+.art-card-xs {
+  border: 1px solid var(--art-card-border);
 }
 
-.text-sm {
-  font-size: 0.875rem;
-}
-
-.size-1\.5 {
-  width: 0.375rem;
-  height: 0.375rem;
-}
-
-.bg-danger-dot {
-  background-color: #f56c6c !important;
-}
-
-.bg-success-dot {
-  background-color: #67c23a !important;
-}
-
-.breathing-dot {
-  animation: breathing 2s ease-in-out infinite;
-}
-
-@keyframes breathing {
-  0%,
-  100% {
-    opacity: 1;
+// 盒子边框模式
+[data-box-mode='border-mode'] {
+  .page-content {
+    border: 1px solid var(--art-card-border) !important;
   }
+
+  .art-card {
+    @include art-card-base(var(--art-card-border), none, 4px);
+  }
+
+  .art-card-sm {
+    @include art-card-base(var(--art-card-border), none, 0px);
+  }
+
+  .art-card-xs {
+    @include art-card-base(var(--art-card-border), none, -4px);
+  }
+}
+
+// 盒子阴影模式
+[data-box-mode='shadow-mode'] {
+  .page-content {
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid var(--art-gray-200) !important;
+  }
+
+  .art-card {
+    @include art-card-base(
+      var(--art-gray-200),
+      (0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.08)),
+      4px
+    );
+  }
+
+  .art-card-sm {
+    @include art-card-base(
+      var(--art-gray-200),
+      (0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.08)),
+      2px
+    );
+  }
+
+  .art-card-xs {
+    @include art-card-base(
+      var(--art-gray-200),
+      (0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 1px -1px rgba(0, 0, 0, 0.08)),
+      -4px
+    );
+  }
+}
+
+// ==================== 表格卡片 ====================
+.art-table-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  border: 1px solid var(--art-card-border);
+  border-radius: calc(var(--custom-radius) / 2 + 2px);
+
+  .el-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .el-table {
+    height: 100%;
+  }
+
+  .table-pagination {
+    display: flex;
+    justify-content: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--default-border);
+    flex-shrink: 0;
+  }
+}
+
+// ==================== 容器全高 ====================
+.art-full-height {
+  height: calc(100vh - var(--header-height) - 40px - 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+// ==================== 元素全屏 ====================
+.el-full-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw !important;
+  height: 100% !important;
+  z-index: 2300;
+  margin-top: 0;
+  padding: 15px;
+  box-sizing: border-box;
+  background-color: var(--default-box-color);
+  display: flex;
+  flex-direction: column;
+}
+
+// ==================== 徽章样式 ====================
+.art-badge {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  margin: auto;
+  background: #ff3860;
+  border-radius: 50%;
+  animation: breathe 1.5s ease-in-out infinite;
+
+  &.art-badge-horizontal {
+    right: 0;
+  }
+
+  &.art-badge-mixed {
+    right: 0;
+  }
+
+  &.art-badge-dual {
+    right: 5px;
+    top: 5px;
+    bottom: auto;
+  }
+}
+
+// 文字徽章
+.art-text-badge {
+  position: absolute;
+  top: 0;
+  right: 12px;
+  bottom: 0;
+  min-width: 20px;
+  height: 18px;
+  line-height: 17px;
+  padding: 0 5px;
+  margin: auto;
+  font-size: 10px;
+  color: #fff;
+  text-align: center;
+  background: #fd4e4e;
+  border-radius: 4px;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
   50% {
-    opacity: 0.4;
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
   }
 }
 
+// ==================== Loading 修复 ====================
+.art-loading-fix {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.art-loading-fix .el-loading-spinner {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+// ==================== 页面通用样式 ====================
+
+// 搜索区域
+.search-section {
+  padding: 16px 20px;
+  background: var(--default-box-color);
+  border-radius: calc(var(--custom-radius) / 2 + 2px);
+  border: 1px solid var(--art-card-border);
+  margin-bottom: 12px;
+}
+
+// 表格头部操作栏
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .table-header-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--art-gray-800);
+  }
+}
+
+// 搜索表单通用样式
+.search-form {
+  .el-form-item {
+    margin-bottom: 0;
+    margin-right: 16px;
+  }
+}
+
+// 统一分页
+.pagination-right {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+// 状态标签容器
+.status-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+// ==================== 响应式 ====================
 @media (max-width: 640px) {
   .max-sm\:mb-3 {
     margin-bottom: 0.75rem;
