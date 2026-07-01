@@ -107,7 +107,6 @@ const renewalForm = reactive({
   customerName: '',
   code: '',
   name: '',
-  price: '',
   executionTimes: 0,
   originalQuantity: 0,
   newQuantity: 1,
@@ -184,7 +183,6 @@ const openRenewalDialog = (item) => {
   renewalForm.customerName = selectedCustomer.value.customerName
   renewalForm.code = item.code
   renewalForm.name = item.name
-  renewalForm.price = item.price
   renewalForm.originalQuantity = item.remain
   renewalForm.executionTimes = item.executionTimes
   renewalForm.newQuantity = 1

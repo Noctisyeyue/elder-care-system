@@ -755,7 +755,6 @@ public class CustomerServiceImpl implements CustomerService{
             NursingItemRecord record = new NursingItemRecord();
             record.setCustomerId(req.getCustomerId());
             record.setNursingItemName(itemInfo.get("name").toString());
-            record.setPrice((Float) itemInfo.get("price"));
             record.setExecutionCycle(itemInfo.get("executionCycle").toString());
             record.setExecutionTimes( (Integer) itemInfo.get("executionTimes"));
             record.setExecutedTimes(0);

@@ -26,9 +26,6 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="code" label="编号" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="price" label="价格">
-          <template #default="{ row }"> {{ row.price }} 元/次 </template>
-        </el-table-column>
         <el-table-column prop="frequency" label="执行周期" />
         <el-table-column prop="count" label="总次数">
           <template #default="{ row }"> {{ row.count }} 次 </template>
@@ -50,9 +47,6 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="code" label="编号" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="price" label="价格">
-          <template #default="{ row }"> {{ row.price }} 元/次 </template>
-        </el-table-column>
         <el-table-column prop="count" label="总次数" />
         <el-table-column prop="frequency" label="执行周期" />
         <el-table-column label="服务购买日期" width="180">
@@ -70,9 +64,6 @@
             <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" size="small"
               value-format="YYYY-MM-DD" style="width: 150px" :disabled-date="disabledExpireDate" />
           </template>
-        </el-table-column>
-        <el-table-column label="总价">
-          <template #default="{ row }"> {{ row.price * row.quantity }} 元 </template>
         </el-table-column>
         <el-table-column label="操作" width="80">
           <template #default="scope">

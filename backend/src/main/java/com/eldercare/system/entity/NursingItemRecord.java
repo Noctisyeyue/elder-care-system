@@ -28,9 +28,6 @@ public class NursingItemRecord extends BaseEntity {
     /** 护理项目名称 */
     private String nursingItemName;
 
-    /** 价格 */
-    private Float price;
-
     /** 执行周期 */
     private String executionCycle;
 

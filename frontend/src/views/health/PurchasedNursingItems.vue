@@ -10,9 +10,6 @@
       <el-table-column prop="customerName" label="客户" />
       <el-table-column prop="code" label="项目编号" />
       <el-table-column prop="name" label="项目名称" />
-      <el-table-column prop="price" label="价格">
-        <template #default="{ row }"> {{ row.price }} 元/次 </template>
-      </el-table-column>
       <el-table-column prop="remain" label="剩余次数">
         <template #default="{ row }"> {{ row.remain }} 次 </template>
       </el-table-column>
@@ -57,9 +54,6 @@
         </el-form-item>
         <el-form-item label="项目名称">
           <el-input v-model="renewalForm.name" disabled />
-        </el-form-item>
-        <el-form-item label="价格">
-          <el-input v-model="renewalForm.price" disabled />
         </el-form-item>
         <el-form-item label="剩余次数">
           <el-input v-model="renewalForm.originalQuantity" disabled />
@@ -108,7 +102,6 @@ const renewalForm = reactive({
   customerName: '',
   code: '',
   name: '',
-  price: '',
   executionTimes: 0,
   originalQuantity: 0,
   newQuantity: 1,
@@ -149,7 +142,6 @@ const openRenewalDialog = (item) => {
   renewalForm.customerName = item.customerName
   renewalForm.code = item.code
   renewalForm.name = item.name
-  renewalForm.price = item.price
   renewalForm.originalQuantity = item.remain
   renewalForm.executionTimes = item.executionTimes
   renewalForm.newQuantity = 1

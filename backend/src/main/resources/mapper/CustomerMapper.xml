@@ -216,7 +216,6 @@
         c.customer_name AS customerName,
         n.code AS code,
         p.nursing_item_name AS name,
-        p.price AS price,
         p.execution_times AS executionTimes,
         p.purchasing_times*p.execution_times-p.executed_times AS remain,
         p.expiration_date AS expireDate,
@@ -256,10 +255,10 @@
     </select>
 
     <insert id="buyNursingItems">
-        INSERT INTO nursing_item_record (customer_id, nursing_item_id,nursing_item_code,nursing_item_name, price, execution_cycle, execution_times, purchasing_date, purchasing_times, expiration_date, status)
+        INSERT INTO nursing_item_record (customer_id, nursing_item_id,nursing_item_code,nursing_item_name, execution_cycle, execution_times, purchasing_date, purchasing_times, expiration_date, status)
         VALUES
         <foreach item="item" collection="requests" separator=",">
-            (#{item.customerId},#{item.nursingItemId},#{item.nursingItemCode},#{item.nursingItemName}, #{item.price}, #{item.executionCycle}, #{item.executionTimes}, #{item.purchasingDate}, #{item.purchasingTimes}, #{item.expirationDate}, #{item.status})
+            (#{item.customerId},#{item.nursingItemId},#{item.nursingItemCode},#{item.nursingItemName}, #{item.executionCycle}, #{item.executionTimes}, #{item.purchasingDate}, #{item.purchasingTimes}, #{item.expirationDate}, #{item.status})
         </foreach>
     </insert>
 
@@ -268,7 +267,6 @@
         n.nursing_item_id AS id,
         n.code AS code,
         n.nursing_item_name AS name,
-        n.price AS price,
         n.execution_cycle AS executionCycle,
         n.execution_times AS executionTimes,
         n.code AS code,

@@ -11,7 +11,6 @@ public class ItemRecordVO {
     private Long id; // 护理项目记录 ID
     private String code; // 护理项目编号
     private String name; // 护理项目名称
-    private Float price; // 护理项目价格
     private String frequency; // 执行周期
     private Integer count; // 已执行次数
     private Integer totalCount; // 总次数(单次执行次数 × 购买份数)

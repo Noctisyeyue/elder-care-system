@@ -243,7 +243,6 @@ public class NursingServiceImpl implements NursingService{
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());
-            itemResult.setPrice(nursingItem.getPrice());
             itemResult.setFrequency(nursingItem.getExecutionCycle());
             itemResult.setCount(nursingItem.getExecutionTimes());
             itemResult.setDesc(nursingItem.getDescription());
@@ -301,7 +300,6 @@ public class NursingServiceImpl implements NursingService{
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());
-            itemResult.setPrice(nursingItem.getPrice());
             itemResult.setFrequency(nursingItem.getExecutionCycle());
             itemResult.setCount(nursingItem.getExecutionTimes());
             itemResult.setStatus(nursingItem.getStatus());
@@ -469,7 +467,6 @@ public class NursingServiceImpl implements NursingService{
         NursingItem nursingItem = new NursingItem();
         nursingItem.setCode(params.getCode());
         nursingItem.setNursingItemName(params.getName());
-        nursingItem.setPrice(params.getPrice());
         nursingItem.setExecutionCycle(params.getFrequency());
         nursingItem.setExecutionTimes(params.getCount());
         String status = switch (params.getStatus()){
@@ -508,7 +505,6 @@ public class NursingServiceImpl implements NursingService{
         nursingItem.setNursingItemId(params.getId());
         nursingItem.setCode(params.getCode());
         nursingItem.setNursingItemName(params.getName());
-        nursingItem.setPrice(params.getPrice());
         nursingItem.setExecutionCycle(params.getFrequency());
         nursingItem.setExecutionTimes(params.getCount());
         String status = switch (params.getStatus()){
@@ -568,7 +564,6 @@ public class NursingServiceImpl implements NursingService{
             itemRecordResult.setId(itemRecord.getNursingItemRecordId());
             itemRecordResult.setCode(itemRecord.getNursingItemCode());
             itemRecordResult.setName(itemRecord.getNursingItemName());
-            itemRecordResult.setPrice(itemRecord.getPrice());
             itemRecordResult.setFrequency(itemRecord.getExecutionCycle());
             itemRecordResult.setCount(itemRecord.getExecutedTimes());
             itemRecordResult.setTotalCount(itemRecord.getExecutionTimes() * itemRecord.getPurchasingTimes());
@@ -643,7 +638,6 @@ public class NursingServiceImpl implements NursingService{
             nursingItemRecord.setNursingItemId(itemRecordAddParam.getItemId());
             nursingItemRecord.setNursingItemName(nursingItem.getNursingItemName());
             nursingItemRecord.setNursingItemCode(nursingItem.getCode());
-            nursingItemRecord.setPrice(nursingItem.getPrice());
             nursingItemRecord.setExecutionCycle(nursingItem.getExecutionCycle());
             // executionTimes 保存单份护理项目总次数，展示/统计时再乘购买数量。
             nursingItemRecord.setExecutionTimes(nursingItem.getExecutionTimes());
@@ -998,7 +992,6 @@ public class NursingServiceImpl implements NursingService{
             itemResult.setId(nursingItem.getNursingItemId());
             itemResult.setCode(nursingItem.getCode());
             itemResult.setName(nursingItem.getNursingItemName());
-            itemResult.setPrice(nursingItem.getPrice());
             itemResult.setFrequency(nursingItem.getExecutionCycle());
             itemResult.setCount(nursingItem.getExecutionTimes());
             itemResult.setDesc(nursingItem.getDescription());

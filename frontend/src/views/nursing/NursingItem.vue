@@ -27,7 +27,6 @@
       <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="code" label="编号" width="150" />
       <el-table-column prop="name" label="名称" width="150" />
-      <el-table-column prop="price" label="价格" width="90" />
       <el-table-column prop="frequency" label="执行周期" width="120" />
       <el-table-column prop="count" label="总次数" width="120" />
       <el-table-column prop="desc" label="描述" />
@@ -55,9 +54,6 @@
         </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="editDialog.form.name" />
-        </el-form-item>
-        <el-form-item label="价格" prop="price">
-          <el-input v-model="editDialog.form.price" type="number" />
         </el-form-item>
         <el-form-item label="执行周期" prop="frequency">
           <el-input v-model="editDialog.form.frequency" />
@@ -105,7 +101,6 @@ const list = ref([
     id: 1,
     code: '#1001',
     name: '采背',
-    price: '100元/次',
     frequency: 2,
     count: 3,
     desc: '很爽',
@@ -120,7 +115,6 @@ const formRef = ref(null)
 const rules = {
   code: [{ required: true, message: '请输入编号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
   frequency: [{ required: true, message: '请输入执行周期', trigger: 'blur' }],
   count: [{ required: true, message: '请输入可行次数', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
@@ -150,7 +144,6 @@ const editDialog = reactive({
     id: null,
     code: '',
     name: '',
-    price: '',
     frequency: '',
     count: '',
     desc: '',
@@ -174,7 +167,6 @@ const openEditDialog = (row) => {
       id: null,
       code: '',
       name: '',
-      price: '',
       frequency: '',
       count: '',
       desc: '',

@@ -66,7 +66,6 @@
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="编号" />
           <el-table-column prop="name" label="名称" />
-          <el-table-column prop="price" label="价格" />
           <el-table-column prop="frequency" label="执行周次" />
           <el-table-column prop="count" label="已用次数" />
           <el-table-column prop="totalCount" label="总次数" />
@@ -87,7 +86,6 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="code" label="编号" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="price" label="价格" />
         <el-table-column prop="frequency" label="执行周次" />
         <el-table-column prop="count" label="总次数" />
         <el-table-column prop="buyDate" label="服务购买日期" width="150">

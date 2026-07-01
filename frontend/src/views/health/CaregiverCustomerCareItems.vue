@@ -26,7 +26,6 @@
       <el-table-column prop="customerName" label="客户" width="120" />
       <el-table-column prop="code" label="项目编号" width="120" />
       <el-table-column prop="name" label="项目名称" min-width="120" show-overflow-tooltip />
-      <el-table-column prop="price" label="价格" width="120" />
       <el-table-column prop="remain" label="剩余次数" width="120" />
       <el-table-column prop="expireDate" label="服务到期时间" width="120">
         <template #default="{ row }">
@@ -96,7 +95,6 @@ const nursingForm = reactive({
   itemId: '',
   itemName: '',
   itemCode: '',
-  itemPrice: '',
 })
 const searchForm = reactive({
   itemName: '',
@@ -158,7 +156,6 @@ const openNursingDialog = (item) => {
   nursingForm.itemId = item.id
   nursingForm.itemName = item.name
   nursingForm.itemCode = item.code
-  nursingForm.itemPrice = item.price
   nursingDialogVisible.value = true
 }
 
@@ -172,7 +169,6 @@ const submitNursingRecord = async () => {
     itemId: nursingForm.itemId,
     name: nursingForm.itemName,
     code: nursingForm.itemCode,
-    price: nursingForm.itemPrice,
     nursingTime: nursingForm.nursingTime,
     times: nursingForm.times,
   })
