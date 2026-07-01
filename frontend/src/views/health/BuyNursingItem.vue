@@ -3,7 +3,8 @@
     <el-card class="search-card">
       <el-form :inline="true" :model="queryForm" class="query-form">
         <el-form-item label="护理项目名称">
-          <el-input v-model="queryForm.itemName" placeholder="请输入护理项目名称" clearable style="width: 200px; margin-right: 10px"/>
+          <el-input v-model="queryForm.itemName" placeholder="请输入护理项目名称" clearable
+            style="width: 200px; margin-right: 10px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="searchNursingItems">查询</el-button>
@@ -12,7 +13,7 @@
           <el-button @click="goBack">返回</el-button>
         </el-form-item>
       </el-form>
-      <div style="font-size: 14px;">当前客户：{{customerName}}</div>
+      <div style="font-size: 14px;">当前客户：{{ customerName }}</div>
     </el-card>
 
     <el-card class="nursing-item-list-card">
@@ -29,20 +30,14 @@
           <template #default="{ row }"> {{ row.price }} 元/次 </template>
         </el-table-column>
         <el-table-column prop="frequency" label="执行周期" />
-        <el-table-column prop="count" label="执行次数">
+        <el-table-column prop="count" label="总次数">
           <template #default="{ row }"> {{ row.count }} 次 </template>
         </el-table-column>
-        <el-table-column prop="desc" label="备注" width="300"/>
+        <el-table-column prop="desc" label="备注" width="300" />
       </el-table>
-      <el-pagination
-        v-model:current-page="pagination.currentPage"
-        v-model:page-size="pagination.pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pagination.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
+        :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </el-card>
 
     <el-card class="selected-nursing-item-card">
@@ -58,7 +53,7 @@
         <el-table-column prop="price" label="价格">
           <template #default="{ row }"> {{ row.price }} 元/次 </template>
         </el-table-column>
-        <el-table-column prop="count" label="执行次数" />
+        <el-table-column prop="count" label="总次数" />
         <el-table-column prop="frequency" label="执行周期" />
         <el-table-column label="服务购买日期" width="180">
           <template #default="{ row }">
@@ -72,25 +67,16 @@
         </el-table-column>
         <el-table-column label="服务到期日期" width="180">
           <template #default="scope">
-            <el-date-picker
-              v-model="scope.row.expireDate"
-              type="date"
-              placeholder="选择日期"
-              size="small"
-              value-format="YYYY-MM-DD"
-              style="width: 150px"
-              :disabled-date="disabledExpireDate"
-            />
+            <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" size="small"
+              value-format="YYYY-MM-DD" style="width: 150px" :disabled-date="disabledExpireDate" />
           </template>
         </el-table-column>
         <el-table-column label="总价">
-          <template #default="{ row }"> {{ row.price*row.quantity }} 元 </template>
+          <template #default="{ row }"> {{ row.price * row.quantity }} 元 </template>
         </el-table-column>
         <el-table-column label="操作" width="80">
           <template #default="scope">
-            <el-button link type="danger" size="small" @click="removeSelectedItem(scope.$index)"
-              >X</el-button
-            >
+            <el-button link type="danger" size="small" @click="removeSelectedItem(scope.$index)">X</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -272,7 +258,7 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.search-card :deep(.el-card__body){
+.search-card :deep(.el-card__body) {
   display: flex;
   justify-content: space-between;
   align-items: center;

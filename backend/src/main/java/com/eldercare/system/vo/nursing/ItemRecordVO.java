@@ -13,7 +13,8 @@ public class ItemRecordVO {
     private String name; // 护理项目名称
     private Float price; // 护理项目价格
     private String frequency; // 执行周期
-    private Integer count; // 执行次数
+    private Integer count; // 已执行次数
+    private Integer totalCount; // 总次数(单次执行次数 × 购买份数)
     private String buyDate; // 购买日期
     private Integer buyCount; // 购买数量
     private String expireDate; // 到期日期

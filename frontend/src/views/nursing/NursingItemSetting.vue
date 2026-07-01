@@ -16,24 +16,17 @@
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="price" label="价格" />
           <el-table-column prop="frequency" label="执行周次" />
-          <el-table-column prop="count" label="执行次数" />
+          <el-table-column prop="count" label="总次数" />
           <el-table-column label="操作" width="80">
             <template #default="scope">
-              <el-button type="primary" size="small" style="margin-left: 3px;" @click="addProject(scope.row)">添加</el-button>
+              <el-button type="primary" size="small" style="margin-left: 3px;"
+                @click="addProject(scope.row)">添加</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination
-          class="pagination-right"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          :page-size="pageSize"
-          :current-page="page"
-          :page-sizes="[5, 10, 20, 50]"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-          style="margin-top: 8px"
-        />
+        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
+          :page-size="pageSize" :current-page="page" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
+          @current-change="handlePageChange" style="margin-top: 8px" />
       </div>
       <!-- 右侧：当前级别下的护理项目 -->
       <div style="flex: 1">
@@ -44,24 +37,17 @@
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="price" label="价格" />
           <el-table-column prop="frequency" label="执行周次" />
-          <el-table-column prop="count" label="执行次数" />
+          <el-table-column prop="count" label="总次数" />
           <el-table-column label="操作" width="80">
             <template #default="scope">
-              <el-button type="danger" size="small" style="margin-left: 3px;" @click="removeProject(scope.row)">移除</el-button>
+              <el-button type="danger" size="small" style="margin-left: 3px;"
+                @click="removeProject(scope.row)">移除</el-button>
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination
-          class="pagination-right"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="configTotal"
-          :page-size="configPageSize"
-          :current-page="configPage"
-          :page-sizes="[5, 10, 20, 50]"
-          @size-change="handleConfigSizeChange"
-          @current-change="handleConfigPageChange"
-          style="margin-top: 8px"
-        />
+        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="configTotal"
+          :page-size="configPageSize" :current-page="configPage" :page-sizes="[5, 10, 20, 50]"
+          @size-change="handleConfigSizeChange" @current-change="handleConfigPageChange" style="margin-top: 8px" />
       </div>
     </div>
   </div>

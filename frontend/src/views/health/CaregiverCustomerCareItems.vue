@@ -3,15 +3,12 @@
     <!-- 搜索与返回栏 -->
     <el-form :inline="true" :model="searchForm" class="search-form">
       <el-form-item>
-        <el-input
-          v-model="searchForm.itemName"
-          placeholder="请输入项目名称"
-          clearable
-          @clear="handleSearch"
-          style="width: 200px; margin-right: 10px"
-        >
+        <el-input v-model="searchForm.itemName" placeholder="请输入项目名称" clearable @clear="handleSearch"
+          style="width: 200px; margin-right: 10px">
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
           </template>
         </el-input>
       </el-form-item>
@@ -23,21 +20,14 @@
     <el-divider style="margin-top: 0; margin-bottom: 10px" />
 
     <!-- 护理项目表格 -->
-    <el-table
-      :data="nursingItems"
-      border
-      style="width: 100%"
-      max-height="600"
-      v-loading="loading"
-      element-loading-text="加载中..."
-      :empty-text="loading ? '加载中...' : '暂无护理项目'"
-    >
+    <el-table :data="nursingItems" border style="width: 100%" max-height="600" v-loading="loading"
+      element-loading-text="加载中..." :empty-text="loading ? '加载中...' : '暂无护理项目'">
       <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="customerName" label="客户" width="120" />
       <el-table-column prop="code" label="项目编号" width="120" />
       <el-table-column prop="name" label="项目名称" min-width="120" show-overflow-tooltip />
       <el-table-column prop="price" label="价格" width="120" />
-      <el-table-column prop="remain" label="剩余执行次数" width="120" />
+      <el-table-column prop="remain" label="剩余次数" width="120" />
       <el-table-column prop="expireDate" label="服务到期时间" width="120">
         <template #default="{ row }">
           {{ formatDate(row.expireDate) }}
@@ -46,50 +36,32 @@
       <el-table-column prop="status" label="状态" width="150">
         <template #default="{ row }">
           <div class="status-tags">
-            <el-tag
-              :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'"
-              size="small"
-            >
-              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }}
-            </el-tag>
-            <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small">
-              {{ row.remain <= 0 ? '欠费' : '数量正常' }}
-            </el-tag>
+            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
+              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }} </el-tag>
+                <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small">
+                  {{ row.remain <= 0 ? '欠费' : '数量正常' }} </el-tag>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right"  width="150">
+      <el-table-column label="操作" fixed="right" width="150">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="openNursingDialog(scope.row)"
-            >添加护理</el-button
-          >
+          <el-button type="primary" size="small" @click="openNursingDialog(scope.row)">添加护理</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="pagination-container">
-      <el-pagination
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :page-size="pageSize"
-        :current-page="pageNum"
-        :page-sizes="[5, 10, 20, 50]"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
-      />
+      <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="total" :page-size="pageSize"
+        :current-page="pageNum" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
+        @current-change="handlePageChange" />
     </div>
 
     <!-- 护理记录弹窗 -->
     <el-dialog v-model="nursingDialogVisible" title="添加护理记录" width="30%">
       <el-form :model="nursingForm" label-width="100px">
         <el-form-item label="护理时间" required>
-          <el-date-picker
-            v-model="nursingForm.nursingTime"
-            type="date"
-            value-format="YYYY-MM-DD"
-            disabled
-          />
+          <el-date-picker v-model="nursingForm.nursingTime" type="date" value-format="YYYY-MM-DD" disabled />
         </el-form-item>
-        <el-form-item label="护理数量" required>
+        <el-form-item label="已护理次数" required>
           <el-input-number v-model="nursingForm.times" :min="1" />
         </el-form-item>
       </el-form>
@@ -231,6 +203,7 @@ onMounted(fetchNursingItems)
 .el-table {
   margin-bottom: 20px;
 }
+
 .status-tags {
   display: flex;
   gap: 8px;

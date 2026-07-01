@@ -571,6 +571,7 @@ public class NursingServiceImpl implements NursingService{
             itemRecordResult.setPrice(itemRecord.getPrice());
             itemRecordResult.setFrequency(itemRecord.getExecutionCycle());
             itemRecordResult.setCount(itemRecord.getExecutedTimes());
+            itemRecordResult.setTotalCount(itemRecord.getExecutionTimes() * itemRecord.getPurchasingTimes());
             itemRecordResult.setBuyDate(itemRecord.getPurchasingDate());
             itemRecordResult.setBuyCount(itemRecord.getPurchasingTimes());
             itemRecordResult.setExpireDate(itemRecord.getExpirationDate());
