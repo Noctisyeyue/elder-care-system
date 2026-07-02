@@ -42,8 +42,11 @@ public class Customer extends BaseEntity {
     /** 客户联系电话 */
     private String tel;
 
-    /** 身份证号 */
+    /** 身份证号（AES 加密存储，Base64 密文） */
     private String idNumber;
+
+    /** 身份证号哈希（SHA-256，用于查重匹配，不可逆） */
+    private String idNumberHash;
 
     /** 床位ID */
     private Long bedId;

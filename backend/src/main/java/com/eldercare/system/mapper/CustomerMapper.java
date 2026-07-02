@@ -52,9 +52,9 @@ public interface CustomerMapper extends BaseMapper<Customer> {
 
     Map<String, Object> getNursingItemById(Long itemId);
 
-    Long getIdByIdNum(String idNumber);
+    Long getIdByIdNum(String idNumberHash);
 
-    Customer selectByIdNum(String idNumber);
+    Customer selectByIdNum(String idNumberHash);
 
     void removeAllCustomers(int caregiverId);
 

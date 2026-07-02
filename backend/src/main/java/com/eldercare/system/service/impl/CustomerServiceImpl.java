@@ -1,6 +1,7 @@
 package com.eldercare.system.service.impl;
 import com.eldercare.system.service.RedisService;
 import com.eldercare.system.service.CustomerService;
+import com.eldercare.system.util.AesUtil;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -97,6 +98,13 @@ public class CustomerServiceImpl implements CustomerService{
                 pageStart,
                 request.getPageSize()
         );
+        // 身份证号密文解密后返回（数据库存 AES 密文，业务层统一解密）
+        // 兼容历史明文：解密失败（明文/格式不符）时原样返回，避免列表整体崩溃
+        if (items != null) {
+            for (CustomerVO vo : items) {
+                vo.setIdNumber(AesUtil.decryptSafely(vo.getIdNumber()));
+            }
+        }
         long total = customerMapper.countCustomerItems(
                 request.getCustomerName(),
                 request.getCustomerType()
@@ -158,7 +166,9 @@ public class CustomerServiceImpl implements CustomerService{
         customer.setTel(param.getTel());
         customer.setFamilyMemberTel(param.getFamilyMemberTel());
         customer.setNation(param.getNation());
-        customer.setIdNumber(param.getIdNumber());
+        // 身份证号 AES 加密后存储；同时计算 SHA-256 哈希用于查重（密文不可直接等值匹配）
+        customer.setIdNumber(AesUtil.encrypt(param.getIdNumber()));
+        customer.setIdNumberHash(hashIdNumber(param.getIdNumber()));
         //根据床号和房间号获取床id
         Map<String, Object> newBedParams = new HashMap<>();
         newBedParams.put("bedNo", param.getBedNumber());
@@ -168,8 +178,8 @@ public class CustomerServiceImpl implements CustomerService{
 
         try {
             customer.setBedId(newBedId);
-            //根据id_number查询customer,如果有则返回错误
-            if (customerMapper.selectByIdNum(param.getIdNumber()) != null) {
+            //查重：用身份证哈希匹配（密文无法等值比较）
+            if (customerMapper.selectByIdNum(customer.getIdNumberHash()) != null) {
                 result.setCode(500);
                 result.setMessage("添加失败，用户已存在");
                 return result;
@@ -193,7 +203,8 @@ public class CustomerServiceImpl implements CustomerService{
             BedRecord bedRecord = new BedRecord();
             bedRecord.setBedId(newBedId);
             bedRecord.setBedNo(param.getBedNumber());
-            bedRecord.setCustomerId(customerMapper.getIdByIdNum(param.getIdNumber()));
+            // insert 后 MyBatis-Plus 已自动回填自增主键，直接取，无需再用身份证哈希反查
+            bedRecord.setCustomerId(customer.getCustomerId());
             bedRecord.setUsageStartDate(param.getCheckInDate());
             bedRecord.setUsageEndDate(param.getContractEndDate());
             bedRecord.setHistory("1");
@@ -270,7 +281,18 @@ public class CustomerServiceImpl implements CustomerService{
         existingCustomer.setTel(param.getTel());
         existingCustomer.setFamilyMemberTel(param.getFamilyMemberTel());
         existingCustomer.setNation(param.getNation());
-        existingCustomer.setIdNumber(param.getIdNumber());
+        // 身份证号查重：按哈希查，排除当前客户自身（避免把身份证改成别人的）
+        String newHash = hashIdNumber(param.getIdNumber());
+        Customer duplicate = customerMapper.selectByIdNum(newHash);
+        if (duplicate != null && !duplicate.getCustomerId().equals(id)) {
+            log.warn("修改客户 {} 时身份证号冲突：目标身份证已被客户 {} 使用", id, duplicate.getCustomerId());
+            result.setCode(500);
+            result.setMessage("修改失败，该身份证号已被其他客户使用");
+            return result;
+        }
+        // 身份证号加密存储 + 更新哈希
+        existingCustomer.setIdNumber(AesUtil.encrypt(param.getIdNumber()));
+        existingCustomer.setIdNumberHash(newHash);
 
 
         // 4. 获取新的床号 ID（如果提供了 roomNumber 和 bedNumber）
@@ -1361,5 +1383,31 @@ public class CustomerServiceImpl implements CustomerService{
             throw e;
         }
         return result;
+    }
+
+    /**
+     * 计算身份证号的 SHA-256 哈希（用于查重匹配）。
+     *
+     * <p>身份证加密后密文无法等值比较，故额外存一份不可逆哈希。
+     * 查重时对输入身份证算哈希，与库中哈希比对。
+     *
+     * @param idNumber 明文身份证号
+     * @return SHA-256 十六进制字符串，输入为空时返回空串
+     */
+    private String hashIdNumber(String idNumber) {
+        if (idNumber == null || idNumber.isEmpty()) {
+            return "";
+        }
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(idNumber.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("计算身份证哈希失败", e);
+        }
     }
 }

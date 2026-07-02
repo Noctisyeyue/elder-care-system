@@ -82,6 +82,9 @@ elder-care:
     # JWT 密钥为敏感信息，真值见 application-local.yml
     secret-key: your-jwt-secret-key
     ttl: 72000000
+  aes:
+    # AES 加密密钥（用于身份证号加密），真值见 application-local.yml
+    secret-key: your-aes-secret-key
   alioss:
     # OSS 密钥为敏感信息，真值见 application-local.yml
     access-key-id: your-access-key-id

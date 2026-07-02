@@ -278,14 +278,14 @@
     <select id="getIdByIdNum" parameterType="string" resultType="long">
         select customer_id
         from customer
-        where id_number = #{idNumber}
+        where id_number_hash = #{idNumberHash}
         and del_flag = '0'
     </select>
-    <!-- Customer selectByIdNum(String idNumber);-->
+    <!-- Customer selectByIdNum(String idNumberHash);-->
     <select id="selectByIdNum" parameterType="string" resultType="com.eldercare.system.entity.Customer">
         select *
         from customer c
-        where id_number = #{idNumber}
+        where id_number_hash = #{idNumberHash}
         and c.del_flag = '0'
     </select>
     <update id="removeAllCustomers">
