@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-`elder-care-system` 是一个面向颐养中心后台管理场景的前后端分离项目，主要用于管理床位、客户入住、护理服务、健康管家、膳食安排、系统用户和 AI 对话等业务。
+`elder-care-system` 是一个面向颐养中心后台管理场景的前后端分离项目，主要用于管理床位、客户入住、护理服务、健康管家、膳食安排、系统用户等业务。
 
 当前项目的工程规范重点包括：
 
@@ -31,7 +31,7 @@
 
 | 层级 | 技术 |
 | --- | --- |
-| 后端 | Spring Boot 3.2.4、Spring Security、MyBatis-Plus、MySQL、Redis、JWT、Spring Mail、Spring AI |
+| 后端 | Spring Boot 3.2.4、Spring Security、MyBatis-Plus、MySQL、Redis、JWT、Spring Mail |
 | 前端 | Vue 3、Vite、TypeScript、Element Plus、Pinia、Vue Router、Axios、ECharts |
 | 数据库 | MySQL |
 | 构建工具 | Maven、npm |
@@ -310,13 +310,6 @@ GET  http://localhost:8080/api/customer/list
 | `elder-care.jwt` | JWT 密钥和过期时间 |
 | `elder-care.alioss` | 阿里云 OSS 文件上传配置 |
 | `elder-care.captcha` | 登录算术验证码配置，可控制是否开启、图片尺寸和过期时间 |
-
-开发注意事项：
-
-- 真实数据库密码、邮箱授权码、OSS 密钥、AI API Key 不建议提交到公开仓库。
-- 修改 `server.servlet.context-path` 后，需要同步修改前端请求地址。
-- 前端目前业务接口和 LLM 接口分别配置，LLM 相关地址也需要按实际服务调整。
-- `elder-care.captcha.enabled=true` 时，登录前端会先请求 `/common/captcha` 获取算术验证码，后端在校验账号密码前先校验验证码。
 
 ## 开发规范
 
