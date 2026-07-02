@@ -75,7 +75,16 @@
     </select>
 
     <select id="getTotalCareCount" resultType="java.lang.Long">
-        select sum(nir.execution_times * nir.purchasing_times - nir.executed_times)
+        select COALESCE(sum(nir.execution_times * nir.purchasing_times - nir.executed_times), 0)
+        from customer c, nursing_item_record nir
+        where c.customer_id = nir.customer_id
+        and c.user_id = #{userId}
+        and c.del_flag = '0'
+        and nir.del_flag = '0'
+    </select>
+
+    <select id="getSumExecutedTimes" resultType="java.lang.Long">
+        select COALESCE(SUM(nir.executed_times), 0)
         from customer c, nursing_item_record nir
         where c.customer_id = nir.customer_id
         and c.user_id = #{userId}

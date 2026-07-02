@@ -314,27 +314,29 @@ public class CaregiverServiceImpl implements CaregiverService {
         // 计算较昨日提升数量
         Long compareCareCount = dailyCarecount - yesterdayCarecount;
         data.setCompareCareCount(compareCareCount);
-        // 获取总护理次数
+        // 获取累计护理次数（已执行次数总和）
+        Long executedSum = 0L;
         try {
-            data.setTotalCareCount(userMapper.getTotalCareCount(userId) == null ? 0 : userMapper.getTotalCareCount(userId));
+            executedSum = userMapper.getSumExecutedTimes(userId);
+            if (executedSum == null) executedSum = 0L;
         } catch (Exception e) {
             result.setCode(500);
-            result.setMessage("获取总护理次数数据库错误");
+            result.setMessage("获取累计护理次数数据库错误");
             return result;
         }
-        // 获取已完成护理次数
-        QueryWrapper<NursingRecord> completedNursingCountQueryWrapper = new QueryWrapper<>();
-        completedNursingCountQueryWrapper.eq("user_id", userId);
-        completedNursingCountQueryWrapper.eq("del_flag", "0");
+        data.setTotalCareCount(executedSum);
+        data.setCompletedCareCount(executedSum);
+        // 获取未完成护理次数（剩余需执行次数）
+        Long remainingSum = 0L;
         try {
-            data.setCompletedCareCount(nursingRecordMapper.selectCount(completedNursingCountQueryWrapper));
+            remainingSum = userMapper.getTotalCareCount(userId);
+            if (remainingSum == null) remainingSum = 0L;
         } catch (Exception e) {
             result.setCode(500);
-            result.setMessage("获取已完成护理次数数据库错误");
+            result.setMessage("获取未完成护理次数数据库错误");
             return result;
         }
-        // 获取未完成护理次数
-        data.setUncompletedCareCount(data.getTotalCareCount() - data.getCompletedCareCount());
+        data.setUncompletedCareCount(remainingSum);
         // 获取累计护理人数
         QueryWrapper<Customer> totalCustomerCountQueryWrapper = new QueryWrapper<>();
         totalCustomerCountQueryWrapper.eq("user_id", userId);

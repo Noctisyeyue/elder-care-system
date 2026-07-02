@@ -31,4 +31,12 @@ public interface UserMapper extends BaseMapper<User> {
     String selectEmail(Long userId);
 
     Long getTotalCareCount(Long userId);
+
+    /**
+     * 查询累计已执行护理次数
+     *
+     * @param userId 护工用户ID
+     * @return 已执行次数总和
+     */
+    Long getSumExecutedTimes(Long userId);
 }
