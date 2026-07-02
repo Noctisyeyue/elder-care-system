@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.eldercare.system.entity.*;
+import com.eldercare.system.exception.BusinessException;
 import com.eldercare.system.mapper.*;
 import com.eldercare.system.util.PageResult;
 import com.eldercare.system.util.ApiResult;
@@ -1192,9 +1193,7 @@ public class DietServiceImpl implements DietService{
             try {
                 setMealRecordDishMappingMapper.insert(setMealRecordDishMapping);
             } catch (Exception e) {
-                result.setCode(500);
-                result.setMessage("添加套餐中的菜品映射数据库错误");
-                throw e;
+                throw new BusinessException(500, "添加套餐中的菜品映射数据库错误");
             }
         }
         result.setCode(200);
@@ -1230,9 +1229,7 @@ public class DietServiceImpl implements DietService{
                 list.add(vo);
             }
         } catch (Exception e) {
-            result.setCode(500);
-            result.setMessage("查询本周膳食配餐量数据库错误");
-            throw e;
+            throw new BusinessException(500, "查询本周膳食配餐量数据库错误");
         }
         result.setCode(200);
         result.setData(list);

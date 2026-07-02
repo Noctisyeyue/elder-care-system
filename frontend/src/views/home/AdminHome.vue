@@ -253,6 +253,7 @@ function getChartTheme() {
 function initBedStatusChart() {
   const dom = document.getElementById('BedStatusChart')
   if (!dom) return
+  if (bedStatusChart) bedStatusChart.dispose()
   bedStatusChart = echarts.init(dom)
   const t = getChartTheme()
   bedStatusChart.setOption({
@@ -303,6 +304,7 @@ function initBedStatusChart() {
 function initYearTrendChart() {
   const dom = document.getElementById('YearTrendChart')
   if (!dom) return
+  if (yearTrendChart) yearTrendChart.dispose()
   yearTrendChart = echarts.init(dom)
   const t = getChartTheme()
   const data = Array.isArray(yearCustomerNum.value) ? yearCustomerNum.value : []
@@ -347,6 +349,7 @@ function initYearTrendChart() {
 function initNursingLevelChart() {
   const dom = document.getElementById('NursingLevelChart')
   if (!dom) return
+  if (nursingLevelChart) nursingLevelChart.dispose()
   nursingLevelChart = echarts.init(dom)
   const t = getChartTheme()
   const data = nursingLevelData.value
@@ -383,6 +386,7 @@ function initNursingLevelChart() {
 function initRoleDistChart() {
   const dom = document.getElementById('RoleDistChart')
   if (!dom) return
+  if (roleDistChart) roleDistChart.dispose()
   roleDistChart = echarts.init(dom)
   const t = getChartTheme()
   const data = Array.isArray(userRoleNum.value) ? userRoleNum.value : []
@@ -411,6 +415,7 @@ function initRoleDistChart() {
 function initWeeklyMealChart() {
   const dom = document.getElementById('WeeklyMealChart')
   if (!dom) return
+  if (weeklyMealChart) weeklyMealChart.dispose()
   weeklyMealChart = echarts.init(dom)
   const t = getChartTheme()
   const data = weeklyMealData.value
@@ -462,8 +467,11 @@ function updateAllCharts() {
 }
 
 function handleResize() {
-  bedStatusChart?.resize(); yearTrendChart?.resize()
-  nursingLevelChart?.resize(); roleDistChart?.resize(); weeklyMealChart?.resize()
+  bedStatusChart?.resize()
+  yearTrendChart?.resize()
+  nursingLevelChart?.resize()
+  roleDistChart?.resize()
+  weeklyMealChart?.resize()
 }
 
 async function fetchUserNumInfo() { userNum.value = await getUserCount() }
@@ -521,8 +529,14 @@ async function fetchOutingApplications() {
   outingApplicationTotal.value = res.total || 0
 }
 
-function handleCheckoutApplicationPageChange(page) { checkOutSearchForm.pageNum = page; fetchCheckoutApplications() }
-function handleOutingApplicationPageChange(page) { outingSearchForm.pageNum = page; fetchOutingApplications() }
+function handleCheckoutApplicationPageChange(page) {
+  checkOutSearchForm.pageNum = page
+  fetchCheckoutApplications()
+}
+function handleOutingApplicationPageChange(page) {
+  outingSearchForm.pageNum = page
+  fetchOutingApplications()
+}
 
 function getStatusType(status) {
   switch (status) {
@@ -552,8 +566,11 @@ watch(() => settingStore.systemThemeMode, () => nextTick(() => updateAllCharts()
 onUnmounted(() => {
   themeObserver?.disconnect()
   window.removeEventListener('resize', handleResize)
-  bedStatusChart?.dispose(); yearTrendChart?.dispose(); nursingLevelChart?.dispose()
-  roleDistChart?.dispose(); weeklyMealChart?.dispose()
+  bedStatusChart?.dispose()
+  yearTrendChart?.dispose()
+  nursingLevelChart?.dispose()
+  roleDistChart?.dispose()
+  weeklyMealChart?.dispose()
 })
 </script>
 

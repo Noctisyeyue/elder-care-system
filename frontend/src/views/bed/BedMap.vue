@@ -245,15 +245,26 @@ function updateBedStats() {
       })
     }
   })
-  bedStats.total = total; bedStats.free = free; bedStats.used = used; bedStats.out = out
+  bedStats.total = total
+  bedStats.free = free
+  bedStats.used = used
+  bedStats.out = out
 }
 
-function onBuildingChange() { selectedFloor.value = ''; floorList.value = []; roomList.value = []; fetchFloorList() }
+function onBuildingChange() {
+  selectedFloor.value = ''
+  floorList.value = []
+  roomList.value = []
+  fetchFloorList()
+}
 
 function fetchFloorList() {
   getFloorList(selectedBuilding.value).then((res) => {
     floorList.value = res || []
-    if (floorList.value.length > 0) { selectedFloor.value = floorList.value[0]; fetchRoomList() }
+    if (floorList.value.length > 0) {
+      selectedFloor.value = floorList.value[0]
+      fetchRoomList()
+    }
   })
 }
 
