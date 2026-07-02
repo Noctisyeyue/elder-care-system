@@ -69,12 +69,12 @@ spring:
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.eldercare.system.entity
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
   level:
-    com.eldercare.system: debug
+    com.eldercare.system: info
+    # 需要排查 SQL 时临时打开下面这行即可：
+    # com.eldercare.system.mapper: debug
 
 # 自定义配置
 elder-care:
