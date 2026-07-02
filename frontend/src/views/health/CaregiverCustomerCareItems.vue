@@ -1,4 +1,4 @@
-<!-- 护工端--子菜单--日常护理--添加护理 -->
+<!-- 护工端--子菜单--日常护理--登记护理 -->
 <template>
   <div class="art-full-height">
     <!-- 搜索区域 -->
@@ -35,21 +35,26 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="customerName" label="客户" width="120" />
         <el-table-column prop="code" label="项目编号" width="120" />
-        <el-table-column prop="name" label="项目名称" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="name" label="项目名称" min-width="100" show-overflow-tooltip />
         <el-table-column prop="remain" label="剩余次数" width="120" />
         <el-table-column prop="expireDate" label="服务到期时间" width="120">
           <template #default="{ row }"> {{ formatDate(row.expireDate) }} </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column label="状态" width="170">
           <template #default="{ row }">
-            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
-              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }}
-            </el-tag>
+            <div class="status-tags">
+              <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
+                {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }}
+              </el-tag>
+              <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small">
+                {{ row.remain <= 0 ? '次数用尽' : '次数正常' }}
+              </el-tag>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="110" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="openNursingDialog(scope.row)">添加护理</el-button>
+            <el-button type="primary" size="small" @click="openNursingDialog(scope.row)">登记护理</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -63,15 +68,18 @@
         @current-change="handlePageChange" />
     </el-card>
 
-    <!-- 添加护理弹窗 -->
-    <el-dialog v-model="nursingDialogVisible" title="添加护理记录" width="450px" align-center
+    <!-- 登记护理弹窗 -->
+    <el-dialog v-model="nursingDialogVisible" title="登记护理记录" width="450px" align-center
       @close="nursingDialogVisible = false">
-      <el-form :model="nursingForm" label-width="100px">
+      <el-form :model="nursingForm" label-width="110px">
         <el-form-item label="护理时间" required>
           <el-date-picker v-model="nursingForm.nursingTime" type="date" value-format="YYYY-MM-DD" disabled
             style="width: 100%" />
         </el-form-item>
-        <el-form-item label="已护理次数" required>
+        <el-form-item label="剩余次数">
+          <el-input v-model="currentRemain" disabled />
+        </el-form-item>
+        <el-form-item label="本次护理次数" required>
           <el-input-number v-model="nursingForm.times" :min="1" :max="currentRemain" />
         </el-form-item>
       </el-form>
@@ -137,7 +145,7 @@ function handleSearch() { fetchNursingItems() }
 function openNursingDialog(item) {
   const isExpired = new Date(item.expireDate) < new Date()
   const isOwed = item.remain <= 0
-  if (isExpired || isOwed) { ElMessage.error('该护理项目已到期或无剩余，请联系管理员续购'); return }
+  if (isExpired || isOwed) { ElMessage.error('该护理项目已到期或次数用尽，请联系管理员处理'); return }
   currentRemain.value = item.remain
   nursingForm.nursingTime = new Date().toISOString().slice(0, 10)
   nursingForm.times = 1
@@ -158,7 +166,7 @@ async function submitNursingRecord() {
     nursingTime: nursingForm.nursingTime,
     times: nursingForm.times,
   })
-  ElMessage.success('护理记录添加成功')
+  ElMessage.success('护理记录登记成功')
   nursingDialogVisible.value = false
   fetchNursingItems()
 }
@@ -169,5 +177,11 @@ onMounted(fetchNursingItems)
 </script>
 
 <style scoped>
-/* 样式由全局管理 */
+.status-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 </style>
