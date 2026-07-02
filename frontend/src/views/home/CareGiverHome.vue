@@ -1,696 +1,628 @@
-<!-- 护工端--首页 -->
 <template>
-  <div class="caregiver-home">
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <!-- Top Welcome Card -->
-        <el-card shadow="never" class="welcome-card">
-          <el-row align="middle">
-            <el-col :span="16">
-              <div class="welcome-content">
-                <div class="welcome-text">
-                  <h2>欢迎回来&nbsp;&nbsp;&nbsp;&nbsp;{{ userStore.realName }}</h2>
-                </div>
-                <el-row class="stats-row">
-                  <el-col :span="8">
-                    <div class="stat-item">
-                      <span class="stat-value">
-                        {{ dailyCareCount }}
-                      </span>
-                      <span class="stat-label">今日护理次数</span>
-                    </div>
-                  </el-col>
-                  <el-col :span="8">
-                    <div class="stat-item">
-                      <span class="stat-value" v-if="compareCareCount > 0">
-                        {{ compareCareCount }}
-                        <el-icon color="#67c23a"><CaretTop /></el-icon>
-                      </span>
-                      <span class="stat-value" v-if="compareCareCount == 0">
-                        {{ compareCareCount }}
-                        <el-icon color="#aaaaaa" style="width: 20px;"><SemiSelect/></el-icon>
-                      </span>
-                      <span class="stat-value" v-if="compareCareCount < 0">
-                        {{ compareCareCount }}
-                        <el-icon color="#ee0000"><CaretBottom /></el-icon>
-                      </span>
-                      <span class="stat-label">较昨日</span>
-                    </div>
-                  </el-col>
-                </el-row>
+  <div class="home-dashboard">
+    <!-- 欢迎卡片 -->
+    <div class="welcome-row">
+      <el-card class="welcome-card" shadow="never">
+        <div class="welcome-body">
+          <div class="welcome-info">
+            <h2>欢迎回来，{{ userStore.realName }}</h2>
+            <p class="welcome-tip">今日工作顺利，照顾好老人也照顾好自己</p>
+            <div class="welcome-stats">
+              <div class="welcome-stat">
+                <span class="welcome-stat-value">{{ dailyCareCount }}</span>
+                <span class="welcome-stat-label">今日护理次数</span>
               </div>
-            </el-col>
-            <el-col :span="8" class="welcome-image-col">
-              <img src="https://neuhealth.oss-cn-beijing.aliyuncs.com/caregiver.png" alt="welcome" class="welcome-image" />
-            </el-col>
-          </el-row>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="never" class="stats-card">
-          <div class="stats-card-header">
-            <span class="stats-card-title">累计护理次数</span>
-            <span class="stats-card-value">{{ totalCareCount.toLocaleString() }}</span>
+              <div class="welcome-stat">
+                <span class="welcome-stat-value" :class="compareClass">
+                  {{ compareText }}
+                </span>
+                <span class="welcome-stat-label">较昨日</span>
+              </div>
+            </div>
           </div>
-          <div class="stats-card-chart" ref="chartRef" style="height: 140px; width: 100%"></div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="never" class="stats-card">
-          <div class="stats-card-header">
-            <span class="stats-card-title">累计护理人数</span>
-            <span class="stats-card-value">{{ totalCaredPeople.toLocaleString() }}</span>
+          <div class="welcome-decor">
+            <SvgIcon icon="ri:heart-fill" :size="80" />
           </div>
-          <div class="stats-card-chart" ref="barChartRef" style="height: 100px; width: 100%"></div>
-        </el-card>
-      </el-col>
-    </el-row>
+        </div>
+      </el-card>
+    </div>
 
-    <!-- Service Trend Chart -->
-    <el-row :gutter="20" class="second-row">
-      <el-col :span="12">
-        <el-card shadow="never" class="trend-card">
-          <div class="trend-card-header">
-            <span class="trend-card-title">服务客户趋势</span>
-            <span class="trend-card-subtitle">月度数量对比</span>
+    <!-- 统计卡片 -->
+    <div class="info-cards">
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">累计护理次数</div>
+            <div class="info-card-number">{{ totalCareCount.toLocaleString() }}</div>
+            <div class="info-card-description">已执行的护理总次数</div>
           </div>
-          <div class="trend-card-chart" ref="lineChartRef" style="height: 350px; width: 100%"></div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="never" class="status-card new-status-card">
-          <div class="new-status-header">
-            <div class="new-status-title">外出申请情况</div>
-            <div class="new-status-subtitle">按状态区分</div>
+          <div class="info-card-icon icon-care">
+            <SvgIcon icon="ri:heart-pulse-line" :size="24" />
           </div>
-          <div class="new-status-chart-wrapper">
-            <div ref="pieChartRef" class="new-status-chart"></div>
+        </div>
+      </el-card>
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">累计护理人数</div>
+            <div class="info-card-number">{{ totalCaredPeople.toLocaleString() }}</div>
+            <div class="info-card-description">累计服务的客户数量</div>
           </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="never" class="status-card new-status-card">
-          <div class="new-status-header">
-            <div class="new-status-title">退住申请情况</div>
-            <div class="new-status-subtitle">按状态区分</div>
+          <div class="info-card-icon icon-people">
+            <SvgIcon icon="ri:user-heart-line" :size="24" />
           </div>
-          <div class="new-status-chart-wrapper">
-            <div ref="checkoutPieChartRef" class="new-status-chart"></div>
+        </div>
+      </el-card>
+      <el-card class="info-card" shadow="never">
+        <div class="info-card-body">
+          <div class="info-card-info">
+            <div class="info-card-title">未完成护理项目</div>
+            <div class="info-card-number">{{ uncompletedCareCount }}</div>
+            <div class="info-card-description">待执行的护理次数</div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
+          <div class="info-card-icon icon-pending">
+            <SvgIcon icon="ri:time-line" :size="24" />
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 图表区：1行3列 -->
+    <div class="core-charts">
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">服务客户趋势</span>
+        </template>
+        <div class="chart-body" ref="lineChartRef"></div>
+      </el-card>
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">外出申请情况</span>
+        </template>
+        <div class="chart-body" ref="pieChartRef"></div>
+      </el-card>
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <span class="card-title">退住申请情况</span>
+        </template>
+        <div class="chart-body" ref="checkoutPieChartRef"></div>
+      </el-card>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { useSettingStore } from '@/stores/setting';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useSettingStore } from '@/stores/setting'
 import { getCaregiverHomeStats } from '@/api/health'
-import { ElCard, ElRow, ElCol, ElIcon } from 'element-plus';
-import { CaretTop, Check, Close, Upload, Delete, CaretBottom, Minus, SemiSelect } from '@element-plus/icons-vue';
-import * as echarts from 'echarts';
+import SvgIcon from '@/components/base/svg-icon/index.vue'
+import * as echarts from 'echarts/core'
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
+import { LineChart, PieChart } from 'echarts/charts'
+import { CanvasRenderer } from 'echarts/renderers'
 
-const userStore = useUserStore();
-const settingStore = useSettingStore();
-const chartRef = ref(null);
-let chartInstance = null;
-const barChartRef = ref(null);
-let barChartInstance = null;
-const lineChartRef = ref(null);
-let lineChartInstance = null;
-const pieChartRef = ref(null);
-let pieChartInstance = null;
-const checkoutPieChartRef = ref(null);
-let checkoutPieChartInstance = null;
-let themeObserver = null;
+const userStore = useUserStore()
+const settingStore = useSettingStore()
 
+const dailyCareCount = ref(0)
+const compareCareCount = ref(0)
+const totalCareCount = ref(0)
+const completedCareCount = ref(0)
+const uncompletedCareCount = ref(0)
+const totalCaredPeople = ref(0)
+const serviceTrendData = ref({ months: [], counts: [] })
+const outingApplicationStatus = ref({ approved: 0, rejected: 0, submitted: 0, cancelled: 0 })
+const checkoutApplicationStatus = ref({ approved: 0, rejected: 0, submitted: 0, cancelled: 0 })
+
+const lineChartRef = ref(null)
+const pieChartRef = ref(null)
+const checkoutPieChartRef = ref(null)
+let lineChartInstance, pieChartInstance, checkoutPieChartInstance, themeObserver
+
+const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+
+/** 较昨日比较样式 */
+const compareClass = computed(() => {
+  if (compareCareCount.value > 0) return 'compare-up'
+  if (compareCareCount.value < 0) return 'compare-down'
+  return 'compare-same'
+})
+
+const compareText = computed(() => {
+  const v = compareCareCount.value
+  if (v > 0) return `+${v}`
+  return String(v)
+})
+
+/** 护理进度百分比 */
+const progressPercent = computed(() => {
+  const total = completedCareCount.value + uncompletedCareCount.value
+  if (!total) return 0
+  return Math.round((completedCareCount.value / total) * 100)
+})
+
+/**
+ * 获取图表主题色
+ */
 function getChartTheme() {
-  const dark = document.documentElement.classList.contains('dark');
+  const dark = document.documentElement.classList.contains('dark')
   return {
-    dark,
     text: dark ? 'rgba(255,255,255,0.85)' : '#303133',
     subText: dark ? 'rgba(255,255,255,0.55)' : '#909399',
-    splitLine: dark ? 'rgba(255,255,255,0.12)' : '#e5e5e5',
+    splitLine: dark ? 'rgba(255,255,255,0.12)' : '#eef0f2',
     pieBorder: dark ? '#161618' : '#ffffff',
     labelLine: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)',
-    areaTop: dark ? 'rgba(64,158,255,0.35)' : 'rgb(200,210,255)',
-    areaBottom: dark ? 'rgba(64,158,255,0.05)' : 'rgb(255, 255, 255)',
+    areaTop: dark ? 'rgba(64,158,255,0.35)' : 'rgba(64,158,255,0.2)',
+    areaBottom: dark ? 'rgba(64,158,255,0.05)' : 'rgba(64,158,255,0.02)',
     inactiveColor: dark ? '#52525b' : '#e5e6eb',
-  };
-}
-
-function buildCarePieOption() {
-  const theme = getChartTheme();
-  return {
-    backgroundColor: 'transparent',
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} ({d}%)',
-    },
-    legend: {
-      top: '85%',
-      left: 'center',
-      orient: 'horizontal',
-      textStyle: { fontSize: 16, color: theme.text },
-      width: 240,
-      data: ['已完成', '未完成'],
-    },
-    series: [{
-      name: '护理统计',
-      type: 'pie',
-      top: '-15%',
-      radius: ['35%', '50%'],
-      center: ['50%', '50%'],
-      itemStyle: {
-        borderColor: theme.pieBorder,
-        borderWidth: 4,
-        borderRadius: 12,
-      },
-      label: {
-        show: true,
-        position: 'outside',
-        formatter: '{b}',
-        color: theme.text,
-        fontSize: 12,
-      },
-      labelLine: {
-        show: true,
-        length: 10,
-        length2: 10,
-        smooth: true,
-        lineStyle: { width: 3, type: 'solid', color: theme.labelLine },
-      },
-      data: [
-        { value: completedCareCount.value, name: '已完成', itemStyle: { color: theme.inactiveColor } },
-        { value: uncompletedCareCount.value, name: '未完成', itemStyle: { color: '#409EFF' } },
-      ],
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
-        },
-      },
-    }],
-  };
-}
-
-function buildBarChartOption() {
-  return {
-    backgroundColor: 'transparent',
-    grid: {
-      left: '0%',
-      right: '0%',
-      bottom: '0%',
-      top: '10%',
-      containLabel: false,
-    },
-    xAxis: {
-      type: 'category',
-      show: false,
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    },
-    yAxis: { type: 'value', show: false },
-    series: [{
-      data: [5, 8, 3, 9, 6, 7],
-      type: 'bar',
-      barWidth: '50%',
-      itemStyle: {
-        color: '#409EFF',
-        borderRadius: [5, 5, 5, 5],
-      },
-    }],
-    tooltip: { show: false },
-  };
+  }
 }
 
 function buildLineChartOption() {
-  const theme = getChartTheme();
+  const t = getChartTheme()
   return {
     backgroundColor: 'transparent',
-    color: 'rgb(119,161,255)',
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' },
+    },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '8%',
       containLabel: true,
     },
-    tooltip: { trigger: 'axis' },
     xAxis: {
       type: 'category',
       boundaryGap: false,
       data: serviceTrendData.value.months,
-      axisLabel: { color: theme.subText },
-      axisLine: { lineStyle: { color: theme.splitLine } },
+      axisLabel: { color: t.subText, fontSize: 12 },
+      axisLine: { lineStyle: { color: t.splitLine } },
+      axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: theme.subText },
+      axisLabel: { color: t.subText, fontSize: 12 },
       axisLine: { show: false },
-      splitLine: {
-        lineStyle: { color: theme.splitLine, width: 1, type: 'dashed' },
-      },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: t.splitLine, type: 'dashed' } },
     },
     series: [{
-      name: '服务客户数',
       type: 'line',
       smooth: true,
-      data: serviceTrendData.value.counts,
+      symbol: 'circle',
+      symbolSize: 6,
       showSymbol: false,
-      itemStyle: { color: '#409EFF' },
+      lineStyle: { width: 3, color: '#409eff' },
+      itemStyle: { color: '#409eff', borderWidth: 2, borderColor: '#fff' },
       areaStyle: {
+        opacity: 0.8,
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: theme.areaTop },
-          { offset: 1, color: theme.areaBottom },
+          { offset: 0, color: t.areaTop },
+          { offset: 1, color: t.areaBottom },
         ]),
       },
+      emphasis: {
+        focus: 'series',
+        itemStyle: { shadowBlur: 10, shadowColor: 'rgba(64, 158, 255, 0.3)' },
+      },
+      data: serviceTrendData.value.counts,
     }],
-  };
+  }
 }
 
-function buildStatusPieOption(statusData, seriesName) {
-  const theme = getChartTheme();
+function buildStatusPieOption(statusData) {
+  const t = getChartTheme()
   return {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
       formatter: '{b}: {c} ({d}%)',
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' },
     },
     legend: {
-      top: '85%',
+      bottom: 0,
       left: 'center',
-      orient: 'horizontal',
-      textStyle: { fontSize: 16, color: theme.text },
-      width: 240,
+      itemWidth: 8,
+      itemHeight: 8,
+      itemGap: 12,
+      textStyle: { color: t.subText, fontSize: 12 },
     },
     series: [{
-      name: seriesName,
       type: 'pie',
-      top: '-15%',
-      radius: ['35%', '50%'],
-      center: ['50%', '50%'],
+      radius: ['50%', '70%'],
+      center: ['50%', '42%'],
+      avoidLabelOverlap: true,
       itemStyle: {
-        borderColor: theme.pieBorder,
-        borderWidth: 4,
-        borderRadius: 12,
+        borderRadius: 6,
+        borderColor: t.pieBorder,
+        borderWidth: 2,
       },
-      label: {
-        show: true,
-        position: 'outside',
-        formatter: '{b}',
-        color: theme.text,
-        fontSize: 12,
-      },
-      labelLine: {
-        show: true,
-        length: 10,
-        length2: 10,
-        smooth: true,
-        lineStyle: { width: 3, type: 'solid', color: theme.labelLine },
-      },
-      data: [
-        { value: statusData.approved, name: '已通过', itemStyle: { color: '#409EFF' } },
-        { value: statusData.rejected, name: '不通过', itemStyle: { color: '#AAAAFF' } },
-        { value: statusData.submitted, name: '已提交', itemStyle: { color: '#87CEFA' } },
-        { value: statusData.cancelled, name: '已撤销', itemStyle: { color: theme.inactiveColor } },
-      ],
+      label: { show: false },
       emphasis: {
         itemStyle: {
-          shadowBlur: 10,
+          shadowBlur: 12,
           shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)',
+          shadowColor: 'rgba(0, 0, 0, 0.12)',
         },
       },
+      data: [
+        { value: statusData.approved, name: '已通过', itemStyle: { color: '#409eff' } },
+        { value: statusData.rejected, name: '不通过', itemStyle: { color: '#8b5cf6' } },
+        { value: statusData.submitted, name: '已提交', itemStyle: { color: '#f97316' } },
+        { value: statusData.cancelled, name: '已撤销', itemStyle: { color: t.inactiveColor } },
+      ],
     }],
-  };
+  }
 }
 
-function initCharts() {
-  if (chartRef.value) {
-    chartInstance = echarts.init(chartRef.value);
-    chartInstance.setOption(buildCarePieOption());
-  }
-  if (barChartRef.value) {
-    barChartInstance = echarts.init(barChartRef.value);
-    barChartInstance.setOption(buildBarChartOption());
-  }
+function initAllCharts() {
   if (lineChartRef.value) {
-    lineChartInstance = echarts.init(lineChartRef.value);
-    lineChartInstance.setOption(buildLineChartOption());
+    lineChartInstance = echarts.init(lineChartRef.value)
+    lineChartInstance.setOption(buildLineChartOption())
   }
   if (pieChartRef.value) {
-    pieChartInstance = echarts.init(pieChartRef.value);
-    pieChartInstance.setOption(buildStatusPieOption(outingApplicationStatus.value, '外出申请'));
+    pieChartInstance = echarts.init(pieChartRef.value)
+    pieChartInstance.setOption(buildStatusPieOption(outingApplicationStatus.value))
   }
   if (checkoutPieChartRef.value) {
-    checkoutPieChartInstance = echarts.init(checkoutPieChartRef.value);
-    checkoutPieChartInstance.setOption(buildStatusPieOption(checkoutApplicationStatus.value, '退住申请'));
+    checkoutPieChartInstance = echarts.init(checkoutPieChartRef.value)
+    checkoutPieChartInstance.setOption(buildStatusPieOption(checkoutApplicationStatus.value))
   }
 }
 
 function updateAllCharts() {
-  chartInstance?.setOption(buildCarePieOption());
-  barChartInstance?.setOption(buildBarChartOption());
-  lineChartInstance?.setOption(buildLineChartOption());
-  pieChartInstance?.setOption(buildStatusPieOption(outingApplicationStatus.value, '外出申请'));
-  checkoutPieChartInstance?.setOption(buildStatusPieOption(checkoutApplicationStatus.value, '退住申请'));
+  lineChartInstance?.setOption(buildLineChartOption())
+  pieChartInstance?.setOption(buildStatusPieOption(outingApplicationStatus.value))
+  checkoutPieChartInstance?.setOption(buildStatusPieOption(checkoutApplicationStatus.value))
 }
 
-function handleChartResize() {
-  chartInstance?.resize();
-  barChartInstance?.resize();
-  lineChartInstance?.resize();
-  pieChartInstance?.resize();
-  checkoutPieChartInstance?.resize();
+function handleResize() {
+  lineChartInstance?.resize()
+  pieChartInstance?.resize()
+  checkoutPieChartInstance?.resize()
 }
 
-const dailyCareCount = ref(0);
-const compareCareCount = ref(0);
-
-// 新增的统计数据
-const totalCareCount = ref(0);
-const completedCareCount = ref(0);
-const uncompletedCareCount = ref(0);
-const totalCaredPeople = ref(0);
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
-const serviceTrendData = ref({
-  months,
-  counts: [],
-});
-const outingApplicationStatus = ref({
-  approved: 0,
-  rejected: 0,
-  submitted: 0,
-  cancelled: 0,
-});
-const checkoutApplicationStatus = ref({
-  approved: 0,
-  rejected: 0,
-  submitted: 0,
-  cancelled: 0,
-});
-
-// 模拟从后端获取数据
-const fetchData = async () => {
+async function fetchData() {
   try {
-    const res = await getCaregiverHomeStats();
-    if (res && typeof res === 'object') {
-      if (typeof res.dailyCareCount === 'number') dailyCareCount.value = res.dailyCareCount;
-      if (typeof res.compareCareCount === 'number') compareCareCount.value = res.compareCareCount;
-      if (typeof res.totalCareCount === 'number') totalCareCount.value = res.totalCareCount;
-      if (typeof res.completedCareCount === 'number') completedCareCount.value = res.completedCareCount;
-      if (typeof res.uncompletedCareCount === 'number') uncompletedCareCount.value = res.uncompletedCareCount;
-      if (typeof res.totalCaredPeople === 'number') totalCaredPeople.value = res.totalCaredPeople;
-      if (Array.isArray(res.counts) && res.counts.length === 12) {
-        serviceTrendData.value = {
-          months,
-          counts: res.counts,
-        };
+    const res = await getCaregiverHomeStats()
+    if (res) {
+      dailyCareCount.value = res.dailyCareCount || 0
+      compareCareCount.value = res.compareCareCount || 0
+      totalCareCount.value = res.totalCareCount || 0
+      completedCareCount.value = res.completedCareCount || 0
+      uncompletedCareCount.value = res.uncompletedCareCount || 0
+      totalCaredPeople.value = res.totalCaredPeople || 0
+      if (Array.isArray(res.counts)) {
+        serviceTrendData.value = { months, counts: res.counts }
       }
-      if (res.outingApplicationStatus && typeof res.outingApplicationStatus === 'object') {
-        outingApplicationStatus.value = {
-          ...outingApplicationStatus.value,
-          ...res.outingApplicationStatus,
-        };
+      if (res.outingApplicationStatus) {
+        outingApplicationStatus.value = { approved: 0, rejected: 0, submitted: 0, cancelled: 0, ...res.outingApplicationStatus }
       }
-      if (res.checkoutApplicationStatus && typeof res.checkoutApplicationStatus === 'object') {
-        checkoutApplicationStatus.value = {
-          ...checkoutApplicationStatus.value,
-          ...res.checkoutApplicationStatus,
-        };
+      if (res.checkoutApplicationStatus) {
+        checkoutApplicationStatus.value = { approved: 0, rejected: 0, submitted: 0, cancelled: 0, ...res.checkoutApplicationStatus }
       }
-      // 用户名同步到 store（如果后端返回且 store 中尚无值）
-      if (typeof res.userName === 'string' && !userStore.realName) {
-        userStore.realName = res.userName
-      }
+      if (res.userName && !userStore.realName) userStore.realName = res.userName
     }
-
-    await nextTick();
-    if (!chartInstance) {
-      initCharts();
-    } else {
-      updateAllCharts();
-    }
+    await nextTick()
+    if (!lineChartInstance) { initAllCharts() } else { updateAllCharts() }
   } catch (error) {
-    console.error('获取护工首页数据失败:', error);
+    console.error('获取首页数据失败:', error)
   }
-};
+}
+
+echarts.use([TitleComponent, TooltipComponent, GridComponent, LegendComponent, LineChart, PieChart, CanvasRenderer])
 
 onMounted(() => {
-  fetchData();
-  themeObserver = new MutationObserver(() => updateAllCharts());
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  window.addEventListener('resize', handleChartResize);
-});
+  fetchData()
+  themeObserver = new MutationObserver(() => updateAllCharts())
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  window.addEventListener('resize', handleResize)
+})
+
+watch(() => settingStore.systemThemeMode, () => nextTick(() => updateAllCharts()))
 
 onUnmounted(() => {
-  themeObserver?.disconnect();
-  window.removeEventListener('resize', handleChartResize);
-  chartInstance?.dispose();
-  barChartInstance?.dispose();
-  lineChartInstance?.dispose();
-  pieChartInstance?.dispose();
-  checkoutPieChartInstance?.dispose();
-});
-
-watch(() => settingStore.systemThemeMode, () => {
-  nextTick(() => updateAllCharts());
-});
-
-watch([completedCareCount, uncompletedCareCount], () => {
-  chartInstance?.setOption(buildCarePieOption());
-}, { deep: true });
+  themeObserver?.disconnect()
+  window.removeEventListener('resize', handleResize)
+  lineChartInstance?.dispose(); pieChartInstance?.dispose(); checkoutPieChartInstance?.dispose()
+})
 </script>
 
 <style scoped>
-.caregiver-home {
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
-    '\\5FAE软雅黑', Arial, sans-serif;
+.home-dashboard {
+  padding: 4px;
+}
+
+/* 全局卡片规范 */
+:deep(.el-card) {
+  border-radius: 12px;
+  border: 1px solid var(--default-border);
+  background: var(--default-box-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:deep(.el-card:hover) {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+:deep(.el-card__header) {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--default-border);
+}
+
+:deep(.el-card__body) {
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-gray-800);
+  position: relative;
+  padding-left: 10px;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #409eff 0%, #60a5fa 100%);
+}
+
+/* 欢迎卡片 */
+.welcome-row {
+  margin-bottom: 16px;
 }
 
 .welcome-card {
-  --el-card-bg-color: transparent;
-  background: var(--welcome-card-bg) !important;
-  border: 1px solid var(--default-border);
-  border-radius: 12px;
-  height: 100%;
+  background: linear-gradient(135deg, #e0f2fe 0%, #eef2ff 50%, #f0fdf4 100%) !important;
+  border: none !important;
   overflow: hidden;
+  position: relative;
 }
 
-:deep(.welcome-card.el-card) {
-  --el-card-bg-color: transparent;
-  background: var(--welcome-card-bg) !important;
+html.dark .welcome-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #052e16 100%) !important;
 }
 
-:deep(.welcome-card .el-card__body) {
-  padding: 15px 20px;
-}
-
-.welcome-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* 垂直居中 */
-  height: 100%;
-  padding: 15px 20px;
-}
-
-.welcome-text h2 {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--ui-gray-800);
-  margin: 0;
-  margin-bottom: 50px;
-}
-
-.stats-row {
-  margin-top: 0; /* 移除顶部外边距，由 welcome-text 控制间距 */
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 22px;
-  font-weight: bold;
-  color: var(--ui-gray-800);
+.welcome-body {
   display: flex;
   align-items: center;
-}
-
-.stat-value .el-icon {
-  margin-left: 5px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--ui-gray-500);
-  margin-top: 4px;
-}
-
-.welcome-image-col {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.welcome-image {
-  max-width: 150px;
-  height: auto;
-}
-
-/* 统计卡片样式 */
-.stats-card {
-  border-radius: 12px;
-  height: 100%;
-  border: 1px solid var(--default-border);
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
+  padding: 8px 12px;
 }
 
-:deep(.stats-card .el-card__body) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 15px 20px;
+.welcome-info {
+  flex: 1;
+  z-index: 2;
 }
 
-.stats-card-header {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
+.welcome-info h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px 0;
 }
 
-.stats-card-title {
+html.dark .welcome-info h2 {
+  color: #f1f5f9;
+}
+
+.welcome-tip {
   font-size: 14px;
-  color: var(--ui-gray-500);
-  margin-bottom: 5px;
+  color: #64748b;
+  margin: 0 0 20px 0;
 }
 
-.stats-card-value {
+html.dark .welcome-tip {
+  color: #94a3b8;
+}
+
+.welcome-stats {
+  display: flex;
+  gap: 40px;
+}
+
+.welcome-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.welcome-stat-value {
   font-size: 24px;
-  font-weight: bold;
-  color: var(--ui-gray-800);
-}
-
-.stats-card-chart {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.second-row {
-  margin-top: 20px;
-}
-
-.trend-card {
-  border-radius: 12px;
-  border: 1px solid var(--default-border);
-}
-
-.trend-card-header {
-  margin-bottom: 20px;
-}
-
-.trend-card-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ui-gray-800);
-}
-
-.trend-card-subtitle {
-  font-size: 14px;
-  color: var(--ui-gray-500);
-  margin-left: 10px;
-}
-
-.status-card {
-  border-radius: 12px;
-  border: 1px solid var(--default-border);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  padding-top: 0;
-}
-
-.status-card-header {
-  width: 100%;
-  margin-bottom: 0;
-  padding-top: 0;
-}
-
-.status-card-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ui-gray-800);
-}
-
-.status-card-subtitle {
-  font-size: 14px;
-  color: var(--ui-gray-500);
-  margin-left: 10px;
-}
-
-.status-card-chart {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 180px;
-}
-
-:deep(.status-card .el-card__body) {
-  padding-top: 0 !important;
-}
-
-.new-status-card {
-  border-radius: 12px;
-  border: 1px solid var(--default-border);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 0;
-}
-
-.new-status-header {
-  padding: 18px 0 0 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.new-status-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ui-gray-800);
+  font-weight: 700;
+  color: #1e293b;
   line-height: 1;
 }
 
-.new-status-subtitle {
+html.dark .welcome-stat-value {
+  color: #f1f5f9;
+}
+
+.welcome-stat-label {
   font-size: 13px;
-  color: var(--ui-gray-500);
-  margin-top: 4px;
-  line-height: 1;
+  color: #64748b;
 }
 
-.new-status-chart-wrapper {
+html.dark .welcome-stat-label {
+  color: #94a3b8;
+}
+
+.compare-up {
+  color: #22c55e !important;
+}
+
+.compare-down {
+  color: #ef4444 !important;
+}
+
+.compare-same {
+  color: #94a3b8 !important;
+}
+
+.welcome-decor {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(64, 158, 255, 0.15);
+  z-index: 1;
+}
+
+html.dark .welcome-decor {
+  color: rgba(64, 158, 255, 0.1);
+}
+
+/* 统计卡片 */
+.info-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-card {
+  flex: 1;
+  min-width: 240px;
+}
+
+.info-card :deep(.el-card__body) {
+  padding: 20px 22px;
+}
+
+.info-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.info-card-info {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 180px;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
-.new-status-chart {
-  width: 100%;
+.info-card-title {
+  font-size: 14px;
+  color: var(--ui-gray-500);
+  line-height: 1;
+}
+
+.info-card-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ui-gray-800);
+  line-height: 1.1;
+}
+
+.info-card-description {
+  font-size: 12px;
+  color: var(--ui-gray-400);
+  line-height: 1;
+}
+
+.info-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease;
+}
+
+.info-card:hover .info-card-icon {
+  transform: scale(1.08);
+}
+
+.icon-care {
+  background: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+}
+
+.icon-people {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.icon-pending {
+  background: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+}
+
+/* 图表区 */
+.core-charts {
+  display: flex;
+  gap: 16px;
   height: 360px;
+}
+
+.chart-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-card :deep(.el-card__body) {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-body {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+/* 响应式适配 */
+@media (max-width: 1200px) {
+  .core-charts {
+    flex-wrap: wrap;
+    height: auto;
+  }
+  .chart-card {
+    min-width: calc(50% - 8px);
+    height: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .core-charts {
+    flex-direction: column;
+  }
+  .chart-card {
+    min-width: 100%;
+  }
+  .welcome-stats {
+    gap: 24px;
+  }
+  .welcome-decor {
+    display: none;
+  }
 }
 </style>
