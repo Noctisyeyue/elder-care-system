@@ -191,9 +191,18 @@ function removeCustomer(customer) {
 }
 
 async function handleSave() {
-  await setCaregiverCustomers(Number(caregiverId), allMyCustomers.value.map(c => c.id))
-  isChanged.value = false
-  ElMessage.success('保存成功！')
+  try {
+    // 批量保存当前护工的服务客户，请求体格式与后端 SetCustomersRequest 一致
+    await setCaregiverCustomers({
+      caregiverId: Number(caregiverId),
+      customerIds: allMyCustomers.value.map((c) => c.id),
+    })
+    isChanged.value = false
+    ElMessage.success('保存成功！')
+  } catch (error) {
+    console.error('保存服务对象失败:', error)
+    ElMessage.error('保存服务对象失败')
+  }
 }
 
 function goBack() {

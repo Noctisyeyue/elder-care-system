@@ -21,12 +21,15 @@ export function getCaregiverCustomers(params: Record<string, unknown>) {
 }
 
 /**
- * 为健康管家分配客户。
+ * 为健康管家批量设置服务对象。
  *
- * @param params 包含 caregiverId, customerIds 的对象
- * @returns 分配处理结果
+ * @param params 包含 caregiverId、customerIds 的请求参数
+ * @returns 设置处理结果
  */
-export function setCaregiverCustomers(params: Record<string, unknown>) {
+export function setCaregiverCustomers(params: {
+  caregiverId: number
+  customerIds: number[]
+}) {
   return post('/caregiver/setCustomers', params)
 }
 
