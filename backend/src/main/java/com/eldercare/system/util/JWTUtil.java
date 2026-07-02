@@ -39,11 +39,11 @@ public class JWTUtil {
      */
     public static String getToken(Map<String, String> map) {
         JWTCreator.Builder builder = JWT.create();
-        map.forEach(builder::withClaim);
+        map.forEach(builder::withClaim); // 把5个字段塞进 payload
         Calendar instance = Calendar.getInstance();
         instance.add(Calendar.MILLISECOND, (int) TTL);
-        builder.withExpiresAt(instance.getTime());
-        return builder.sign(Algorithm.HMAC256(SECRET));
+        builder.withExpiresAt(instance.getTime());// 加上过期时间（20小时后）
+        return builder.sign(Algorithm.HMAC256(SECRET)); // 用密钥签名，生成字符串
     }
 
     /**

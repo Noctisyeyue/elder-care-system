@@ -154,12 +154,26 @@ public class UserServiceImpl implements UserService{
             stringRedisTemplate.delete(redisKey);
         }
 
+        // ────────── 登录查询：支持「用户名」或「邮箱」任一种登录 ──────────
         QueryWrapper<User> qw = new QueryWrapper<>();
+        // user.getAccount() 是用户在登录框输入的账号（可能是用户名，也可能是邮箱）
+        // qw.and(...) 外层加括号至关重要，避免 AND 优先级高于 OR 导致逻辑错误
+        // 等价 SQL：WHERE ( user_name = ? OR email = ? )
         qw.and(w -> w.eq("user_name", user.getAccount()).or().eq("email", user.getAccount()));
+        // 只查未删除的用户（逻辑删除标记：0=正常 1=已删除）
+        // 等价 SQL：AND del_flag = '0'
         qw.eq("del_flag", "0");
+        // 执行查询：把拼好的条件交给数据库，查出一行；查不到返回 null
         User user0 = userMapper.selectOne(qw);
+
+        // ────────── 密码校验 ──────────
+        // flag 标记密码是否正确，初始 false
         Boolean flag = false;
+        // 只有账号存在（user0 != null）才验密码，否则跳过保持 false
         if(user0!=null)
+             // PasswordUtil.checkPassword 内部用 BCrypt 算法：
+             // 把用户输入的明文密码加密后，和数据库存的加密密码比对（不能直接 == 比较）
+             // 注意：账号不存在和密码错误都返回 false，不区分，防止黑客试探账号是否存在
              flag = PasswordUtil.checkPassword(user.getPassword(), user0.getPassword());
         // 判断用户是否存在且密码正确
         if (user0 != null && flag) {
