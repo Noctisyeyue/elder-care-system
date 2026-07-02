@@ -46,7 +46,7 @@
     >
       <!-- 表单区域 -->
       <div class="form-card">
-        <el-form :model="mealForm" label-width="100px">
+        <el-form ref="mealFormRef" :model="mealForm" :rules="mealRules" label-width="100px">
           <el-form-item label="日期">
             <el-date-picker
               v-model="mealForm.date"
@@ -57,7 +57,7 @@
             />
           </el-form-item>
           <div class="form-row">
-            <el-form-item label="清真套餐">
+            <el-form-item label="清真套餐" prop="muslimPackageId">
               <el-select
                 v-model="mealForm.muslimPackageId"
                 filterable
@@ -72,7 +72,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="非清真套餐">
+            <el-form-item label="非清真套餐" prop="nonMuslimPackageId">
               <el-select
                 v-model="mealForm.nonMuslimPackageId"
                 filterable
@@ -189,11 +189,18 @@ const dialogVisible = ref(false)
 const selectedDay = ref('')
 const dialogReadOnly = ref(false)
 
+const mealFormRef = ref(null)
 const mealForm = ref({
   date: '',
   muslimPackageId: null,
   nonMuslimPackageId: null,
 })
+
+/** 套餐选择校验规则 */
+const mealRules = {
+  muslimPackageId: [{ required: true, message: '请选择清真套餐', trigger: 'change' }],
+  nonMuslimPackageId: [{ required: true, message: '请选择非清真套餐', trigger: 'change' }],
+}
 
 const dailyMeals = ref({})
 const foodOptions = ref([])
@@ -282,6 +289,10 @@ const handleDayClick = async (day) => {
 
 /** 保存膳食配置。 */
 const saveMealConfig = async () => {
+  if (!mealFormRef.value) return
+  try {
+    await mealFormRef.value.validate()
+  } catch { return }
   try {
     const dataToSend = {
       date: mealForm.value.date,
