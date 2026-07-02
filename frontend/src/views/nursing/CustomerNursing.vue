@@ -87,9 +87,9 @@
             <el-table-column prop="name" label="名称" />
             <el-table-column prop="frequency" label="执行周次" />
             <el-table-column prop="count" label="已用次数" />
-            <el-table-column prop="totalCount" label="购买后总次数" />
-            <el-table-column prop="buyDate" label="购买日期" />
-            <el-table-column prop="buyCount" label="购买数量" />
+            <el-table-column prop="totalCount" label="服务总次数" />
+            <el-table-column prop="buyDate" label="开通日期" />
+            <el-table-column prop="buyCount" label="服务份数" />
             <el-table-column prop="expireDate" label="到期日期" />
             <el-table-column prop="status" label="状态">
               <template #default="scope">
@@ -108,13 +108,13 @@
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="frequency" label="执行周次" />
           <el-table-column prop="count" label="单份总次数" />
-          <el-table-column prop="buyDate" label="服务购买日期" width="160">
+          <el-table-column prop="buyDate" label="开通日期" width="160">
             <template #default="scope">
               <el-date-picker v-model="scope.row.buyDate" type="date" placeholder="选择日期" size="small"
                 style="width: 140px" />
             </template>
           </el-table-column>
-          <el-table-column prop="buyCount" label="购买数量" width="120">
+          <el-table-column prop="buyCount" label="服务份数" width="120">
             <template #default="scope">
               <el-input-number v-model="scope.row.buyCount" :min="0" size="small" style="width: 100px" />
             </template>
