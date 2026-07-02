@@ -5,6 +5,7 @@ import com.eldercare.system.security.CustomAuthenticationEntryPoint;
 import com.eldercare.system.security.JwtAuthenticationFilter;
 import com.eldercare.system.security.RequestLogFilter;
 import com.eldercare.system.service.RedisService;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableConfigurationProperties(CaptchaProperties.class)
 public class SecurityConfig {
 
     /** Redis 服务，用于构造 JWT 过滤器 */
@@ -68,6 +70,7 @@ public class SecurityConfig {
                                 "/common/code/email",
                                 "/common/code/findPassword",
                                 "/common/code/register",
+                                "/common/captcha",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",

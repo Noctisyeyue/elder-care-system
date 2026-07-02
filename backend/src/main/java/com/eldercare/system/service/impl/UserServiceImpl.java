@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.eldercare.system.constant.UserRoleConstant;
 import com.eldercare.system.entity.Role;
 import com.eldercare.system.entity.User;
+import com.eldercare.system.config.CaptchaProperties;
 import com.eldercare.system.config.JwtProperties;
 import com.eldercare.system.exception.BusinessException;
 import com.eldercare.system.mapper.*;
@@ -77,6 +78,10 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private JwtProperties jwtProperties;
 
+    /** 验证码配置 */
+    @Autowired
+    private CaptchaProperties captchaProperties;
+
     /** Redis 字符串模板，用于读取注册验证码 */
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -123,6 +128,32 @@ public class UserServiceImpl implements UserService{
         //根据用户名或邮箱查询用户
         ApiResult<LoginResponseVO> result = new ApiResult<>();
         LoginResponseVO loginResponse = new LoginResponseVO();
+
+        // ===== 验证码校验（必须在账号密码查询之前） =====
+        if (Boolean.TRUE.equals(captchaProperties.getEnabled())) {
+            if (user.getCode() == null || user.getCode().isEmpty()
+                    || user.getUuid() == null || user.getUuid().isEmpty()) {
+                result.setCode(400);
+                result.setMessage("请输入验证码");
+                return result;
+            }
+            String redisKey = RedisConstant.LOGIN_CAPTCHA + user.getUuid();
+            String storedAnswer = stringRedisTemplate.opsForValue().get(redisKey);
+            if (storedAnswer == null) {
+                result.setCode(400);
+                result.setMessage("验证码已过期，请刷新后重试");
+                return result;
+            }
+            if (!storedAnswer.equals(user.getCode())) {
+                stringRedisTemplate.delete(redisKey);
+                result.setCode(400);
+                result.setMessage("验证码错误");
+                return result;
+            }
+            // 验证码正确，删除 Redis key（一次性使用）
+            stringRedisTemplate.delete(redisKey);
+        }
+
         QueryWrapper<User> qw = new QueryWrapper<>();
         qw.and(w -> w.eq("user_name", user.getAccount()).or().eq("email", user.getAccount()));
         qw.eq("del_flag", "0");

@@ -88,3 +88,9 @@ elder-care:
     access-key-secret: your-access-key-secret
     bucket-name: neuhealth
     endpoint: oss-cn-beijing.aliyuncs.com
+  captcha:
+    enabled: true
+    type: math
+    expire-seconds: 120
+    width: 120
+    height: 44

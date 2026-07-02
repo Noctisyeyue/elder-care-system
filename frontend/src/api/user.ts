@@ -4,6 +4,15 @@ import { get, post } from '@/utils/request'
 export interface LoginParams {
   account: string
   password: string
+  code?: string
+  uuid?: string
+}
+
+/** 验证码返回结果 */
+export interface CaptchaResult {
+  captchaEnabled: boolean
+  uuid?: string
+  img?: string
 }
 
 /** 用户列表查询参数 */
@@ -52,6 +61,14 @@ export interface SendRegisterCodeParams {
  */
 export function login(params: LoginParams) {
   return post<LoginResult>('/user/login', params)
+}
+
+/**
+ * 获取登录验证码
+ * @returns 验证码结果（captchaEnabled、uuid、img）
+ */
+export function getCaptcha() {
+  return get<CaptchaResult>('/common/captcha')
 }
 
 /**

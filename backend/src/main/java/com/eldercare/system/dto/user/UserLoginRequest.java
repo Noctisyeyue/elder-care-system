@@ -13,4 +13,10 @@ public class UserLoginRequest {
 
     /** 密码 */
     private String password;
+
+    /** 验证码 */
+    private String code;
+
+    /** 验证码唯一标识 */
+    private String uuid;
 }
