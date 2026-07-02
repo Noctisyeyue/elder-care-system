@@ -22,7 +22,11 @@ public class SensitiveDataUtil {
             "code", "token", "Authorization",
             "file",
             "phone", "tel",
-            "realName", "customerName"
+            "realName", "customerName",
+            // 身份证号
+            "idNumber", "idCard", "id_card",
+            // 家属联系电话
+            "familyMemberTel"
     );
 
     /** 脱敏替换值 */

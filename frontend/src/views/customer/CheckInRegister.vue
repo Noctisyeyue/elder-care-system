@@ -52,8 +52,16 @@
         <el-table-column prop="bloodType" label="血型" width="60" />
         <el-table-column prop="nation" label="民族" width="60" />
         <el-table-column prop="familyMember" label="家属" min-width="90" />
-        <el-table-column prop="familyMemberTel" label="家属电话" min-width="120" />
-        <el-table-column prop="idNumber" label="身份证号" min-width="140" />
+        <el-table-column prop="familyMemberTel" label="家属电话" min-width="120">
+          <template #default="{ row }">
+            {{ maskPhone(row.familyMemberTel) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="idNumber" label="身份证号" min-width="140">
+          <template #default="{ row }">
+            {{ maskIdNumber(row.idNumber) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="buildingNumber" label="楼号" width="90" />
         <el-table-column prop="roomNumber" label="房间号" width="100" />
         <el-table-column prop="bedNumber" label="床号" width="80" />
@@ -215,6 +223,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCustomerList, registerCustomer, updateCustomer, deleteCustomer, releaseCustomerBed } from '@/api/customer'
 import { getRoomOptions, getRoomBeds, updateBedStatus } from '@/api/room'
 import { BUILDING_OPTIONS, DEFAULT_BUILDING } from '@/utils/building'
+import { maskIdNumber, maskPhone } from '@/utils/desensitize'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 
 const buildingOptions = BUILDING_OPTIONS
