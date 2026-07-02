@@ -3,6 +3,7 @@ package com.eldercare.system.config;
 import com.eldercare.system.security.CustomAccessDeniedHandler;
 import com.eldercare.system.security.CustomAuthenticationEntryPoint;
 import com.eldercare.system.security.JwtAuthenticationFilter;
+import com.eldercare.system.security.RequestLogFilter;
 import com.eldercare.system.service.RedisService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -83,6 +84,8 @@ public class SecurityConfig {
                         new JwtAuthenticationFilter(redisService),
                         UsernamePasswordAuthenticationFilter.class
                 )
+                // 请求日志过滤器放在 JWT 过滤器之前，覆盖 401/403 等认证阶段响应
+                .addFilterBefore(new RequestLogFilter(), JwtAuthenticationFilter.class)
                 // 401/403 统一返回 ApiResult
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint())

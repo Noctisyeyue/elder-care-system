@@ -409,4 +409,35 @@ CREATE TABLE `user`  (
 
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for operation_log
+-- ----------------------------
+DROP TABLE IF EXISTS `operation_log`;
+CREATE TABLE `operation_log` (
+  `operation_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '操作日志ID',
+  `module` varchar(64) NOT NULL COMMENT '业务模块',
+  `operation` varchar(128) NOT NULL COMMENT '操作名称',
+  `action_type` varchar(32) NOT NULL COMMENT '操作类型',
+  `request_method` varchar(16) DEFAULT NULL COMMENT '请求方法',
+  `request_uri` varchar(255) DEFAULT NULL COMMENT '请求路径',
+  `operator_id` bigint DEFAULT NULL COMMENT '操作人ID',
+  `operator_email` varchar(128) DEFAULT NULL COMMENT '操作人邮箱',
+  `operator_role_key` varchar(64) DEFAULT NULL COMMENT '操作人角色',
+  `target_id` varchar(128) DEFAULT NULL COMMENT '操作对象ID',
+  `request_params` text COMMENT '脱敏后的请求参数摘要',
+  `result_code` int DEFAULT NULL COMMENT '返回码',
+  `result_message` varchar(255) DEFAULT NULL COMMENT '返回消息',
+  `success` tinyint NOT NULL DEFAULT 1 COMMENT '是否成功：1成功，0失败',
+  `error_message` varchar(500) DEFAULT NULL COMMENT '异常信息',
+  `client_ip` varchar(64) DEFAULT NULL COMMENT '客户端IP',
+  `cost_ms` bigint DEFAULT NULL COMMENT '耗时毫秒',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`operation_log_id`),
+  KEY `idx_operator_id` (`operator_id`),
+  KEY `idx_module` (`module`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作审计日志表';
+
+-- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;

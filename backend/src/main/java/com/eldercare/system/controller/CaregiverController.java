@@ -1,5 +1,6 @@
 package com.eldercare.system.controller;
 
+import com.eldercare.system.annotation.OperationLog;
 import com.eldercare.system.dto.caregiver.CustomersByCareIdRequest;
 import com.eldercare.system.dto.caregiver.SetCustomersRequest;
 import com.eldercare.system.vo.caregiver.CaregiverListVO;
@@ -39,6 +40,7 @@ public class CaregiverController {
     }
 
     // 添加客户到服务管家客户信息列表（分配服务管家）
+    @OperationLog(module = "服务对象", operation = "设置护工服务客户", actionType = "UPDATE", targetId = "#body['customerId']")
     @Operation(summary = "添加客户到服务管家客户信息列表")
     @PostMapping("/addCustomer")
     public ApiResult addCustomer(@RequestBody Map<String, Long> body) {
@@ -48,6 +50,7 @@ public class CaregiverController {
     }
 
     // 批量给健康管家设置客户
+    @OperationLog(module = "服务对象", operation = "批量设置护工服务客户", actionType = "UPDATE")
     @Operation(summary = "批量给健康管家设置客户")
     @PostMapping("/setCustomers")
     public ApiResult setCustomers(@RequestBody SetCustomersRequest body) {
@@ -69,6 +72,7 @@ public class CaregiverController {
     }
 
     // 删除客户
+    @OperationLog(module = "服务对象", operation = "移除护工服务客户", actionType = "DELETE", targetId = "#body['customerId']")
     @Operation(summary = "删除客户")
     @DeleteMapping("/removeCustomer")
     public ApiResult removeCustomer(@RequestBody Map<String, Long> body) {

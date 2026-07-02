@@ -8,6 +8,7 @@ import com.eldercare.system.vo.user.*;
 import com.eldercare.system.util.ApiResult;
 import com.eldercare.system.vo.user.RoleNumVO;
 import com.eldercare.system.service.UserService;
+import com.eldercare.system.annotation.OperationLog;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +40,7 @@ public class UserController {
         return userService.list(user);
     }
     // 增加用户
+    @OperationLog(module = "用户管理", operation = "新增用户", actionType = "ADD")
     @Operation(summary = "增加用户")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/add")
@@ -52,6 +54,7 @@ public class UserController {
         return userService.register(request);
     }
     // 删除用户
+    @OperationLog(module = "用户管理", operation = "删除用户", actionType = "DELETE")
     @Operation(summary = "删除用户")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/del")
@@ -60,6 +63,7 @@ public class UserController {
         return userService.delete(userNames);
     }
     // 修改用户
+    @OperationLog(module = "用户管理", operation = "修改用户信息", actionType = "UPDATE")
     @Operation(summary = "修改用户信息")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/update")
@@ -67,6 +71,7 @@ public class UserController {
         return userService.update(user);
     }
     // 审核护工（仅超级管理员）
+    @OperationLog(module = "用户管理", operation = "审核护工", actionType = "AUDIT", targetId = "#userId")
     @Operation(summary = "审核护工")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/audit")
@@ -74,6 +79,7 @@ public class UserController {
         return userService.audit(userId);
     }
     // 启用账号（仅超级管理员，将 status 从 2 改回 1）
+    @OperationLog(module = "用户管理", operation = "启用账号", actionType = "ENABLE", targetId = "#userId")
     @Operation(summary = "启用账号")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/enable")
@@ -81,6 +87,7 @@ public class UserController {
         return userService.enable(userId);
     }
     // 禁用账号（仅超级管理员，不可禁用超管或自己）
+    @OperationLog(module = "用户管理", operation = "禁用账号", actionType = "DISABLE", targetId = "#userId")
     @Operation(summary = "禁用账号")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/disable")
@@ -88,6 +95,7 @@ public class UserController {
         return userService.disable(userId);
     }
     // 重置密码为默认密码（仅超级管理员）
+    @OperationLog(module = "用户管理", operation = "重置密码", actionType = "RESET_PWD", targetId = "#userId")
     @Operation(summary = "重置密码")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/resetPwd")
@@ -110,6 +118,7 @@ public class UserController {
         return userService.roleNum();
     }
     //上传头像
+    @OperationLog(module = "个人中心", operation = "上传头像", actionType = "UPLOAD")
     @Operation(summary = "上传用户头像")
     @PostMapping("/avatar/upload")
     public ApiResult<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
@@ -140,12 +149,14 @@ public class UserController {
         return userService.getProfile();
     }
 
+    @OperationLog(module = "个人中心", operation = "修改个人资料", actionType = "UPDATE")
     @Operation(summary = "更新当前用户资料")
     @PostMapping("/profile/update")
     public ApiResult updateProfile(@RequestBody UserProfileUpdateRequest request) {
         return userService.updateProfile(request);
     }
 
+    @OperationLog(module = "个人中心", operation = "修改密码", actionType = "UPDATE")
     @Operation(summary = "当前用户修改密码")
     @PostMapping("/password/update")
     public ApiResult changePassword(@RequestBody UserPasswordUpdateRequest request) {
@@ -158,6 +169,7 @@ public class UserController {
         return userService.sendEmailChangeCode(request);
     }
 
+    @OperationLog(module = "个人中心", operation = "修改邮箱", actionType = "UPDATE")
     @Operation(summary = "确认修改邮箱")
     @PostMapping("/email/change")
     public ApiResult changeEmail(@RequestBody EmailChangeRequest request) {

@@ -1,5 +1,6 @@
 package com.eldercare.system.controller;
 
+import com.eldercare.system.annotation.OperationLog;
 import com.eldercare.system.entity.SetMeal;
 import com.eldercare.system.util.PageResult;
 import com.eldercare.system.util.ApiResult;
@@ -28,6 +29,7 @@ public class DietController {
         return dietService.monthList(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "保存膳食日历配置", actionType = "UPDATE")
     @Operation(summary = "保存某天的套餐配置信息")
     @PostMapping("/saveDietCalendar")
     public ApiResult saveDietCalendar(@RequestBody DietCalendarSaveRequest params){
@@ -46,12 +48,14 @@ public class DietController {
         return dietService.getDailyList(date);
     }
 
+    @OperationLog(module = "膳食管理", operation = "修改套餐", actionType = "UPDATE", targetId = "#setMeal.setMealId")
     @Operation(summary = "修改套餐信息")
     @PostMapping("/setMeal/update")
     public ApiResult updateSetMeal(@RequestBody SetMeal setMeal){
         return dietService.updateSetMeal(setMeal);
     }
 
+    @OperationLog(module = "膳食管理", operation = "删除套餐", actionType = "DELETE", targetId = "#setMealId")
     @Operation(summary = "删除套餐")
     @PostMapping("/setMeal/remove")
     public ApiResult removeSetMeal(@RequestParam Long setMealId){
@@ -70,18 +74,21 @@ public class DietController {
         return dietService.dishList(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "添加菜品", actionType = "ADD")
     @Operation(summary = "添加菜品")
     @PostMapping("/addFood")
     public ApiResult addDish(@RequestBody DishRequest params){
         return dietService.addDish(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "修改菜品", actionType = "UPDATE", targetId = "#params.dishId")
     @Operation(summary = "修改菜品")
     @PutMapping("/updateFood")
     public ApiResult updateDish(@RequestBody DishRequest params){
         return dietService.updateDish(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "删除菜品", actionType = "DELETE")
     @Operation(summary = "删除菜品")
     @PostMapping("/deleteFood")
     public ApiResult removeDish(@RequestBody RemoveDishRequest params){
@@ -94,6 +101,7 @@ public class DietController {
         return dietService.customerList(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "保存客户套餐配置", actionType = "UPDATE")
     @Operation(summary = "保存客户套餐配置")
     @PostMapping("/saveCustomerSetMeal")
     public ApiResult saveCustomerSetMeal(@RequestBody SaveCustomerSetMealRequest params){
@@ -106,12 +114,14 @@ public class DietController {
         return dietService.availableDishes(time,pork);
     }
 
+    @OperationLog(module = "膳食管理", operation = "保存套餐菜品配置", actionType = "UPDATE", targetId = "#params.setMealId")
     @Operation(summary = "保存套餐菜品配置")
     @PostMapping("/saveSetMealDishes")
     public ApiResult saveSetMealDishes(@RequestBody SaveSetMealDishesRequest params){
         return dietService.saveSetMealDishes(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "上传菜品图片", actionType = "UPLOAD")
     @Operation(summary = "上传菜品图片")
     @PostMapping("/img/upload")
     public ApiResult uploadImg(@RequestParam(name ="file", required = false) MultipartFile file,@RequestParam("name") String name){
