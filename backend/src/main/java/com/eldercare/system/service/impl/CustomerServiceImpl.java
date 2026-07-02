@@ -479,8 +479,7 @@ public class CustomerServiceImpl implements CustomerService{
                 result.setMessage("未找到对应退住记录");
                 return result;
             }
-            // 只有审批通过且不是“保留床位”时，才真正完成退住。
-            // “保留床位”只更新退住记录状态，不释放床位、不软删除客户。
+            // 兼容历史数据：旧版本允许“保留床位”，这类记录审批通过时不释放床位、不软删除客户。
             if(!type.equals("2")&& status.equals("0")){
                 CheckOutRecord checkOutRecord = checkOutRecordMapper.selectById(id);
                 if (checkOutRecord == null) {
@@ -505,7 +504,7 @@ public class CustomerServiceImpl implements CustomerService{
      * 管理员直接办理自理老人退住。
      *
      * <p>自理老人没有健康管家归属，不能走护工端“发起申请 -> 管理员审核”的流程。
-     * 因此管理员办理时会直接生成一条已通过的退住记录，并在非“保留床位”时立即完成退住。</p>
+     * 因此管理员办理时会直接生成一条已通过的退住记录，并立即完成退住。</p>
      *
      * @param param 退住办理参数
      * @param token 当前登录用户令牌
@@ -521,6 +520,11 @@ public class CustomerServiceImpl implements CustomerService{
         } catch (Exception e) {
             result.setCode(401);
             result.setMessage("Token解析失败");
+            return result;
+        }
+        if ("保留床位".equals(param.getCheckOutType())) {
+            result.setCode(400);
+            result.setMessage("暂不支持保留床位退住，请选择正常退住或死亡退住");
             return result;
         }
 
@@ -556,10 +560,7 @@ public class CustomerServiceImpl implements CustomerService{
 
         try {
             checkOutRecordMapper.insert(checkoutRecord);
-            // 与审核流程保持一致：“保留床位”不释放床位、不软删除客户。
-            if (!"2".equals(checkOutType)) {
-                completeCheckout(checkoutRecord, param.getCheckOutDate());
-            }
+            completeCheckout(checkoutRecord, param.getCheckOutDate());
             result.setCode(200);
             result.setMessage("退住办理成功");
         } catch (Exception e) {
@@ -1135,6 +1136,11 @@ public class CustomerServiceImpl implements CustomerService{
             result.setCode(401);
             result.setMessage("Token解析失败");
             throw e;
+        }
+        if ("保留床位".equals(param.getCheckOutType())) {
+            result.setCode(400);
+            result.setMessage("暂不支持保留床位退住，请选择正常退住或死亡退住");
+            return result;
         }
         Customer customer = customerMapper.selectById(param.getCustomerId());
         if (customer == null || "1".equals(customer.getDelFlag())) {

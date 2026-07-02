@@ -75,7 +75,6 @@
           <el-select v-model="checkOutForm.checkOutType" placeholder="请选择退住类型" style="width: 100%">
             <el-option label="正常退住" value="正常退住" />
             <el-option label="死亡退住" value="死亡退住" />
-            <el-option label="保留床位" value="保留床位" />
           </el-select>
         </el-form-item>
         <el-form-item label="退住原因" prop="checkOutReason">
