@@ -1101,6 +1101,33 @@ public class DietServiceImpl implements DietService{
     }
 
     /**
+     * 移除客户套餐配置。
+     *
+     * @param customerId 客户ID
+     * @param date       膳食日期
+     * @return 操作结果
+     */
+    @Override
+    public ApiResult removeCustomerSetMeal(Long customerId, String date) {
+        ApiResult result = new ApiResult();
+        try {
+            UpdateWrapper<SetMealCustomerMapping> wrapper = new UpdateWrapper<>();
+            wrapper.eq("customer_id", customerId);
+            wrapper.eq("date", date);
+            wrapper.eq("del_flag", "0");
+            wrapper.set("del_flag", "1");
+            setMealCustomerMappingMapper.update(null, wrapper);
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("移除客户套餐配置数据库错误");
+            throw e;
+        }
+        result.setCode(200);
+        result.setMessage("移除成功");
+        return result;
+    }
+
+    /**
      * 查询指定日期的套餐列表。
      *
      * @param date 日期

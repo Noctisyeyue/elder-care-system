@@ -112,6 +112,17 @@ export function saveCustomerSetMeal(params: Record<string, unknown>) {
 }
 
 /**
+ * 移除客户套餐配置。
+ *
+ * @param customerId 客户ID
+ * @param date       膳食日期
+ * @returns 移除处理结果
+ */
+export function removeCustomerSetMeal(customerId: number, date: string) {
+  return post('/diet/setMeal/customer/remove', null, { params: { customerId, date } })
+}
+
+/**
  * 查询膳食模块客户列表。
  *
  * @param params 客户查询参数

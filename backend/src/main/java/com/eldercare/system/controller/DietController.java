@@ -108,6 +108,13 @@ public class DietController {
         return dietService.saveCustomerSetMeal(params);
     }
 
+    @OperationLog(module = "膳食管理", operation = "移除客户套餐配置", actionType = "DELETE")
+    @Operation(summary = "移除客户套餐配置")
+    @PostMapping("/setMeal/customer/remove")
+    public ApiResult removeCustomerSetMeal(@RequestParam Long customerId, @RequestParam String date){
+        return dietService.removeCustomerSetMeal(customerId, date);
+    }
+
     @Operation(summary = "获取可用的菜品列表")
     @GetMapping("/availableDishes")
     public ApiResult<List<DishVO>> availableDishes(String time,String pork){

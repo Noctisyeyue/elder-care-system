@@ -140,6 +140,15 @@ public interface DietService {
     ApiResult saveCustomerSetMeal(SaveCustomerSetMealRequest params);
 
     /**
+     * 移除客户套餐配置
+     *
+     * @param customerId 客户ID
+     * @param date       膳食日期
+     * @return 操作结果
+     */
+    ApiResult removeCustomerSetMeal(Long customerId, String date);
+
+    /**
      * 查询指定日期的套餐列表
      *
      * @param date 日期字符串

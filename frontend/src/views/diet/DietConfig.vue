@@ -80,17 +80,17 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120" fixed="right">
+      <el-table-column label="操作" width="180" fixed="right">
         <template #default="scope">
-          <el-button
-            v-if="isDateConfigurable(selectedDate)"
-            type="primary"
-            link
-            @click="openConfigPackageDialog(scope.row)"
-          >
-            配置套餐
-          </el-button>
-          <el-button v-else type="info" link disabled> 仅可查看 </el-button>
+          <template v-if="isDateConfigurable(selectedDate)">
+            <el-button type="primary" link @click="openConfigPackageDialog(scope.row)">
+              配置套餐
+            </el-button>
+            <el-button type="danger" link @click="handleRemoveSetMeal(scope.row)">
+              移除套餐
+            </el-button>
+          </template>
+          <el-button v-else type="info" link disabled>仅可查看</el-button>
         </template>
       </el-table-column>
       </el-table>
@@ -186,7 +186,7 @@
 import { ref, onMounted, computed } from 'vue'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getDietCustomerList, getDietAvailableDishes, saveDishes, saveCustomerSetMeal, getDailySetMealList } from '@/api/diet'
+import { getDietCustomerList, getDietAvailableDishes, saveDishes, saveCustomerSetMeal, removeCustomerSetMeal, getDailySetMealList } from '@/api/diet'
 import MealSelector from '@/components/MealSelector.vue'
 
 // 状态定义
@@ -338,6 +338,25 @@ const isDateConfigurable = (date) => {
 onMounted(() => {
   fetchCustomerDiets()
 })
+
+async function handleRemoveSetMeal(row) {
+  try {
+    await ElMessageBox.confirm(`确定要移除 ${row.customerName} 在 ${selectedDate.value} 的套餐配置吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+  } catch {
+    return
+  }
+  try {
+    await removeCustomerSetMeal(row.customerId, selectedDate.value)
+    ElMessage.success('套餐配置已移除')
+    fetchCustomerDiets()
+  } catch {
+    ElMessage.error('移除套餐配置失败')
+  }
+}
 
 // 批量套餐配置相关
 const multipleSelection = ref([])
