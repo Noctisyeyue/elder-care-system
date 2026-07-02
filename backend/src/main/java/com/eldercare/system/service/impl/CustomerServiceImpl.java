@@ -19,6 +19,7 @@ import com.eldercare.system.util.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -429,6 +430,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 审批处理结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult approveCheckout(Long id, Map<String, Object> params, String token) {
         ApiResult result = new ApiResult();
         //根据Token获取用户ID，将审批人id添加到记录表
@@ -468,9 +470,6 @@ public class CustomerServiceImpl implements CustomerService{
                     case "未提交" -> "3";
                     default -> "4";
                 };
-        String building = params.get("buildingNumber").toString();
-        Long roomNo = Long.parseLong(params.get("roomNumber").toString());
-        Long bedNo = Long.parseLong(params.get("bedNumber").toString());
         //更新退住记录表
         //如果不通过则状态改为不通过，更新时间改为当前日期
         try {
@@ -480,27 +479,16 @@ public class CustomerServiceImpl implements CustomerService{
                 result.setMessage("未找到对应退住记录");
                 return result;
             }
+            // 只有审批通过且不是“保留床位”时，才真正完成退住。
+            // “保留床位”只更新退住记录状态，不释放床位、不软删除客户。
             if(!type.equals("2")&& status.equals("0")){
-                //根据床号将床的状态设置为free
-                roomService.updateBedStatus(building, roomNo, bedNo);
-                //将客户表的del_flag改为1
                 CheckOutRecord checkOutRecord = checkOutRecordMapper.selectById(id);
-                if (checkOutRecord != null) {
-                    customerMapper.updateDelFlag(checkOutRecord.getCustomerId(), 1);
+                if (checkOutRecord == null) {
+                    result.setCode(404);
+                    result.setMessage("未找到对应退住记录");
+                    return result;
                 }
-                //修改床位记录表，截止时间usage_end_date改为当前日期
-                //是否为历史记录标识符history改为0
-                bedRecordMapper.updateBedRecordUsageEndDate(id, date, "0");
-                // set_meal_customer_mapping del_flag改为1
-                UpdateWrapper<SetMealCustomerMapping> setMealCustomerMappingUpdateWrapper = new UpdateWrapper<>();
-                setMealCustomerMappingUpdateWrapper.eq("customer_id", id);
-                setMealCustomerMappingUpdateWrapper.set("del_flag", "0");
-                setMealCustomerMappingMapper.update(null, setMealCustomerMappingUpdateWrapper);
-                // customer对应的nursing_record del_flag改为1
-                nursingRecordMapper.updateNursingRecordDelFlag(id);
-                // customer对应的outing_record和check_record del_flag改为1
-                outingRecordMapper.updateOutingRecordDelFlag(id);
-                checkoutRecordMapper.updateCheckoutRecordDelFlag(id);
+                completeCheckout(checkOutRecord, checkOutRecord.getCheckOutDate());
             }
             result.setCode(200);
             result.setMessage("更新成功");
@@ -511,6 +499,153 @@ public class CustomerServiceImpl implements CustomerService{
         }
 
         return result;
+    }
+
+    /**
+     * 管理员直接办理自理老人退住。
+     *
+     * <p>自理老人没有健康管家归属，不能走护工端“发起申请 -> 管理员审核”的流程。
+     * 因此管理员办理时会直接生成一条已通过的退住记录，并在非“保留床位”时立即完成退住。</p>
+     *
+     * @param param 退住办理参数
+     * @param token 当前登录用户令牌
+     * @return 退住办理结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult directCheckout(CheckoutRequest param, String token) {
+        ApiResult result = new ApiResult();
+        Long userId;
+        try {
+            userId = getUserIdFromToken(token);
+        } catch (Exception e) {
+            result.setCode(401);
+            result.setMessage("Token解析失败");
+            return result;
+        }
+
+        // 只允许办理当前在住的自理老人，护理老人仍由健康管家发起退住申请。
+        Customer customer = customerMapper.selectById(param.getCustomerId());
+        if (customer == null || "1".equals(customer.getDelFlag())) {
+            result.setCode(404);
+            result.setMessage("客户不存在");
+            return result;
+        }
+        if (!"1".equals(customer.getHistory())) {
+            result.setCode(400);
+            result.setMessage("客户不是当前在住状态");
+            return result;
+        }
+        if (!"0".equals(customer.getCustomerType())) {
+            result.setCode(400);
+            result.setMessage("护理老人请由健康管家发起退住申请");
+            return result;
+        }
+
+        CheckOutRecord checkoutRecord = new CheckOutRecord();
+        checkoutRecord.setUserId(userId);
+        checkoutRecord.setCustomerId(param.getCustomerId());
+        checkoutRecord.setCheckOutDate(param.getCheckOutDate());
+        String checkOutType = getCheckoutTypeCode(param.getCheckOutType());
+        checkoutRecord.setType(checkOutType);
+        checkoutRecord.setReason(param.getCheckOutReason());
+        // 管理员直接办理不再进入“已提交”状态，记录创建后即视为审核通过。
+        checkoutRecord.setStatus("0");
+        checkoutRecord.setExamingBy(String.valueOf(userId));
+        checkoutRecord.setExamingDate(LocalDate.now().toString());
+
+        try {
+            checkOutRecordMapper.insert(checkoutRecord);
+            // 与审核流程保持一致：“保留床位”不释放床位、不软删除客户。
+            if (!"2".equals(checkOutType)) {
+                completeCheckout(checkoutRecord, param.getCheckOutDate());
+            }
+            result.setCode(200);
+            result.setMessage("退住办理成功");
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("退住办理失败");
+            throw e;
+        }
+        return result;
+    }
+
+    /**
+     * 完成退住后的客户、床位和关联记录处理。
+     *
+     * <p>管理员直接办结和护工申请审批通过都调用这里，保证两条退住路径的数据结果一致。</p>
+     *
+     * @param checkoutRecord 已通过或已直接办结的退住记录
+     * @param usageEndDate 床位使用结束日期，为空时使用当前日期兜底
+     */
+    private void completeCheckout(CheckOutRecord checkoutRecord, String usageEndDate) {
+        Customer customer = customerMapper.selectById(checkoutRecord.getCustomerId());
+        if (customer == null) {
+            throw new IllegalArgumentException("客户不存在");
+        }
+
+        String endDate = usageEndDate != null && !usageEndDate.isEmpty()
+                ? usageEndDate
+                : LocalDate.now().toString();
+        if (customer.getBedId() != null) {
+            // 释放客户当前床位，并结束正在使用的床位记录。
+            bedMapper.updateBedStatus(customer.getBedId());
+            Long bedRecordId = bedRecordMapper.selectBedRecordIdByBedIdAndHistory(customer.getBedId(), "1");
+            if (bedRecordId != null) {
+                bedRecordMapper.updateBedRecordUsageEndDate(bedRecordId, endDate, "0");
+            }
+        }
+
+        // 客户退住后从在住客户列表中隐藏，历史记录仍保留在关联业务表中。
+        customerMapper.updateDelFlag(customer.getCustomerId(), 1);
+
+        // 退住后不再展示客户关联的套餐、护理记录和外出记录。
+        UpdateWrapper<SetMealCustomerMapping> setMealCustomerMappingUpdateWrapper = new UpdateWrapper<>();
+        setMealCustomerMappingUpdateWrapper.eq("customer_id", customer.getCustomerId());
+        setMealCustomerMappingUpdateWrapper.set("del_flag", "1");
+        setMealCustomerMappingMapper.update(null, setMealCustomerMappingUpdateWrapper);
+
+        nursingRecordMapper.updateNursingRecordDelFlag(customer.getCustomerId());
+        outingRecordMapper.updateOutingRecordDelFlag(customer.getCustomerId());
+
+        // 兼容旧逻辑：当前项目没有“客户账号ID”字段，customer.userId 表示护工ID，不能用它删除用户。
+        // 这里暂沿用按客户姓名删除同名用户账号的旧实现，后续应补充客户档案与用户账号的明确绑定关系。
+        if ("0".equals(checkoutRecord.getType()) || "1".equals(checkoutRecord.getType())) {
+            userMapper.deleteUser(customer.getCustomerName());
+        }
+    }
+
+    /**
+     * 从 JWT 中获取当前登录用户 ID。
+     *
+     * @param token Authorization 请求头中的 Bearer Token
+     * @return 当前登录用户ID
+     */
+    private Long getUserIdFromToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        Map<String, Claim> claims = JWTUtil.getPayloadFromToken(token);
+        Claim userIdClaim = claims.get("userId");
+        if (userIdClaim == null) {
+            throw new IllegalArgumentException("用户ID不存在");
+        }
+        return Long.parseLong(userIdClaim.asString());
+    }
+
+    /**
+     * 退住类型中文转数据库编码。
+     *
+     * @param checkOutType 前端传入的退住类型中文值
+     * @return 数据库中的退住类型编码：0正常退住、1死亡退住、2保留床位、3未知
+     */
+    private String getCheckoutTypeCode(String checkOutType) {
+        return switch (checkOutType) {
+            case "正常退住" -> "0";
+            case "死亡退住" -> "1";
+            case "保留床位" -> "2";
+            default -> "3";
+        };
     }
 
     /**
@@ -980,6 +1115,7 @@ public class CustomerServiceImpl implements CustomerService{
      * @return 退住申请处理结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult checkApply(CheckoutRequest param, String token) {
         ApiResult result = new ApiResult();
         //获取token中的用户ID
@@ -1000,20 +1136,27 @@ public class CustomerServiceImpl implements CustomerService{
             result.setMessage("Token解析失败");
             throw e;
         }
+        Customer customer = customerMapper.selectById(param.getCustomerId());
+        if (customer == null || "1".equals(customer.getDelFlag())) {
+            result.setCode(404);
+            result.setMessage("客户不存在");
+            return result;
+        }
+        if (!"1".equals(customer.getCustomerType())) {
+            result.setCode(400);
+            result.setMessage("自理老人请由管理员办理退住");
+            return result;
+        }
+        if (!Objects.equals(customer.getUserId(), userId)) {
+            result.setCode(403);
+            result.setMessage("只能为自己服务的客户提交退住申请");
+            return result;
+        }
         CheckOutRecord checkoutRecord = new CheckOutRecord();
         checkoutRecord.setUserId(userId);
         checkoutRecord.setCustomerId(param.getCustomerId());
         checkoutRecord.setCheckOutDate(param.getCheckOutDate());
-        checkoutRecord.setType(switch (param.getCheckOutType()) {
-            case "正常退住" -> "0";
-            case "死亡退住" -> "1";
-            case "保留床位" -> "2";
-            default -> "3";
-        });
-        //如果是正常退住或死亡退住，根据customerId调用删除用户方法
-        if (param.getCheckOutType().equals("正常退住") || param.getCheckOutType().equals("死亡退住")) {
-            userMapper.deleteUser(param.getCustomerName());
-        }
+        checkoutRecord.setType(getCheckoutTypeCode(param.getCheckOutType()));
         checkoutRecord.setStatus("2");
         checkoutRecord.setReason(param.getCheckOutReason());
         try {

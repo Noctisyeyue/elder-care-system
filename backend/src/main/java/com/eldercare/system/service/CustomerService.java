@@ -73,6 +73,15 @@ public interface CustomerService {
     ApiResult approveCheckout(Long id, Map<String, Object> params,String token);
 
     /**
+     * 管理员直接办理自理老人退住
+     *
+     * @param param 退住办理参数
+     * @param token 登录令牌
+     * @return 操作结果
+     */
+    ApiResult directCheckout(CheckoutRequest param, String token);
+
+    /**
      * 查询外出申请列表
      *
      * @param request 查询参数

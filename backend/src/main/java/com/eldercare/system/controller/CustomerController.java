@@ -69,6 +69,13 @@ public class CustomerController {
         return customerService.approveCheckout(id, params, token);
     }
 
+    @OperationLog(module = "客户管理", operation = "直接办理自理老人退住", actionType = "CHECKOUT", targetId = "#param.customerId")
+    @Operation(summary = "管理员直接办理自理老人退住")
+    @PostMapping("/checkout/direct")
+    public ApiResult directCheckout(@RequestBody CheckoutRequest param, @RequestHeader(value = "Authorization", required = false) String token) {
+        return customerService.directCheckout(param, token);
+    }
+
     @Operation(summary = "获取外出客户列表")
     @GetMapping("/outing/list")
     public ApiResult<CustomerOutingListVO> outingList(CustomerListRequest  request) {

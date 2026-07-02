@@ -96,6 +96,14 @@ export function applyCheckOut(params: ApplyParams) {
 }
 
 /**
+ * 管理员直接办理自理老人退住
+ * @param params 退住办理参数
+ */
+export function directCheckOut(params: ApplyParams) {
+  return post('/customer/checkout/direct', params)
+}
+
+/**
  * 删除客户
  * @param id 客户ID
  */
