@@ -685,6 +685,7 @@ public class NursingServiceImpl implements NursingService{
         // 数据库操作
         customer.setNursingLevelId(null);
         customer.setCustomerType("0");
+        customer.setUserId(null);
         try {
             customerMapper.updateNursingLevelById(customer);
         } catch (Exception e) {
