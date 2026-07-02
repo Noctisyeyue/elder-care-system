@@ -37,10 +37,6 @@
           @click="toggleFullscreen"
         />
         <Notification v-if="shouldShowNotification" />
-        <div v-if="shouldShowChat" class="chat-btn-wrap" @click="openChat">
-          <IconButton icon="ri:message-3-line" title="AI 助手" />
-          <span class="bg-success-dot chat-dot"></span>
-        </div>
         <IconButton
           v-if="shouldShowThemeToggle"
           :icon="isDark ? 'ri:sun-fill' : 'ri:moon-line'"
@@ -87,7 +83,6 @@ const {
   shouldShowGlobalSearch,
   shouldShowFullscreen,
   shouldShowNotification,
-  shouldShowChat,
   shouldShowThemeToggle,
 } = useHeaderBar()
 
@@ -101,10 +96,6 @@ function reload() {
 
 function openSearch() {
   mittBus.emit('openSearch')
-}
-
-function openChat() {
-  mittBus.emit('openChat')
 }
 
 function onScroll() {
@@ -174,28 +165,4 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   background: var(--default-bg-color);
 }
 
-.chat-btn-wrap {
-  position: relative;
-  display: inline-flex;
-}
-
-.chat-dot {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  animation: breathing 2s ease-in-out infinite;
-}
-
-@keyframes breathing {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-}
 </style>

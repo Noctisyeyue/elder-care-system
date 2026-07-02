@@ -26,7 +26,6 @@ export function useHeaderBar() {
   const shouldShowNotification = computed(
     () => headerBarConfig.showNotification && settingStore.showNotification,
   )
-  const shouldShowChat = computed(() => headerBarConfig.showChat && settingStore.showChat)
   const shouldShowThemeToggle = computed(
     () => headerBarConfig.showThemeToggle && settingStore.showThemeToggle,
   )
@@ -39,7 +38,6 @@ export function useHeaderBar() {
     shouldShowGlobalSearch,
     shouldShowFullscreen,
     shouldShowNotification,
-    shouldShowChat,
     shouldShowThemeToggle,
   }
 }

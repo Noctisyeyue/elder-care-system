@@ -18,7 +18,6 @@ export const useSettingStore = defineStore(
     const showGlobalSearch = ref(SETTING_DEFAULT_CONFIG.showGlobalSearch)
     const showFullscreen = ref(SETTING_DEFAULT_CONFIG.showFullscreen)
     const showNotification = ref(SETTING_DEFAULT_CONFIG.showNotification)
-    const showChat = ref(SETTING_DEFAULT_CONFIG.showChat)
     const showThemeToggle = ref(SETTING_DEFAULT_CONFIG.showThemeToggle)
 
     const menuWidth = computed(() =>
@@ -51,7 +50,6 @@ export const useSettingStore = defineStore(
       showGlobalSearch,
       showFullscreen,
       showNotification,
-      showChat,
       showThemeToggle,
       menuWidth,
       setMenuOpen,

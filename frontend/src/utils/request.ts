@@ -9,15 +9,6 @@ const service = axios.create({
   timeout: 10000,
 })
 
-/** LLM 流式接口请求实例。 */
-const LLMService = axios.create({
-  baseURL: 'http://localhost:8000',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
 /** 是否已显示错误提示，避免短时间内重复弹窗。 */
 let isErrorMessageShown = false
 
@@ -173,77 +164,4 @@ export function put<T = unknown>(
  */
 export function del<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
   return service.delete(url, config)
-}
-
-/**
- * 发送 LLM 流式 POST 请求。
- *
- * 说明：
- * 1. 使用 fetch 直接读取流式响应
- * 2. 手动拼接 Authorization 头，复用当前登录态
- * 3. 将分段内容通过回调不断推送给调用方
- *
- * @param url 请求地址
- * @param data 请求体数据
- * @param onChunk 流式片段回调
- * @param onComplete 完成回调
- * @param onError 错误回调
- * @returns 无返回值
- */
-export async function streamPost(
-  url: string,
-  data?: unknown,
-  onChunk?: (chunk: string) => void,
-  onComplete?: () => void,
-  onError?: (error: Error) => void,
-): Promise<void> {
-  try {
-    const token = sessionStorage.getItem('token')
-    const response = await fetch(`${LLMService.defaults.baseURL}${url}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-        Accept: 'text/plain',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: typeof data === 'string' ? data : JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
-    }
-
-    if (!response.body) {
-      throw new Error('No response body')
-    }
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder('utf-8')
-
-    // 统计分片数量，便于后续排查流式响应是否完整
-    let totalChunks = 0
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) {
-        break
-      }
-
-      const chunk = decoder.decode(value, { stream: true })
-      if (chunk) {
-        totalChunks++
-        onChunk?.(chunk)
-      }
-    }
-
-    // 所有分片读取完成后，通知调用方结束处理
-    onComplete?.()
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '未知错误'
-    console.error('Stream request error:', error)
-    onError?.(new Error(errorMessage))
-  }
 }

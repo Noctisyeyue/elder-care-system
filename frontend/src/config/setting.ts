@@ -20,7 +20,6 @@ export const SETTING_DEFAULT_CONFIG = {
   showGlobalSearch: true,
   showFullscreen: true,
   showNotification: true,
-  showChat: true,
   showThemeToggle: true,
 }
 

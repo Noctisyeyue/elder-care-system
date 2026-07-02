@@ -9,6 +9,5 @@ export const headerBarConfig = {
   showGlobalSearch: SETTING_DEFAULT_CONFIG.showGlobalSearch,
   showFullscreen: SETTING_DEFAULT_CONFIG.showFullscreen,
   showNotification: SETTING_DEFAULT_CONFIG.showNotification,
-  showChat: SETTING_DEFAULT_CONFIG.showChat,
   showThemeToggle: SETTING_DEFAULT_CONFIG.showThemeToggle,
 }
