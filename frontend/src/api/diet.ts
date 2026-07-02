@@ -68,7 +68,7 @@ export function updateSetMeal(params: Record<string, unknown>) {
  * @returns 删除处理结果
  */
 export function removeSetMeal(setMealId: number | string) {
-  return post('/diet/setMeal/remove', { setMealId })
+  return post('/diet/setMeal/remove', null, { params: { setMealId } })
 }
 
 /**

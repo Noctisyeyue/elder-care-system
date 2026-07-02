@@ -54,7 +54,7 @@ public class DietController {
 
     @Operation(summary = "删除套餐")
     @PostMapping("/setMeal/remove")
-    public ApiResult removeSetMeal(@RequestBody Long setMealId){
+    public ApiResult removeSetMeal(@RequestParam Long setMealId){
         return dietService.removeSetMeal(setMealId);
     }
 
