@@ -297,7 +297,9 @@
     </update>
     <update id="updateNursingLevelById" parameterType="com.eldercare.system.entity.Customer">
         update customer
-        set nursing_level_id = null
+        set nursing_level_id = null,
+            customer_type = '0',
+            user_id = null
         where customer_id = #{customerId}
     </update>
 

@@ -25,13 +25,13 @@
 | 健康管家 | 服务对象、服务关注、日常护理、购买护理项目、护理记录 |
 | 膳食管理 | 菜品管理、套餐配置、膳食日历、膳食分配、膳食状态 |
 | 系统管理 | 用户列表、用户管理、角色统计 |
-| 公共能力 | 登录认证、JWT 拦截、邮箱验证码、头像上传、AI 对话 |
+| 公共能力 | 登录认证、Spring Security/JWT、登录算术验证码、邮箱验证码、头像上传、请求访问日志、操作审计、AI 对话 |
 
 ## 技术栈
 
 | 层级 | 技术 |
 | --- | --- |
-| 后端 | Spring Boot 3.2.4、MyBatis-Plus、MySQL、Redis、JWT、Spring AI |
+| 后端 | Spring Boot 3.2.4、Spring Security、MyBatis-Plus、MySQL、Redis、JWT、Spring Mail、Spring AI |
 | 前端 | Vue 3、Vite、TypeScript、Element Plus、Pinia、Vue Router、Axios、ECharts |
 | 数据库 | MySQL |
 | 构建工具 | Maven、npm |
@@ -83,6 +83,8 @@ elder-care-system/
 | 文档 | 说明 |
 | --- | --- |
 | [角色权限改造计划](docs/plans/role-permission-plan.md) | 记录角色权限改造的设计方案和阶段计划 |
+| [登录验证码设计计划](docs/plans/login-captcha-plan.md) | 记录登录页算术验证码、Redis 校验和配置开关设计 |
+| [请求与操作日志计划](docs/plans/request-operation-log-plan.md) | 记录请求访问日志和操作审计日志设计 |
 | [角色权限审核记录](docs/reviews/role-permission-review.md) | 记录角色权限改造过程中的问题、审核结论和修复状态 |
 | [开发进度记录](docs/progress/PROGRESS.md) | 记录项目阶段性进度和当前待办 |
 
@@ -165,15 +167,17 @@ backend/src/main/resources/application.yml
 | `server.port` | `8080` | 后端端口 |
 | `server.servlet.context-path` | `/api` | 后端接口统一前缀 |
 | `spring.datasource.url` | `jdbc:mysql://localhost:3306/elder_care_system` | MySQL 数据库 |
-| `spring.datasource.username` | `root` | MySQL 用户名 |
-| `spring.datasource.password` | `123456` | MySQL 密码 |
+| `spring.datasource.username` | `your-mysql-username` | MySQL 用户名，本地真值建议放入 `application-local.yml` |
+| `spring.datasource.password` | `your-mysql-password` | MySQL 密码，本地真值建议放入 `application-local.yml` |
 | `spring.data.redis.host` | `127.0.0.1` | Redis 地址 |
 | `spring.data.redis.port` | `6379` | Redis 端口 |
+| `elder-care.captcha.enabled` | `true` | 登录页算术验证码开关 |
+| `elder-care.captcha.expire-seconds` | `120` | 登录验证码 Redis 过期时间 |
 
 启动前请确认：
 
 - MySQL 已启动，并已创建 `elder_care_system` 数据库。
-- Redis 已启动。
+- Redis 已启动。登录 token、邮箱验证码和登录算术验证码都依赖 Redis。
 - 已执行 `schema.sql`，本地演示时已执行 `demo-data.sql`。
 - `application.yml` 中的数据库账号、密码与本机一致。
 
@@ -235,6 +239,7 @@ http://localhost:8080/api
 注意：
 
 - 密码为 BCrypt 加密后的值，明文密码请以你生成演示数据时的约定为准。
+- 登录页默认开启算术验证码，需要先填写图片中的计算结果；如需临时关闭，可将 `elder-care.captcha.enabled` 改为 `false`。
 - 如果登录失败，优先检查 `demo-data.sql` 是否完整导入，以及后端登录逻辑使用的密码加密规则是否一致。
 
 ## 接口约定
@@ -245,8 +250,34 @@ http://localhost:8080/api
 
 ```text
 POST http://localhost:8080/api/user/login
+GET  http://localhost:8080/api/common/captcha
 GET  http://localhost:8080/api/bed/list
 GET  http://localhost:8080/api/customer/list
+```
+
+登录验证码接口返回示例：
+
+```json
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": {
+    "captchaEnabled": true,
+    "uuid": "验证码唯一标识",
+    "img": "data:image/png;base64,..."
+  }
+}
+```
+
+登录请求在验证码开启时需要提交：
+
+```json
+{
+  "account": "admin",
+  "password": "明文密码",
+  "code": "计算结果",
+  "uuid": "验证码唯一标识"
+}
 ```
 
 普通接口返回结构：
@@ -278,12 +309,14 @@ GET  http://localhost:8080/api/customer/list
 | `spring.mail` | 邮件服务配置，用于验证码等能力 |
 | `elder-care.jwt` | JWT 密钥和过期时间 |
 | `elder-care.alioss` | 阿里云 OSS 文件上传配置 |
+| `elder-care.captcha` | 登录算术验证码配置，可控制是否开启、图片尺寸和过期时间 |
 
 开发注意事项：
 
 - 真实数据库密码、邮箱授权码、OSS 密钥、AI API Key 不建议提交到公开仓库。
 - 修改 `server.servlet.context-path` 后，需要同步修改前端请求地址。
 - 前端目前业务接口和 LLM 接口分别配置，LLM 相关地址也需要按实际服务调整。
+- `elder-care.captcha.enabled=true` 时，登录前端会先请求 `/common/captcha` 获取算术验证码，后端在校验账号密码前先校验验证码。
 
 ## 开发规范
 
@@ -308,6 +341,16 @@ GET  http://localhost:8080/api/customer/list
 3. `application.yml` 中数据库账号密码是否正确。
 4. 是否已执行 `schema.sql` 和 `demo-data.sql`。
 5. 登录账号是否存在于 `user` 表。
+
+### 登录验证码无法显示或验证码错误
+
+优先排查：
+
+1. Redis 是否启动，验证码答案会写入 Redis。
+2. `/api/common/captcha` 是否能正常返回 `captchaEnabled`、`uuid` 和 `img`。
+3. `elder-care.captcha.enabled` 是否为 `true`。
+4. 前端是否把 `code` 和 `uuid` 一起提交到 `/api/user/login`。
+5. 验证码是一次性使用，输错或登录失败后需要使用刷新后的验证码。
 
 ### 前端请求失败
 
@@ -342,5 +385,6 @@ GET  http://localhost:8080/api/customer/list
 | `data.sql` | 当前不存在 |
 | 默认数据库 | `elder_care_system` |
 | 默认 Redis | `127.0.0.1:6379` |
+| 登录验证码 | 默认开启，接口为 `/api/common/captcha`，Redis key 前缀为 `LOGIN:CAPTCHA:` |
 
 后续如果继续调整角色、SQL 拆分、默认账号、接口路径或配置方式，需要同步更新本文档。
