@@ -1,3 +1,4 @@
+<!-- 父菜单--护理管理 -->
 <template>
   <router-view />
 </template>

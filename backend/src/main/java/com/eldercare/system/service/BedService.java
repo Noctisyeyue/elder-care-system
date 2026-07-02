@@ -71,16 +71,9 @@ public interface BedService {
     ApiResult<List<String>> floorList(String building);
 
     /**
-     * 统计空闲床位数量
+     * 获取床位状态分布（空闲/占用/外出/总数）
      *
-     * @return 空闲床位数量
+     * @return 床位状态分布数据
      */
-    ApiResult<Long> freeBedCount();
-
-    /**
-     * 统计床位总数
-     *
-     * @return 床位总数
-     */
-    ApiResult<Long> BedCount();
+    ApiResult<BedStatusDistributionVO> statusDistribution();
 }

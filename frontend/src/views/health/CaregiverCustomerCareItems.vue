@@ -1,70 +1,78 @@
+<!-- 护工端--子菜单--日常护理--添加护理 -->
 <template>
-  <div>
-    <!-- 搜索与返回栏 -->
-    <el-form :inline="true" :model="searchForm" class="search-form">
-      <el-form-item>
-        <el-input v-model="searchForm.itemName" placeholder="请输入项目名称" clearable @clear="handleSearch"
-          style="width: 200px; margin-right: 10px">
-          <template #prefix>
-            <el-icon>
-              <Search />
-            </el-icon>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button type="info" @click="goBack">返回</el-button>
-      </el-form-item>
-    </el-form>
-    <el-divider style="margin-top: 0; margin-bottom: 10px" />
-
-    <!-- 护理项目表格 -->
-    <el-table :data="nursingItems" border style="width: 100%" max-height="600" v-loading="loading"
-      element-loading-text="加载中..." :empty-text="loading ? '加载中...' : '暂无护理项目'">
-      <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="customerName" label="客户" width="120" />
-      <el-table-column prop="code" label="项目编号" width="120" />
-      <el-table-column prop="name" label="项目名称" min-width="120" show-overflow-tooltip />
-      <el-table-column prop="remain" label="剩余次数" width="120" />
-      <el-table-column prop="expireDate" label="服务到期时间" width="120">
-        <template #default="{ row }">
-          {{ formatDate(row.expireDate) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" width="150">
-        <template #default="{ row }">
-          <div class="status-tags">
-            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
-              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }} </el-tag>
-                <el-tag :type="row.remain <= 0 ? 'danger' : 'primary'" size="small">
-                  {{ row.remain <= 0 ? '次数用尽' : '次数正常' }} </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" fixed="right" width="150">
-        <template #default="scope">
-          <el-button type="primary" size="small" @click="openNursingDialog(scope.row)">添加护理</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination-container">
-      <el-pagination layout="total, sizes, prev, pager, next, jumper" :total="total" :page-size="pageSize"
-        :current-page="pageNum" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
-        @current-change="handlePageChange" />
+  <div class="art-full-height">
+    <!-- 搜索区域 -->
+    <div class="search-section">
+      <el-form :inline="true" :model="searchForm" class="search-form">
+        <el-form-item label="项目名称">
+          <el-input v-model="searchForm.itemName" placeholder="请输入项目名称" clearable @clear="handleSearch"
+            style="width: 200px">
+            <template #prefix>
+              <SvgIcon icon="ri:search-line" :size="16" />
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <SvgIcon icon="ri:search-line" :size="16" />
+            <span>查询</span>
+          </el-button>
+          <el-button @click="goBack">
+            <SvgIcon icon="ri:arrow-left-line" :size="16" />
+            <span>返回</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
     </div>
 
-    <!-- 护理记录弹窗 -->
-    <el-dialog v-model="nursingDialogVisible" title="添加护理记录" width="30%">
-      <el-form :model="nursingForm" label-width="120px" class="nursing-record-form">
+    <!-- 表格卡片 -->
+    <el-card class="art-table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-header-title">护理项目列表</span>
+      </div>
+      <el-table :data="nursingItems" height="100%" stripe style="width: 100%" v-loading="loading"
+        element-loading-text="加载中..." :empty-text="loading ? '加载中...' : '暂无护理项目'">
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="customerName" label="客户" width="120" />
+        <el-table-column prop="code" label="项目编号" width="120" />
+        <el-table-column prop="name" label="项目名称" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="remain" label="剩余次数" width="120" />
+        <el-table-column prop="expireDate" label="服务到期时间" width="120">
+          <template #default="{ row }"> {{ formatDate(row.expireDate) }} </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="new Date(row.expireDate) < new Date() ? 'danger' : 'primary'" size="small">
+              {{ new Date(row.expireDate) < new Date() ? '到期' : '未到期' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120" fixed="right">
+          <template #default="scope">
+            <el-button type="primary" size="small" @click="openNursingDialog(scope.row)">添加护理</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination class="table-pagination" background
+        v-model:current-page="pageNum"
+        v-model:page-size="pageSize"
+        layout="total, prev, pager, next, sizes, jumper"
+        :total="total"
+        :page-sizes="[5, 10, 20, 50]"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange" />
+    </el-card>
+
+    <!-- 添加护理弹窗 -->
+    <el-dialog v-model="nursingDialogVisible" title="添加护理记录" width="450px" align-center
+      @close="nursingDialogVisible = false">
+      <el-form :model="nursingForm" label-width="100px">
         <el-form-item label="护理时间" required>
-          <el-date-picker v-model="nursingForm.nursingTime" type="date" value-format="YYYY-MM-DD" disabled />
+          <el-date-picker v-model="nursingForm.nursingTime" type="date" value-format="YYYY-MM-DD" disabled
+            style="width: 100%" />
         </el-form-item>
-        <el-form-item label="剩余次数">
-          <el-input v-model="nursingForm.remain" disabled />
-        </el-form-item>
-        <el-form-item label="本次护理次数" required>
-          <el-input-number v-model="nursingForm.times" :min="1" :max="nursingForm.remain" />
+        <el-form-item label="已护理次数" required>
+          <el-input-number v-model="nursingForm.times" :min="1" :max="currentRemain" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -77,47 +85,37 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getCustomerList, getMyCustomers } from '@/api/customer'
 import { getPurchasedItems, addNursingRecord } from '@/api/health'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
 
 const router = useRouter()
 const customerId = localStorage.getItem('caregiverCustomerCareItemsCustomerId')
-const allNursingItems = ref([]) // 全部护理项目
-const nursingItems = ref([]) // 当前页护理项目
+const allNursingItems = ref([])
+const nursingItems = ref([])
 const total = ref(0)
 const pageNum = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
 const nursingDialogVisible = ref(false)
-const nursingForm = reactive({
-  nursingTime: '',
-  times: 1,
-  itemId: '',
-  itemName: '',
-  itemCode: '',
-  remain: 0,
-})
-const searchForm = reactive({
-  itemName: '',
-})
+const currentRemain = ref(0)
+const nursingForm = reactive({ nursingTime: '', times: 1, itemId: '', itemName: '', itemCode: '' })
+const searchForm = reactive({ itemName: '' })
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 
-const updateNursingItemsPage = () => {
+function updatePage() {
   const start = (pageNum.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  nursingItems.value = allNursingItems.value.slice(start, end)
+  nursingItems.value = allNursingItems.value.slice(start, start + pageSize.value)
   total.value = allNursingItems.value.length
 }
 
-const fetchNursingItems = async () => {
+async function fetchNursingItems() {
   loading.value = true
   try {
     const res = await getPurchasedItems({
@@ -128,51 +126,30 @@ const fetchNursingItems = async () => {
     })
     allNursingItems.value = res.list || []
     pageNum.value = 1
-    updateNursingItemsPage()
-  } finally {
-    loading.value = false
-  }
+    updatePage()
+  } finally { loading.value = false }
 }
 
-const handlePageChange = (val) => {
-  pageNum.value = val
-  updateNursingItemsPage()
-}
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  pageNum.value = 1
-  updateNursingItemsPage()
-}
+function handlePageChange(val) { pageNum.value = val; updatePage() }
+function handleSizeChange(size) { pageSize.value = size; pageNum.value = 1; updatePage() }
+function handleSearch() { fetchNursingItems() }
 
-const handleSearch = () => {
-  fetchNursingItems()
-}
-
-const openNursingDialog = (item) => {
+function openNursingDialog(item) {
   const isExpired = new Date(item.expireDate) < new Date()
-  const isUsedUp = item.remain <= 0
-  if (isExpired || isUsedUp) {
-    ElMessage.error('该护理项目已到期或次数用尽，请联系管理员续费')
-    return
-  }
+  const isOwed = item.remain <= 0
+  if (isExpired || isOwed) { ElMessage.error('该护理项目已到期或无剩余，请联系管理员续购'); return }
+  currentRemain.value = item.remain
   nursingForm.nursingTime = new Date().toISOString().slice(0, 10)
   nursingForm.times = 1
   nursingForm.itemId = item.id
   nursingForm.itemName = item.name
   nursingForm.itemCode = item.code
-  nursingForm.remain = item.remain
   nursingDialogVisible.value = true
 }
 
-const submitNursingRecord = async () => {
-  if (!nursingForm.nursingTime || !nursingForm.times) {
-    ElMessage.warning('请填写完整信息')
-    return
-  }
-  if (nursingForm.times > nursingForm.remain) {
-    ElMessage.warning('本次护理次数不能超过剩余次数')
-    return
-  }
+async function submitNursingRecord() {
+  if (!nursingForm.nursingTime || !nursingForm.times) { ElMessage.warning('请填写完整信息'); return }
+  if (nursingForm.times > currentRemain.value) { ElMessage.error(`添加次数不能超过剩余次数(${currentRemain.value}次)`); return }
   await addNursingRecord({
     customerId,
     itemId: nursingForm.itemId,
@@ -186,36 +163,11 @@ const submitNursingRecord = async () => {
   fetchNursingItems()
 }
 
-const goBack = () => {
-  router.back()
-}
+function goBack() { router.back() }
 
 onMounted(fetchNursingItems)
 </script>
 
 <style scoped>
-.search-form .el-form-item {
-  margin-bottom: 10px;
-  margin-right: 20px;
-}
-
-.pagination-container {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.el-table {
-  margin-bottom: 20px;
-}
-
-.status-tags {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-}
-
-:deep(.nursing-record-form .el-form-item__label) {
-  white-space: nowrap;
-}
+/* 样式由全局管理 */
 </style>

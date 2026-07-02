@@ -75,15 +75,9 @@ public class BedController {
         return bedService.floorList(building);
     }
 
-    @Operation(summary = "获取总空闲床位数")
-    @GetMapping("/freeBedCount")
-    public ApiResult<Long> freeBedCount(){
-        return bedService.freeBedCount();
-    }
-
-    @Operation(summary = "获取总床位数")
-    @GetMapping("/bedCount")
-    public ApiResult<Long> BedCount(){
-        return bedService.BedCount();
+    @Operation(summary = "获取床位状态分布（空闲/占用/外出/总数）")
+    @GetMapping("/statusDistribution")
+    public ApiResult<BedStatusDistributionVO> statusDistribution(){
+        return bedService.statusDistribution();
     }
 }

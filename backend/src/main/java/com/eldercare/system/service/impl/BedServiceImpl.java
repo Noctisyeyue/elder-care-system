@@ -96,6 +96,7 @@ public class BedServiceImpl implements BedService{
                 Customer customer;
                 QueryWrapper<Customer> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("bed_id", bed.get("bed_id"));
+                queryWrapper.eq("del_flag", "0");
                 try {
                     customer = customerMapper.selectOne(queryWrapper);
                 } catch (Exception e) {
@@ -499,51 +500,26 @@ public class BedServiceImpl implements BedService{
      * @return 空闲床位数量
      */
     @Override
-    public ApiResult<Long> freeBedCount() {
-        // 获取空床数量
-        // 变量准备
-        ApiResult<Long> result = new ApiResult<>();
-        Long data;
-        // 数据库查询
-        QueryWrapper<Bed> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status", "free");
-        queryWrapper.eq("del_flag", "0");
+    public ApiResult<BedStatusDistributionVO> statusDistribution() {
+        ApiResult<BedStatusDistributionVO> result = new ApiResult<>();
+        BedStatusDistributionVO data = new BedStatusDistributionVO();
         try {
-            data = bedMapper.selectCount(queryWrapper);
+            QueryWrapper<Bed> qw = new QueryWrapper<>();
+            qw.eq("del_flag", "0");
+            data.setTotal(bedMapper.selectCount(qw));
+            qw.eq("status", "free");
+            data.setFree(bedMapper.selectCount(qw));
+            qw = new QueryWrapper<>();
+            qw.eq("del_flag", "0").eq("status", "used");
+            data.setUsed(bedMapper.selectCount(qw));
+            qw = new QueryWrapper<>();
+            qw.eq("del_flag", "0").eq("status", "out");
+            data.setOut(bedMapper.selectCount(qw));
         } catch (Exception e) {
             result.setCode(500);
-            result.setMessage("查询空床数量数据库错误");
+            result.setMessage("查询床位状态分布数据库错误");
             throw e;
         }
-        // 数据包装并返回
-        result.setCode(200);
-        result.setData(data);
-        result.setMessage("查询成功");
-        return result;
-    }
-
-    /**
-     * 统计床位总数
-     *
-     * @return 床位总数
-     */
-    @Override
-    public ApiResult<Long> BedCount() {
-        // 获取总床数量
-        // 变量准备
-        ApiResult<Long> result = new ApiResult<>();
-        Long data;
-        // 数据库查询
-        QueryWrapper<Bed> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("del_flag", "0");
-        try {
-            data = bedMapper.selectCount(queryWrapper);
-        } catch (Exception e) {
-            result.setCode(500);
-            result.setMessage("查询总床数量数据库错误");
-            throw e;
-        }
-        // 数据包装并返回
         result.setCode(200);
         result.setData(data);
         result.setMessage("查询成功");

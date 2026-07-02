@@ -1192,4 +1192,25 @@ public class CustomerServiceImpl implements CustomerService{
         result.setMessage("查询成功");
         return result;
     }
+
+    /**
+     * 获取客户护理级别分布统计
+     *
+     * @return 护理级别分布列表
+     */
+    @Override
+    public ApiResult<List<NursingLevelDistributionVO>> nursingLevelDistribution() {
+        ApiResult<List<NursingLevelDistributionVO>> result = new ApiResult<>();
+        try {
+            List<NursingLevelDistributionVO> list = customerMapper.selectNursingLevelDistribution();
+            result.setCode(200);
+            result.setData(list);
+            result.setMessage("查询成功");
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询护理级别分布数据库错误");
+            throw e;
+        }
+        return result;
+    }
 }

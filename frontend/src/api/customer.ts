@@ -178,3 +178,8 @@ export function getCustomerMonthCount(date: string) {
 export function getCustomerYearCount(year: string) {
   return get('/customer/yearCount', { year })
 }
+
+/** 客户护理级别分布统计 */
+export function getNursingLevelDistribution() {
+  return get('/customer/nursingLevelDistribution')
+}

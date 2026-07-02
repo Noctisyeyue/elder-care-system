@@ -121,4 +121,10 @@ public class DietController {
         result.setCode(200);
         return result;
     }
+
+    @Operation(summary = "获取本周膳食配餐量统计")
+    @GetMapping("/weeklyMealCount")
+    public ApiResult<List<WeeklyMealCountVO>> weeklyMealCount() {
+        return dietService.weeklyMealCount();
+    }
 }

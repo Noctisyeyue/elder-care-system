@@ -51,8 +51,8 @@ export function updateNursingLevel(params: Record<string, unknown>) {
  * @param levelId 护理级别ID
  * @returns 护理项目列表
  */
-export function getNursingLevelItems(levelId: number) {
-  return get('/nursing/level/item/list', { levelId, pageNum: 1, pageSize: 9999 })
+export function getNursingLevelItems(params: Record<string, unknown>) {
+  return get('/nursing/level/item/list', params)
 }
 
 /**

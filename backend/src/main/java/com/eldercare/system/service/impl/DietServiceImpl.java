@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -1197,6 +1199,44 @@ public class DietServiceImpl implements DietService{
         }
         result.setCode(200);
         result.setMessage("保存成功");
+        return result;
+    }
+
+    /**
+     * 获取本周膳食配餐量统计
+     *
+     * @return 本周每日配餐客户数量
+     */
+    @Override
+    public ApiResult<List<WeeklyMealCountVO>> weeklyMealCount() {
+        ApiResult<List<WeeklyMealCountVO>> result = new ApiResult<>();
+        List<WeeklyMealCountVO> list = new ArrayList<>();
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate monday = today.with(java.time.DayOfWeek.MONDAY);
+            LocalDate sunday = today.with(java.time.DayOfWeek.SUNDAY);
+            String[] weekDays = {"周一", "周二", "周三", "周四", "周五", "周六", "周日"};
+
+            for (LocalDate date = monday; !date.isAfter(sunday); date = date.plusDays(1)) {
+                QueryWrapper<SetMealCustomerMapping> qw = new QueryWrapper<>();
+                qw.eq("date", date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+                qw.eq("del_flag", "0");
+                Long count = setMealCustomerMappingMapper.selectCount(qw);
+
+                WeeklyMealCountVO vo = new WeeklyMealCountVO();
+                vo.setDate(date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+                vo.setDayOfWeek(weekDays[date.getDayOfWeek().getValue() - 1]);
+                vo.setCount(count);
+                list.add(vo);
+            }
+        } catch (Exception e) {
+            result.setCode(500);
+            result.setMessage("查询本周膳食配餐量数据库错误");
+            throw e;
+        }
+        result.setCode(200);
+        result.setData(list);
+        result.setMessage("查询成功");
         return result;
     }
 }

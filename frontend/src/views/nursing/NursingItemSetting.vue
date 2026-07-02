@@ -1,16 +1,37 @@
+<!-- 管理端--子菜单--护理级别--护理项目配置 -->
 <template>
-  <div>
-    <div style="margin-bottom: 16px">
-      <el-input v-model="searchName" placeholder="护理项目名称" style="width: 200px; margin-right: 8px" />
-      <el-button @click="fetchAllProjects">查询</el-button>
-      <el-button @click="goBack">返回</el-button>
-      <el-button type="success" @click="handleSave">保存</el-button>
+  <div class="art-full-height">
+    <!-- 搜索区域 -->
+    <div class="search-section">
+      <el-form :inline="true" @submit.prevent class="search-form">
+        <el-form-item label="项目名称">
+          <el-input v-model="searchName" placeholder="请输入项目名称" clearable style="width: 200px" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="fetchAllProjects">
+            <SvgIcon icon="ri:search-line" :size="16" />
+            <span>查询</span>
+          </el-button>
+          <el-button @click="goBack">
+            <SvgIcon icon="ri:arrow-left-line" :size="16" />
+            <span>返回</span>
+          </el-button>
+          <el-button type="success" @click="handleSave">
+            <SvgIcon icon="ri:save-line" :size="16" />
+            <span>保存</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
     </div>
-    <div style="display: flex; gap: 16px">
-      <!-- 左侧：所有护理项目 -->
-      <div style="flex: 1">
-        <div class="table-title">护理项目</div>
-        <el-table :data="projects" border style="margin-bottom: 8px">
+
+    <!-- 双栏表格 -->
+    <div style="display: flex; gap: 16px; flex: 1; min-height: 0;">
+      <!-- 左：可选项目 -->
+      <el-card class="art-table-card" shadow="never" style="flex: 1; margin-top: 0;">
+        <div class="table-header">
+          <span class="table-header-title">护理项目</span>
+        </div>
+        <el-table :data="projects" height="100%" stripe style="width: 100%">
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="编号" />
           <el-table-column prop="name" label="名称" />
@@ -18,19 +39,29 @@
           <el-table-column prop="count" label="总次数" />
           <el-table-column label="操作" width="80">
             <template #default="scope">
-              <el-button type="primary" size="small" style="margin-left: 3px;"
-                @click="addProject(scope.row)">添加</el-button>
+              <el-button link type="primary" @click="addProject(scope.row)">
+                <SvgIcon icon="ri:add-circle-line" :size="16" />
+                <span>添加</span>
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="total"
-          :page-size="pageSize" :current-page="page" :page-sizes="[5, 10, 20, 50]" @size-change="handleSizeChange"
-          @current-change="handlePageChange" style="margin-top: 8px" />
-      </div>
-      <!-- 右侧：当前级别下的护理项目 -->
-      <div style="flex: 1">
-        <div class="table-title">护理项目（{{ levelName }}）</div>
-        <el-table :data="configuredProjects" border>
+        <el-pagination class="table-pagination" background
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          layout="total, prev, pager, next, sizes, jumper"
+          :total="total"
+          :page-sizes="[5, 10, 20, 50]"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange" />
+      </el-card>
+
+      <!-- 右：已配项目 -->
+      <el-card class="art-table-card" shadow="never" style="flex: 1; margin-top: 0;">
+        <div class="table-header">
+          <span class="table-header-title">护理项目（{{ levelName }}）</span>
+        </div>
+        <el-table :data="configuredProjects" height="100%" stripe style="width: 100%">
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="编号" />
           <el-table-column prop="name" label="名称" />
@@ -38,15 +69,22 @@
           <el-table-column prop="count" label="总次数" />
           <el-table-column label="操作" width="80">
             <template #default="scope">
-              <el-button type="danger" size="small" style="margin-left: 3px;"
-                @click="removeProject(scope.row)">移除</el-button>
+              <el-button link type="danger" @click="removeProject(scope.row)">
+                <SvgIcon icon="ri:close-circle-line" :size="16" />
+                <span>移除</span>
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination class="pagination-right" layout="total, sizes, prev, pager, next, jumper" :total="configTotal"
-          :page-size="configPageSize" :current-page="configPage" :page-sizes="[5, 10, 20, 50]"
-          @size-change="handleConfigSizeChange" @current-change="handleConfigPageChange" style="margin-top: 8px" />
-      </div>
+        <el-pagination class="table-pagination" background
+          v-model:current-page="configPage"
+          v-model:page-size="configPageSize"
+          layout="total, prev, pager, next, sizes, jumper"
+          :total="configTotal"
+          :page-sizes="[5, 10, 20, 50]"
+          @size-change="handleConfigSizeChange"
+          @current-change="handleConfigPageChange" />
+      </el-card>
     </div>
   </div>
 </template>
@@ -56,16 +94,17 @@ import { ref, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { getNursingItemList, getNursingLevelItems, saveNursingLevelItems } from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
 
 const router = useRouter()
 const levelId = localStorage.getItem('NursingItemSettingLevelId')
 const levelName = localStorage.getItem('NursingItemSettingLevelName')
 
 const searchName = ref('')
-const allProjects = ref([]) // 全部护理项目
-const allConfiguredProjects = ref([]) // 全部已配置项目
-const projects = ref([]) // 当前页护理项目
-const configuredProjects = ref([]) // 当前页已配置项目
+const allProjects = ref([])
+const allConfiguredProjects = ref([])
+const projects = ref([])
+const configuredProjects = ref([])
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -74,105 +113,68 @@ const configPageSize = ref(10)
 const configTotal = ref(0)
 const isChanged = ref(false)
 
-const updateProjectsPage = () => {
+function updateProjectsPage() {
   const start = (page.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  projects.value = allProjects.value.slice(start, end)
+  projects.value = allProjects.value.slice(start, start + pageSize.value)
   total.value = allProjects.value.length
 }
-const updateConfiguredProjectsPage = () => {
+function updateConfiguredProjectsPage() {
   const start = (configPage.value - 1) * configPageSize.value
-  const end = start + configPageSize.value
-  configuredProjects.value = allConfiguredProjects.value.slice(start, end)
+  configuredProjects.value = allConfiguredProjects.value.slice(start, start + configPageSize.value)
   configTotal.value = allConfiguredProjects.value.length
 }
 
-const fetchAllProjects = async () => {
+async function fetchAllProjects() {
   const params = { status: '启用', pageNum: 1, pageSize: 9999, name: searchName.value || '' }
   const res = await getNursingItemList(params)
-  // 过滤掉已配置的
   allProjects.value = res.records?.filter(item => !allConfiguredProjects.value.find(p => p.id === item.id)) || []
   updateProjectsPage()
 }
-const fetchConfiguredProjects = async () => {
-  const res = await getNursingLevelItems(levelId)
+async function fetchConfiguredProjects() {
+  const res = await getNursingLevelItems({ levelId, pageNum: 1, pageSize: 9999 })
   allConfiguredProjects.value = res.records || []
   updateConfiguredProjectsPage()
 }
-const addProject = (item) => {
+
+function addProject(item) {
   if (!allConfiguredProjects.value.find(p => p.id === item.id)) {
     allConfiguredProjects.value.push(item)
     allProjects.value = allProjects.value.filter(p => p.id !== item.id)
     configPage.value = 1
-    updateConfiguredProjectsPage()
-    updateProjectsPage()
-    isChanged.value = true
+    updateConfiguredProjectsPage(); updateProjectsPage(); isChanged.value = true
   }
 }
-const removeProject = (item) => {
+function removeProject(item) {
   if (!allProjects.value.find(p => p.id === item.id)) {
     allProjects.value.push(item)
     allConfiguredProjects.value = allConfiguredProjects.value.filter(p => p.id !== item.id)
     page.value = 1
-    updateConfiguredProjectsPage()
-    updateProjectsPage()
-    isChanged.value = true
+    updateConfiguredProjectsPage(); updateProjectsPage(); isChanged.value = true
   }
 }
-const handlePageChange = (val) => {
-  page.value = val
-  updateProjectsPage()
-}
-const handleConfigPageChange = (val) => {
-  configPage.value = val
-  updateConfiguredProjectsPage()
-}
-const handleConfigSizeChange = (size) => {
-  configPageSize.value = size
-  configPage.value = 1
-  updateConfiguredProjectsPage()
-}
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  page.value = 1
-  updateProjectsPage()
-}
-const handleSave = async () => {
-  const itemIds = allConfiguredProjects.value.map(p => p.id)
-  await saveNursingLevelItems(levelId, itemIds)
+
+function handlePageChange(val) { page.value = val; updateProjectsPage() }
+function handleConfigPageChange(val) { configPage.value = val; updateConfiguredProjectsPage() }
+function handleConfigSizeChange(size) { configPageSize.value = size; configPage.value = 1; updateConfiguredProjectsPage() }
+function handleSizeChange(size) { pageSize.value = size; page.value = 1; updateProjectsPage() }
+
+async function handleSave() {
+  await saveNursingLevelItems(levelId, allConfiguredProjects.value.map(p => p.id))
   isChanged.value = false
   ElMessage.success('保存成功！')
 }
-const goBack = () => {
-  router.push({ name: 'NursingLevel' })
-}
-onMounted(async () => {
-  await fetchConfiguredProjects()
-  await fetchAllProjects()
-})
-// 离开提示
+function goBack() { router.push({ name: 'NursingLevel' }) }
+
+onMounted(async () => { await fetchConfiguredProjects(); await fetchAllProjects() })
+
 onBeforeRouteLeave((to, from, next) => {
   if (isChanged.value) {
     ElMessageBox.confirm('有未保存的变更，确定要离开吗？', '提示', { type: 'warning' })
-      .then(() => next())
-      .catch(() => next(false))
-  } else {
-    next()
-  }
+      .then(() => next()).catch(() => next(false))
+  } else { next() }
 })
 </script>
 
 <style scoped>
-.table-title {
-  background: #2ba6f2;
-  color: #fff;
-  padding: 8px;
-  margin-bottom: 8px;
-}
-
-.pagination-right {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
+/* 样式由全局管理 */
 </style>

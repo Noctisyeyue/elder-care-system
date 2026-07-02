@@ -10,7 +10,7 @@ export const SETTING_DEFAULT_CONFIG = {
   menuOpen: true,
   menuOpenWidth: 230,
   menuCloseWidth: 64,
-  uniqueOpened: true,
+  uniqueOpened: false,
   systemThemeMode: ThemeMode.LIGHT,
   systemThemeColor: '#409EFF',
   showMenuButton: true,

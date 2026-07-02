@@ -136,6 +136,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   height: var(--header-height);
   padding: 0 16px;
   gap: 12px;
+  border-bottom: 1px solid var(--default-border);
 }
 
 .header-left,

@@ -1,44 +1,45 @@
+<!-- 管理端--子菜单--菜品配置 -->
 <template>
-  <div>
+  <div class="art-full-height">
     <!-- 搜索区域 -->
     <div class="search-section">
-      <el-input
-        v-model="searchQuery"
-        placeholder="请输入膳食名称搜索"
-        class="search-input"
-        clearable
-        @clear="handleSearch"
-        @input="handleSearch"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
-      <el-button type="primary" @click="openAddDialog">添加膳食</el-button>
-      <el-button
-        type="danger"
-        :disabled="!multipleSelection.length"
-        @click="handleBatchDelete"
-        style="margin-left: 0"
-        >批量删除</el-button
-      >
+      <el-form :inline="true" class="search-form">
+        <el-form-item label="膳食名称">
+          <el-input v-model="searchQuery" placeholder="请输入膳食名称搜索" clearable @clear="handleSearch"
+            style="width: 200px">
+            <template #prefix>
+              <SvgIcon icon="ri:search-line" :size="16" />
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="openAddDialog">
+            <SvgIcon icon="ri:add-line" :size="16" />
+            <span>添加膳食</span>
+          </el-button>
+          <el-button type="danger" :disabled="!multipleSelection.length" @click="handleBatchDelete">
+            <SvgIcon icon="ri:delete-bin-line" :size="16" />
+            <span>批量删除</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
     </div>
-        <!-- 使用 ElImageViewer 实现高级预览 -->
-    <el-image-viewer
-      v-if="imagePreviewVisible"
-      :initial-index="0"
-      :url-list="[selectedImageUrl]"
-      @close="imagePreviewVisible = false"
-    />
+    <!-- 图片预览 -->
+    <el-image-viewer v-if="imagePreviewVisible" :initial-index="0" :url-list="[selectedImageUrl]"
+      @close="imagePreviewVisible = false" />
     <!-- 膳食表格 -->
-    <el-table :data="foodList" style="width: 100%" border @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="50" />
-        <!-- 新增：图片列 -->
-      <el-table-column label="图片" min-width="26">
-        <template #default="scope">
-          <img :src="scope.row.img" alt="菜品图片" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" @click="previewImage(scope.row.img)"/>
-        </template>
-      </el-table-column>
+    <el-card class="art-table-card" shadow="never">
+      <div class="table-header">
+        <span class="table-header-title">膳食列表</span>
+      </div>
+      <el-table :data="foodList" height="100%" stripe @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column label="图片" width="80">
+          <template #default="scope">
+            <img :src="scope.row.img" alt="菜品图片" class="meal-thumb" @click="previewImage(scope.row.img)" />
+          </template>
+        </el-table-column>
       <el-table-column prop="name" label="膳食名称" min-width="120" />
       <el-table-column prop="category" label="品类" min-width="100">
         <template #default="scope">
@@ -74,21 +75,18 @@
       </el-table-column>
     </el-table>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
+      <el-pagination class="table-pagination" background
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
-        :page-sizes="[5, 10, 20, 50]"
+        layout="total, prev, pager, next, sizes, jumper"
         :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
+        :page-sizes="[5, 10, 20, 50]"
         @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+        @current-change="handleCurrentChange" />
+    </el-card>
 
     <!-- 添加/编辑膳食弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" @close="resetForm">
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" align-center @close="resetForm">
       <el-form :model="editForm" :rules="rules" ref="formRef" label-width="150px">
 
         <el-form-item label="名称" prop="name">
@@ -146,7 +144,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox,ElImageViewer } from 'element-plus'
 import { getFoodList, addFood, updateFood, uploadDishImage } from '@/api/diet'
-import { Search } from '@element-plus/icons-vue'
+import SvgIcon from '@/components/base/svg-icon/index.vue'
 
 // 图片预览相关状态
 const imagePreviewVisible = ref(false)
@@ -380,23 +378,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-section {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-.search-input {
-  width: 220px;
-}
-.pagination-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-:deep(.el-table__body-wrapper .el-scrollbar__wrap){
-  overflow-y: auto;
-  max-height: calc(100vh - 285px);
+.meal-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>

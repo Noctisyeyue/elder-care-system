@@ -1,3 +1,4 @@
+<!-- 父菜单--膳食管理 -->
 <template>
   <router-view />
 </template>

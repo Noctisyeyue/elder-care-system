@@ -27,7 +27,7 @@ defineOptions({ name: 'PageContent' })
 .page-content {
   flex: 1;
   padding: 16px;
-  overflow: hidden;
+  overflow: auto;
   background: var(--default-bg-color);
 }
 </style>

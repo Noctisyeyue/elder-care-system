@@ -239,6 +239,7 @@
     <select id="countPurchasedItems" resultType="int">
         SELECT COUNT(*)
         FROM nursing_item_record p
+        LEFT JOIN nursing_item n ON p.nursing_item_name = n.nursing_item_name
         WHERE p.customer_id = #{customerId}
         <if test="itemName != null and itemName != ''">
             AND n.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
@@ -299,4 +300,15 @@
         set nursing_level_id = null
         where customer_id = #{customerId}
     </update>
+
+    <select id="selectNursingLevelDistribution" resultType="com.eldercare.system.vo.customer.NursingLevelDistributionVO">
+        SELECT l.nursing_level_name AS name, l.nursing_level_id AS levelId,
+               COUNT(c.customer_id) AS value
+        FROM nursing_level l
+        LEFT JOIN customer c ON c.nursing_level_id = l.nursing_level_id
+            AND c.del_flag = '0' AND c.history = '1'
+        WHERE l.del_flag = '0'
+        GROUP BY l.nursing_level_id, l.nursing_level_name
+        ORDER BY l.nursing_level_id
+    </select>
 </mapper>

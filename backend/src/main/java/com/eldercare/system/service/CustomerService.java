@@ -215,4 +215,11 @@ public interface CustomerService {
      * @return 每月新增客户数量列表
      */
     ApiResult<List<Long>> yearCount(String year);
+
+    /**
+     * 获取客户护理级别分布统计
+     *
+     * @return 护理级别分布列表
+     */
+    ApiResult<List<NursingLevelDistributionVO>> nursingLevelDistribution();
 }
