@@ -1,4 +1,5 @@
 import { get, put, post } from '@/utils/request'
+import { sortFloorList } from '@/utils/floor'
 
 /**
  * 获取床位示意图数据（按楼层/房间/床位展示）
@@ -10,12 +11,15 @@ export function getBedMap(params?: Record<string, unknown>) {
 }
 
 /**
- * 获取楼层列表
+ * 获取楼层列表。
+ *
  * @param building 楼号
- * @returns 楼层列表
+ * @returns 按楼层顺序排列的楼层列表
  */
 export function getFloorList(building?: string) {
-  return get('/bed/floorList', building ? { building } : undefined)
+  return get<string[]>('/bed/floorList', building ? { building } : undefined).then(
+    (list) => sortFloorList(list || []),
+  )
 }
 
 /**
