@@ -41,7 +41,7 @@
           <template #default="scope">
             <el-button type="primary" size="small" @click="openPurchasedDrawer(scope.row)">
               <SvgIcon icon="ri:file-list-3-line" :size="14" />
-              <span>查看已购护理</span>
+              <span>查看护理项目</span>
             </el-button>
           </template>
         </el-table-column>
@@ -53,7 +53,7 @@
         @current-change="handleCustomerCurrentChange" />
     </el-card>
 
-    <!-- 已购护理抽屉 -->
+    <!-- 护理项目抽屉 -->
     <el-drawer v-model="drawerVisible" :title="drawerTitle" direction="rtl" size="60%">
       <div class="drawer-content">
         <div class="flex-cb mb-4">
@@ -67,10 +67,6 @@
             <el-button type="primary" @click="handleDrawerSearch">
               <SvgIcon icon="ri:search-line" :size="14" />
               <span>查询</span>
-            </el-button>
-            <el-button type="success" @click="openBuyDialog">
-              <SvgIcon icon="ri:add-circle-line" :size="14" />
-              <span>购买护理项目</span>
             </el-button>
           </div>
         </div>
@@ -95,7 +91,7 @@
           </el-table-column>
           <el-table-column label="操作" width="140" fixed="right">
             <template #default="scope">
-              <el-button link type="primary" size="small" @click="openRenewalDialog(scope.row)">续费</el-button>
+              <el-button link type="primary" size="small" @click="openRenewalDialog(scope.row)">调整次数</el-button>
               <el-button link type="danger" size="small" @click="removeNursingItem(scope.row)">移除</el-button>
             </template>
           </el-table-column>
@@ -107,8 +103,8 @@
           @current-change="handleItemCurrentChange" />
       </div>
 
-      <!-- 续费弹窗 -->
-      <el-dialog v-model="renewalDialogVisible" title="护理项目续费" width="450px" align-center append-to-body
+      <!-- 调整次数弹窗 -->
+      <el-dialog v-model="renewalDialogVisible" title="调整护理项目次数" width="450px" align-center append-to-body
         @close="renewalFormRef?.resetFields()">
         <el-form :model="renewalForm" ref="renewalFormRef" label-width="120px">
           <el-form-item label="客户姓名">
@@ -120,10 +116,10 @@
           <el-form-item label="剩余次数">
             <el-input v-model="renewalForm.originalQuantity" disabled />
           </el-form-item>
-          <el-form-item label="购买份数">
+          <el-form-item label="增加数量">
             <el-input-number v-model="renewalForm.newQuantity" :min="1" @change="calculateTotalQuantity" />
           </el-form-item>
-          <el-form-item label="购买后剩余次数">
+          <el-form-item label="调整后剩余次数">
             <el-input v-model="renewalForm.totalQuantity" disabled />
           </el-form-item>
           <el-form-item label="服务到期时间">
@@ -138,64 +134,6 @@
       </el-dialog>
     </el-drawer>
 
-    <!-- 购买护理项目弹窗 -->
-    <el-dialog v-model="buyDialogVisible" title="购买护理项目" width="1200px" align-center @close="handleBuyDialogClose">
-      <div class="buy-dialog-content">
-        <!-- 可购项目 -->
-        <h4 style="margin-bottom: 12px;">可购买的护理项目</h4>
-        <el-table :data="availableItems" stripe style="width: 100%" max-height="250" @row-click="addSelectedItem">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="code" label="编号" />
-          <el-table-column prop="name" label="名称" />
-          <el-table-column prop="frequency" label="执行周期" />
-          <el-table-column prop="count" label="总次数" />
-          <el-table-column prop="desc" label="备注" min-width="300" />
-        </el-table>
-        <el-pagination style="justify-content: center; padding-top: 10px;" background
-          v-model:current-page="buyPagination.currentPage"
-          v-model:page-size="buyPagination.pageSize"
-          layout="prev, pager, next"
-          :total="buyPagination.total"
-          :page-sizes="[10, 20, 50]"
-          @size-change="handleBuySizeChange"
-          @current-change="handleBuyCurrentChange" />
-
-        <!-- 已选项目 -->
-        <h4 style="margin: 20px 0 12px;">已选护理项目</h4>
-        <el-table :data="selectedItems" stripe style="width: 100%" max-height="220">
-          <el-table-column type="index" label="序号" width="60" />
-          <el-table-column prop="code" label="编号" min-width="100" />
-          <el-table-column prop="name" label="名称" min-width="100" />
-          <el-table-column prop="count" label="总次数" width="80" />
-          <el-table-column prop="frequency" label="执行周期" min-width="100" />
-          <el-table-column label="服务购买日期" width="140">
-            <template #default="{ row }"> {{ row.buyDate }} </template>
-          </el-table-column>
-          <el-table-column label="购买数量" width="120">
-            <template #default="scope">
-              <el-input-number v-model="scope.row.quantity" :min="1" size="small"  style="width: 100px" />
-            </template>
-          </el-table-column>
-          <el-table-column label="服务到期日期" width="220">
-            <template #default="scope">
-              <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" size="small"
-                value-format="YYYY-MM-DD" :disabled-date="disabledExpireDate" style="width: 100%" />
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="60">
-            <template #default="scope">
-              <el-button link type="danger" size="small" @click="removeSelectedItem(scope.$index)">
-                <SvgIcon icon="ri:close-line" :size="16" />
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <template #footer>
-        <el-button @click="buyDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveBuyItems">保存</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -206,9 +144,6 @@ import { getCustomerList } from '@/api/customer'
 import {
   getPurchasedItems,
   renewNursingItem,
-  getNursingCustomerLevelItems,
-  checkIsPurchased,
-  buyNursingItem,
 } from '@/api/health'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 import { del } from '@/utils/request'
@@ -223,16 +158,16 @@ const selectedCustomer = ref({})
 /** 客户分页。 */
 const customerPagination = reactive({ currentPage: 1, pageSize: 10, total: 0 })
 
-/** 已购护理抽屉。 */
+/** 护理项目抽屉。 */
 const drawerVisible = ref(false)
 const drawerTitle = ref('')
 const itemSearchName = ref('')
 
-/** 已购护理项目。 */
+/** 护理项目。 */
 const purchasedNursingItems = ref([])
 const itemPagination = reactive({ currentPage: 1, pageSize: 10, total: 0 })
 
-/** 续费。 */
+/** 调整护理项目次数。 */
 const renewalDialogVisible = ref(false)
 const renewalFormRef = ref()
 const renewalForm = reactive({
@@ -241,34 +176,10 @@ const renewalForm = reactive({
   expireDate: '', itemId: '', customerId: '',
 })
 
-/** 购买护理弹窗。 */
-const buyDialogVisible = ref(false)
-const buyQueryForm = reactive({ itemName: '' })
-const buyPagination = reactive({ currentPage: 1, pageSize: 10, total: 0 })
-const availableItems = ref([])
-const selectedItems = ref([])
-
 function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
-}
-
-function getToday() {
-  return new Date().toISOString().slice(0, 10)
-}
-
-function disabledExpireDate(date) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  return date.getTime() <= today.getTime()
-}
-
-function addOneDay(dateStr) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  date.setDate(date.getDate() + 1)
-  return date.toISOString().slice(0, 10)
 }
 
 // ===== 客户列表 =====
@@ -300,11 +211,11 @@ function handleCustomerSelect(row) {
   selectedCustomer.value = row || {}
 }
 
-// ===== 已购护理抽屉 =====
+// ===== 护理项目抽屉 =====
 
 function openPurchasedDrawer(row) {
   selectedCustomer.value = row
-  drawerTitle.value = `${row.customerName} - 已购护理项目`
+  drawerTitle.value = `${row.customerName} - 护理项目记录`
   itemPagination.currentPage = 1
   drawerVisible.value = true
   searchPurchasedNursingItems()
@@ -328,7 +239,7 @@ async function searchPurchasedNursingItems() {
     purchasedNursingItems.value = res.list || []
     itemPagination.total = res.total || 0
   } catch (error) {
-    ElMessage.error('查询已购护理项目失败')
+    ElMessage.error('查询护理项目失败')
   }
 }
 
@@ -343,7 +254,7 @@ function handleItemSizeChange(size) {
   searchPurchasedNursingItems()
 }
 
-// ===== 续费 =====
+// ===== 调整次数 =====
 
 function openRenewalDialog(item) {
   renewalForm.customerName = selectedCustomer.value.customerName
@@ -371,12 +282,12 @@ async function confirmRenewal() {
       purchasingTimes: renewalForm.newQuantity,
       expireDate: renewalForm.expireDate,
     })
-    ElMessage.success('续费成功')
+    ElMessage.success('调整成功')
     renewalDialogVisible.value = false
     searchPurchasedNursingItems()
   } catch (error) {
-    console.error('续费失败:', error)
-    ElMessage.error('续费失败')
+    console.error('调整失败:', error)
+    ElMessage.error('调整失败')
   }
 }
 
@@ -393,100 +304,6 @@ async function removeNursingItem(item) {
   }
 }
 
-// ===== 购买护理项目弹窗 =====
-
-function openBuyDialog() {
-  buyDialogVisible.value = true
-  buyQueryForm.itemName = ''
-  buyPagination.currentPage = 1
-  selectedItems.value = []
-  loadAvailableItems()
-}
-
-async function loadAvailableItems() {
-  try {
-    const res = await getNursingCustomerLevelItems({
-      customerId: selectedCustomer.value.id,
-      name: '',
-      pageNum: buyPagination.currentPage,
-      pageSize: buyPagination.pageSize,
-    })
-    availableItems.value = res.records || []
-    buyPagination.total = res.total || 0
-  } catch (error) {
-    console.error('查询护理项目失败:', error)
-  }
-}
-
-async function addSelectedItem(row) {
-  const exists = selectedItems.value.some(item => item.id === row.id)
-  if (exists) {
-    ElMessage.warning('该护理项目已在已选列表中')
-    return
-  }
-
-  try {
-    const res = await checkIsPurchased({ customerId: selectedCustomer.value.id, itemId: row.id })
-    if (res) {
-      ElMessage.warning('该客户已购买此护理项目')
-      return
-    }
-
-    selectedItems.value.push({
-      ...row,
-      quantity: 1,
-      buyDate: getToday(),
-      expireDate: addOneDay(row.expireDate || getToday()),
-    })
-  } catch (error) {
-    console.error('检查护理项目失败:', error)
-  }
-}
-
-function removeSelectedItem(index) {
-  selectedItems.value.splice(index, 1)
-}
-
-function handleBuySizeChange(size) {
-  buyPagination.pageSize = size
-  buyPagination.currentPage = 1
-  loadAvailableItems()
-}
-
-function handleBuyCurrentChange(val) {
-  buyPagination.currentPage = val
-  loadAvailableItems()
-}
-
-async function saveBuyItems() {
-  if (selectedItems.value.length === 0) {
-    ElMessage.warning('请选择要购买的护理项目')
-    return
-  }
-
-  try {
-    const payload = selectedItems.value.map(item => ({
-      customerId: selectedCustomer.value.id,
-      itemId: item.id,
-      buyCount: item.quantity,
-      buyDate: item.buyDate,
-      expireDate: item.expireDate,
-    }))
-    await buyNursingItem(payload)
-    ElMessage.success('购买护理项目成功')
-    buyDialogVisible.value = false
-    searchPurchasedNursingItems()
-  } catch (error) {
-    console.error('购买护理项目失败:', error)
-    ElMessage.error('购买护理项目失败')
-  }
-}
-
-function handleBuyDialogClose() {
-  buyQueryForm.itemName = ''
-  selectedItems.value = []
-}
-
 onMounted(() => {
   searchCustomers()
 })
@@ -495,11 +312,6 @@ onMounted(() => {
 <style scoped>
 .drawer-content {
   padding: 0 8px;
-}
-
-.buy-dialog-content {
-  height: 67vh;
-  overflow-y: auto;
 }
 
 .status-tags {
