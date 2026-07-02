@@ -588,6 +588,7 @@ public class NursingServiceImpl implements NursingService{
      * @return 添加处理结果
      */
     @Override
+    @Transactional
     public ApiResult addCustomerItemRecords(AddItemRecordsRequest params) {
         // 添加客户护理项目记录
         // 变量准备
@@ -607,8 +608,9 @@ public class NursingServiceImpl implements NursingService{
             result.setMessage("客户不存在");
             return result;
         }
-        // 删除护理项目记录
-        removeCustomerItemRecords(params);
+        // 覆盖护理级别时只清理旧护理项目记录，不能清空 user_id。
+        // user_id 在客户表中表示分配的护工，清空后护工端会看不到该客户的护理项目。
+        removeOnlyCustomerItemRecords(params.getCustomerId());
         // 修改客户信息
         customer.setNursingLevelId(params.getLevelId());
         customer.setCustomerType("1");
@@ -660,6 +662,18 @@ public class NursingServiceImpl implements NursingService{
         result.setCode(200);
         result.setMessage("添加成功");
         return result;
+    }
+
+    /**
+     * 仅软删除客户原有护理项目记录。
+     *
+     * 设置或修改护理级别时需要覆盖旧项目，但不能清空客户绑定的护工。
+     * 完整移除护理级别才会同时清空护理级别、客户类型和护工关系。
+     *
+     * @param customerId 客户ID
+     */
+    private void removeOnlyCustomerItemRecords(Long customerId) {
+        nursingItemRecordMapper.removeByCustomerId(customerId);
     }
 
     /**

@@ -214,7 +214,7 @@
         SELECT
         p.nursing_item_record_id AS id,
         c.customer_name AS customerName,
-        n.code AS code,
+        p.nursing_item_code AS code,
         p.nursing_item_name AS name,
         p.execution_times AS executionTimes,
         p.purchasing_times*p.execution_times-p.executed_times AS remain,
@@ -225,12 +225,11 @@
             END AS status
         FROM nursing_item_record p
         LEFT JOIN customer c ON p.customer_id = c.customer_id
-        LEFT JOIN nursing_item n ON p.nursing_item_name = n.nursing_item_name
          WHERE
             p.customer_id = #{customerId}
             AND p.del_flag = '0'
             <if test="itemName != null and itemName != ''">
-                AND n.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
+                AND p.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
             </if>
         ORDER BY p.nursing_item_record_id DESC
         LIMIT #{pageStart}, #{pageSize}
@@ -239,10 +238,9 @@
     <select id="countPurchasedItems" resultType="int">
         SELECT COUNT(*)
         FROM nursing_item_record p
-        LEFT JOIN nursing_item n ON p.nursing_item_name = n.nursing_item_name
         WHERE p.customer_id = #{customerId}
         <if test="itemName != null and itemName != ''">
-            AND n.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
+            AND p.nursing_item_name LIKE CONCAT('%', #{itemName}, '%')
         </if>
         AND p.del_flag = '0'
     </select>

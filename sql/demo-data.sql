@@ -389,6 +389,54 @@ INSERT INTO `nursing_level_item_mapping` VALUES (17, 3, 17, '0', NULL, NULL, NUL
 INSERT INTO `nursing_level_item_mapping` VALUES (18, 3, 18, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `nursing_level_item_mapping` VALUES (19, 3, 19, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `nursing_level_item_mapping` VALUES (20, 3, 20, '0', NULL, NULL, NULL, NULL);
+
+-- 根据客户护理级别生成客户实际护理项目记录。
+-- 护理级别只是模板，护工端登记护理时读取的是 nursing_item_record。
+INSERT INTO `nursing_item_record` (
+    `customer_id`,
+    `nursing_item_id`,
+    `nursing_item_code`,
+    `nursing_item_name`,
+    `execution_cycle`,
+    `execution_times`,
+    `executed_times`,
+    `purchasing_date`,
+    `purchasing_times`,
+    `expiration_date`,
+    `status`,
+    `del_flag`
+)
+SELECT
+    c.customer_id,
+    ni.nursing_item_id,
+    ni.code,
+    ni.nursing_item_name,
+    ni.execution_cycle,
+    ni.execution_times,
+    0,
+    c.check_in_date,
+    1,
+    '2027-01-01',
+    '0',
+    '0'
+FROM `customer` c
+INNER JOIN `nursing_level_item_mapping` m
+    ON c.nursing_level_id = m.nursing_level_id
+    AND m.del_flag = '0'
+INNER JOIN `nursing_item` ni
+    ON m.nursing_item_id = ni.nursing_item_id
+    AND ni.del_flag = '0'
+WHERE c.nursing_level_id IS NOT NULL
+  AND c.del_flag = '0'
+  AND c.history = '1'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM `nursing_item_record` existing
+      WHERE existing.customer_id = c.customer_id
+        AND existing.nursing_item_id = ni.nursing_item_id
+        AND existing.del_flag = '0'
+  );
+
 INSERT INTO `outing_record` VALUES (1, 9, 4, '老人从养老院外出，是因为他要和多年的老朋友一起聚会。', '2025-07-06', '2025-07-07', NULL, NULL, NULL, NULL, '2', NULL, NULL, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `outing_record` VALUES (2, 12, 6, '老人今天从养老院外出，是因为社区组织了一场书画展览，他作为书法家，受邀出席。', '2025-07-07', '2025-08-01', NULL, NULL, NULL, NULL, '2', NULL, NULL, '0', NULL, NULL, NULL, NULL);
 INSERT INTO `outing_record` VALUES (3, 13, 7, '老人想出去透透气，去附近的公园散步。', '2025-07-08', '2025-07-09', NULL, NULL, NULL, NULL, '2', NULL, NULL, '0', NULL, NULL, NULL, NULL);
