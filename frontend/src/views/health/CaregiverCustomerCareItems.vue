@@ -111,12 +111,14 @@ const currentRemain = ref(0)
 const nursingForm = reactive({ nursingTime: '', times: 1, itemId: '', itemName: '', itemCode: '' })
 const searchForm = reactive({ itemName: '' })
 
+// 日期只用于表格展示，接口仍使用原始日期字段。
 function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' })
 }
 
+// 后端一次取全量，前端负责当前客户护理项目的本地分页。
 function updatePage() {
   const start = (pageNum.value - 1) * pageSize.value
   nursingItems.value = allNursingItems.value.slice(start, start + pageSize.value)
@@ -135,17 +137,34 @@ async function fetchNursingItems() {
     allNursingItems.value = res.list || []
     pageNum.value = 1
     updatePage()
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
 
-function handlePageChange(val) { pageNum.value = val; updatePage() }
-function handleSizeChange(size) { pageSize.value = size; pageNum.value = 1; updatePage() }
-function handleSearch() { fetchNursingItems() }
+function handlePageChange(val) {
+  pageNum.value = val
+  updatePage()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  pageNum.value = 1
+  updatePage()
+}
+
+function handleSearch() {
+  fetchNursingItems()
+}
 
 function openNursingDialog(item) {
   const isExpired = new Date(item.expireDate) < new Date()
   const isOwed = item.remain <= 0
-  if (isExpired || isOwed) { ElMessage.error('该护理项目已到期或次数用尽，请联系管理员处理'); return }
+  if (isExpired || isOwed) {
+    ElMessage.error('该护理项目已到期或次数用尽，请联系管理员处理')
+    return
+  }
+
   currentRemain.value = item.remain
   nursingForm.nursingTime = new Date().toISOString().slice(0, 10)
   nursingForm.times = 1
@@ -156,8 +175,16 @@ function openNursingDialog(item) {
 }
 
 async function submitNursingRecord() {
-  if (!nursingForm.nursingTime || !nursingForm.times) { ElMessage.warning('请填写完整信息'); return }
-  if (nursingForm.times > currentRemain.value) { ElMessage.error(`添加次数不能超过剩余次数(${currentRemain.value}次)`); return }
+  if (!nursingForm.nursingTime || !nursingForm.times) {
+    ElMessage.warning('请填写完整信息')
+    return
+  }
+
+  if (nursingForm.times > currentRemain.value) {
+    ElMessage.error(`添加次数不能超过剩余次数(${currentRemain.value}次)`)
+    return
+  }
+
   await addNursingRecord({
     customerId,
     itemId: nursingForm.itemId,
@@ -171,7 +198,9 @@ async function submitNursingRecord() {
   fetchNursingItems()
 }
 
-function goBack() { router.back() }
+function goBack() {
+  router.back()
+}
 
 onMounted(fetchNursingItems)
 </script>

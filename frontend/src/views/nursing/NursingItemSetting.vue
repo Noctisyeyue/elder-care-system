@@ -113,11 +113,14 @@ const configPageSize = ref(10)
 const configTotal = ref(0)
 const isChanged = ref(false)
 
+// 左侧可选项目本地分页。
 function updateProjectsPage() {
   const start = (page.value - 1) * pageSize.value
   projects.value = allProjects.value.slice(start, start + pageSize.value)
   total.value = allProjects.value.length
 }
+
+// 右侧已配置项目本地分页。
 function updateConfiguredProjectsPage() {
   const start = (configPage.value - 1) * configPageSize.value
   configuredProjects.value = allConfiguredProjects.value.slice(start, start + configPageSize.value)
@@ -141,37 +144,67 @@ function addProject(item) {
     allConfiguredProjects.value.push(item)
     allProjects.value = allProjects.value.filter(p => p.id !== item.id)
     configPage.value = 1
-    updateConfiguredProjectsPage(); updateProjectsPage(); isChanged.value = true
+    updateConfiguredProjectsPage()
+    updateProjectsPage()
+    isChanged.value = true
   }
 }
+
 function removeProject(item) {
   if (!allProjects.value.find(p => p.id === item.id)) {
     allProjects.value.push(item)
     allConfiguredProjects.value = allConfiguredProjects.value.filter(p => p.id !== item.id)
     page.value = 1
-    updateConfiguredProjectsPage(); updateProjectsPage(); isChanged.value = true
+    updateConfiguredProjectsPage()
+    updateProjectsPage()
+    isChanged.value = true
   }
 }
 
-function handlePageChange(val) { page.value = val; updateProjectsPage() }
-function handleConfigPageChange(val) { configPage.value = val; updateConfiguredProjectsPage() }
-function handleConfigSizeChange(size) { configPageSize.value = size; configPage.value = 1; updateConfiguredProjectsPage() }
-function handleSizeChange(size) { pageSize.value = size; page.value = 1; updateProjectsPage() }
+function handlePageChange(val) {
+  page.value = val
+  updateProjectsPage()
+}
+
+function handleConfigPageChange(val) {
+  configPage.value = val
+  updateConfiguredProjectsPage()
+}
+
+function handleConfigSizeChange(size) {
+  configPageSize.value = size
+  configPage.value = 1
+  updateConfiguredProjectsPage()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  page.value = 1
+  updateProjectsPage()
+}
 
 async function handleSave() {
   await saveNursingLevelItems(levelId, allConfiguredProjects.value.map(p => p.id))
   isChanged.value = false
   ElMessage.success('保存成功！')
 }
-function goBack() { router.push({ name: 'NursingLevel' }) }
 
-onMounted(async () => { await fetchConfiguredProjects(); await fetchAllProjects() })
+function goBack() {
+  router.push({ name: 'NursingLevel' })
+}
+
+onMounted(async () => {
+  await fetchConfiguredProjects()
+  await fetchAllProjects()
+})
 
 onBeforeRouteLeave((to, from, next) => {
   if (isChanged.value) {
     ElMessageBox.confirm('有未保存的变更，确定要离开吗？', '提示', { type: 'warning' })
       .then(() => next()).catch(() => next(false))
-  } else { next() }
+  } else {
+    next()
+  }
 })
 </script>
 

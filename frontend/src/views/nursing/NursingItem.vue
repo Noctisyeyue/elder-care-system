@@ -112,7 +112,12 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getNursingItemList, addNursingItem, updateNursingItem, deleteNursingItem } from '@/api/nursing'
+import {
+  getNursingItemList,
+  addNursingItem,
+  updateNursingItem,
+  deleteNursingItem,
+} from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 
@@ -135,14 +140,18 @@ const rules = {
 
 const fetchList = async () => {
   const res = await getNursingItemList({
-    name: query.name, status: query.status, pageNum: currentPage.value, pageSize: pageSize.value,
+    name: query.name,
+    status: query.status,
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
   })
   list.value = res.records || []
   total.value = res.total || 0
 }
 
 const editDialog = reactive({
-  visible: false, title: '',
+  visible: false,
+  title: '',
   form: { id: null, code: '', name: '', frequency: '', count: '', desc: '', status: '启用' },
 })
 
@@ -152,7 +161,15 @@ function openEditDialog(row) {
     Object.assign(editDialog.form, row)
   } else {
     editDialog.title = '添加护理项目'
-    Object.assign(editDialog.form, { id: null, code: '', name: '', frequency: '', count: '', desc: '', status: '启用' })
+    Object.assign(editDialog.form, {
+      id: null,
+      code: '',
+      name: '',
+      frequency: '',
+      count: '',
+      desc: '',
+      status: '启用',
+    })
   }
   editDialog.visible = true
 }
@@ -161,12 +178,17 @@ async function saveItem() {
   if (!formRef.value) return
   try {
     await formRef.value.validate()
-    if (editDialog.form.id) { await updateNursingItem(editDialog.form) }
-    else { await addNursingItem(editDialog.form) }
+    if (editDialog.form.id) {
+      await updateNursingItem(editDialog.form)
+    } else {
+      await addNursingItem(editDialog.form)
+    }
     editDialog.visible = false
     fetchList()
     ElMessage.success('保存成功')
-  } catch { ElMessage.error('请输入完整信息') }
+  } catch {
+    ElMessage.error('请输入完整信息')
+  }
 }
 
 function removeItem(row) {
@@ -182,21 +204,42 @@ function removeItem(row) {
 }
 
 const multipleSelection = ref([])
-function handleSelectionChange(val) { multipleSelection.value = val }
 
-function deleteSelectedItems() {
-  if (multipleSelection.value.length === 0) { ElMessage.warning('请先选择要删除的项目'); return }
-  ElMessageBox.confirm(`确定要删除选中的 ${multipleSelection.value.length} 个护理项目吗？`, '提示', {
-    confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning',
-  }).then(async () => {
-    for (const row of multipleSelection.value) { await deleteNursingItem(row.id) }
-    ElMessage.success('批量删除成功！')
-    fetchList()
-  }).catch(() => { ElMessage.info('已取消删除') })
+function handleSelectionChange(val) {
+  multipleSelection.value = val
 }
 
-function handlePageChange(val) { currentPage.value = val; fetchList() }
-function handleSizeChange(size) { pageSize.value = size; currentPage.value = 1; fetchList() }
+function deleteSelectedItems() {
+  if (multipleSelection.value.length === 0) {
+    ElMessage.warning('请先选择要删除的项目')
+    return
+  }
+
+  ElMessageBox.confirm(`确定要删除选中的 ${multipleSelection.value.length} 个护理项目吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+    for (const row of multipleSelection.value) {
+      await deleteNursingItem(row.id)
+    }
+    ElMessage.success('批量删除成功！')
+    fetchList()
+  }).catch(() => {
+    ElMessage.info('已取消删除')
+  })
+}
+
+function handlePageChange(val) {
+  currentPage.value = val
+  fetchList()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  currentPage.value = 1
+  fetchList()
+}
 
 onMounted(fetchList)
 </script>

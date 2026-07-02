@@ -51,7 +51,7 @@
         layout="total, prev, pager, next, sizes, jumper"
         :total="total"
         :page-sizes="[5, 10, 20, 50]"
-        @size-change="(size) => { searchForm.pageSize = size; searchForm.pageNum = 1; fetchCustomers(); }"
+        @size-change="handleSizeChange"
         @current-change="handlePageChange" />
     </el-card>
   </div>
@@ -75,11 +75,26 @@ async function fetchCustomers() {
     const res = await getMyCustomers(searchForm)
     customerList.value = res.list || []
     total.value = res.total || 0
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
 
-function handleSearch() { searchForm.pageNum = 1; fetchCustomers() }
-function handlePageChange(page) { searchForm.pageNum = page; fetchCustomers() }
+function handleSearch() {
+  searchForm.pageNum = 1
+  fetchCustomers()
+}
+
+function handlePageChange(page) {
+  searchForm.pageNum = page
+  fetchCustomers()
+}
+
+function handleSizeChange(size) {
+  searchForm.pageSize = size
+  searchForm.pageNum = 1
+  fetchCustomers()
+}
 
 function goToCareItems(row) {
   localStorage.removeItem('caregiverCustomerCareItemsCustomerId')

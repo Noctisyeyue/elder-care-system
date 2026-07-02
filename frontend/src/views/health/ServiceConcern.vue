@@ -49,7 +49,7 @@
       <el-pagination class="table-pagination" background v-model:current-page="customerPagination.currentPage"
         v-model:page-size="customerPagination.pageSize" layout="total, prev, pager, next, sizes, jumper"
         :total="customerPagination.total" :page-sizes="[5, 10, 20, 50]"
-        @size-change="(size) => { customerPagination.pageSize = size; customerPagination.currentPage = 1; searchCustomers(); }"
+        @size-change="handleCustomerSizeChange"
         @current-change="handleCustomerCurrentChange" />
     </el-card>
 
@@ -103,7 +103,7 @@
         <el-pagination style="justify-content: center; padding-top: 10px;" background v-model:current-page="itemPagination.currentPage"
           v-model:page-size="itemPagination.pageSize" layout="total, prev, pager, next, sizes, jumper"
           :total="itemPagination.total" :page-sizes="[5, 10, 20, 50]"
-          @size-change="(size) => { itemPagination.pageSize = size; itemPagination.currentPage = 1; searchPurchasedNursingItems(); }"
+          @size-change="handleItemSizeChange"
           @current-change="handleItemCurrentChange" />
       </div>
 
@@ -157,8 +157,8 @@
           layout="prev, pager, next"
           :total="buyPagination.total"
           :page-sizes="[10, 20, 50]"
-          @size-change="(size) => { buyPagination.pageSize = size; buyPagination.currentPage = 1; loadAvailableItems(); }"
-          @current-change="(val) => { buyPagination.currentPage = val; loadAvailableItems(); }" />
+          @size-change="handleBuySizeChange"
+          @current-change="handleBuyCurrentChange" />
 
         <!-- 已选项目 -->
         <h4 style="margin: 20px 0 12px;">已选护理项目</h4>
@@ -203,8 +203,13 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCustomerList } from '@/api/customer'
-import { getPurchasedItems, renewNursingItem } from '@/api/health'
-import { getNursingCustomerLevelItems, checkIsPurchased, buyNursingItem } from '@/api/health'
+import {
+  getPurchasedItems,
+  renewNursingItem,
+  getNursingCustomerLevelItems,
+  checkIsPurchased,
+  buyNursingItem,
+} from '@/api/health'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 import { del } from '@/utils/request'
 
@@ -285,6 +290,12 @@ function handleCustomerCurrentChange(val) {
   searchCustomers()
 }
 
+function handleCustomerSizeChange(size) {
+  customerPagination.pageSize = size
+  customerPagination.currentPage = 1
+  searchCustomers()
+}
+
 function handleCustomerSelect(row) {
   selectedCustomer.value = row || {}
 }
@@ -323,6 +334,12 @@ async function searchPurchasedNursingItems() {
 
 function handleItemCurrentChange(val) {
   itemPagination.currentPage = val
+  searchPurchasedNursingItems()
+}
+
+function handleItemSizeChange(size) {
+  itemPagination.pageSize = size
+  itemPagination.currentPage = 1
   searchPurchasedNursingItems()
 }
 
@@ -403,10 +420,18 @@ async function loadAvailableItems() {
 
 async function addSelectedItem(row) {
   const exists = selectedItems.value.some(item => item.id === row.id)
-  if (exists) { ElMessage.warning('该护理项目已在已选列表中'); return }
+  if (exists) {
+    ElMessage.warning('该护理项目已在已选列表中')
+    return
+  }
+
   try {
     const res = await checkIsPurchased({ customerId: selectedCustomer.value.id, itemId: row.id })
-    if (res) { ElMessage.warning('该客户已购买此护理项目'); return }
+    if (res) {
+      ElMessage.warning('该客户已购买此护理项目')
+      return
+    }
+
     selectedItems.value.push({
       ...row,
       quantity: 1,
@@ -422,8 +447,23 @@ function removeSelectedItem(index) {
   selectedItems.value.splice(index, 1)
 }
 
+function handleBuySizeChange(size) {
+  buyPagination.pageSize = size
+  buyPagination.currentPage = 1
+  loadAvailableItems()
+}
+
+function handleBuyCurrentChange(val) {
+  buyPagination.currentPage = val
+  loadAvailableItems()
+}
+
 async function saveBuyItems() {
-  if (selectedItems.value.length === 0) { ElMessage.warning('请选择要购买的护理项目'); return }
+  if (selectedItems.value.length === 0) {
+    ElMessage.warning('请选择要购买的护理项目')
+    return
+  }
+
   try {
     const payload = selectedItems.value.map(item => ({
       customerId: selectedCustomer.value.id,
@@ -447,7 +487,9 @@ function handleBuyDialogClose() {
   selectedItems.value = []
 }
 
-onMounted(() => { searchCustomers() })
+onMounted(() => {
+  searchCustomers()
+})
 </script>
 
 <style scoped>

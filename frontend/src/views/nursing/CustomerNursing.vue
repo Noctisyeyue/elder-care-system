@@ -66,74 +66,74 @@
     <el-dialog v-model="setNursingDialogVisible" title="客户护理设置" width="1200px" align-center
       @close="setNursingDialogVisible = false">
       <div class="dialog-body">
-      <el-form label-width="100px">
-        <el-form-item label="当前护理级别" v-if="currentCustomer?.levelId">
-          <el-tag type="success">{{ currentCustomer.nursingLevel }}</el-tag>
-        </el-form-item>
-        <el-form-item label="目标护理级别">
-          <el-select v-model="nursingForm.levelId" placeholder="请选择护理级别" @change="fetchNursingItems">
-            <el-option v-for="item in nursingLevelList" :key="item.id" :label="item.level" :value="item.id" />
-          </el-select>
-        </el-form-item>
-        <div class="dialog-hint">选择后将覆盖当前护理级别的项目配置。</div>
-      </el-form>
+        <el-form label-width="100px">
+          <el-form-item label="当前护理级别" v-if="currentCustomer?.levelId">
+            <el-tag type="success">{{ currentCustomer.nursingLevel }}</el-tag>
+          </el-form-item>
+          <el-form-item label="目标护理级别">
+            <el-select v-model="nursingForm.levelId" placeholder="请选择护理级别" @change="fetchNursingItems">
+              <el-option v-for="item in nursingLevelList" :key="item.id" :label="item.level" :value="item.id" />
+            </el-select>
+          </el-form-item>
+          <div class="dialog-hint">选择后将覆盖当前护理级别的项目配置。</div>
+        </el-form>
 
-      <!-- 当前护理项目列表 -->
-      <div v-if="currentCustomer?.levelId" style="margin-bottom: 20px">
-        <h4>当前级别护理项目</h4>
-        <el-table :data="currentNursingItems" stripe style="margin-bottom: 12px">
+        <!-- 当前护理项目列表 -->
+        <div v-if="currentCustomer?.levelId" style="margin-bottom: 20px">
+          <h4>当前级别护理项目</h4>
+          <el-table :data="currentNursingItems" stripe style="margin-bottom: 12px">
+            <el-table-column type="index" label="序号" width="60" />
+            <el-table-column prop="code" label="编号" />
+            <el-table-column prop="name" label="名称" />
+            <el-table-column prop="frequency" label="执行周次" />
+            <el-table-column prop="count" label="已用次数" />
+            <el-table-column prop="totalCount" label="购买后总次数" />
+            <el-table-column prop="buyDate" label="购买日期" />
+            <el-table-column prop="buyCount" label="购买数量" />
+            <el-table-column prop="expireDate" label="到期日期" />
+            <el-table-column prop="status" label="状态">
+              <template #default="scope">
+                <el-tag :type="scope.row.expireDate < getToday() ? 'danger' : 'success'">
+                  {{ scope.row.expireDate < getToday() ? '已过期' : '使用中' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <h4>目标级别护理项目</h4>
+        <el-table :data="nursingForm.items" stripe style="margin-bottom: 10px">
           <el-table-column type="index" label="序号" width="60" />
           <el-table-column prop="code" label="编号" />
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="frequency" label="执行周次" />
-          <el-table-column prop="count" label="已用次数" />
-          <el-table-column prop="totalCount" label="购买后总次数" />
-          <el-table-column prop="buyDate" label="购买日期" />
-          <el-table-column prop="buyCount" label="购买数量" />
-          <el-table-column prop="expireDate" label="到期日期" />
-          <el-table-column prop="status" label="状态">
+          <el-table-column prop="count" label="单份总次数" />
+          <el-table-column prop="buyDate" label="服务购买日期" width="160">
             <template #default="scope">
-              <el-tag :type="scope.row.expireDate < getToday() ? 'danger' : 'success'">
-                {{ scope.row.expireDate < getToday() ? '已过期' : '使用中' }}
-              </el-tag>
+              <el-date-picker v-model="scope.row.buyDate" type="date" placeholder="选择日期" size="small"
+                style="width: 140px" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="buyCount" label="购买数量" width="120">
+            <template #default="scope">
+              <el-input-number v-model="scope.row.buyCount" :min="0" size="small" style="width: 100px" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="expireDate" label="服务到期日期" width="180">
+            <template #default="scope">
+              <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" size="small"
+                style="width: 160px" />
             </template>
           </el-table-column>
         </el-table>
-      </div>
-
-      <h4>目标级别护理项目</h4>
-      <el-table :data="nursingForm.items" stripe style="margin-bottom: 10px">
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="code" label="编号" />
-        <el-table-column prop="name" label="名称" />
-        <el-table-column prop="frequency" label="执行周次" />
-        <el-table-column prop="count" label="单份总次数" />
-        <el-table-column prop="buyDate" label="服务购买日期" width="160">
-          <template #default="scope">
-            <el-date-picker v-model="scope.row.buyDate" type="date" placeholder="选择日期" size="small"
-              style="width: 140px" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="buyCount" label="购买数量" width="120">
-          <template #default="scope">
-            <el-input-number v-model="scope.row.buyCount" :min="0" size="small" style="width: 100px" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="expireDate" label="服务到期日期" width="180">
-          <template #default="scope">
-            <el-date-picker v-model="scope.row.expireDate" type="date" placeholder="选择日期" size="small"
-              style="width: 160px" />
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-pagination style="justify-content: center;" background
-        v-model:current-page="itemPage"
-        v-model:page-size="itemPageSize"
-        layout="total, prev, pager, next, sizes, jumper"
-        :total="itemTotal"
-        :page-sizes="[5, 10, 20, 50]"
-        @size-change="handleItemSizeChange"
-        @current-change="handleItemPageChange" />
+        <el-pagination style="justify-content: center;" background
+          v-model:current-page="itemPage"
+          v-model:page-size="itemPageSize"
+          layout="total, prev, pager, next, sizes, jumper"
+          :total="itemTotal"
+          :page-sizes="[5, 10, 20, 50]"
+          @size-change="handleItemSizeChange"
+          @current-change="handleItemPageChange" />
       </div>
       <template #footer>
         <el-button @click="setNursingDialogVisible = false">取消</el-button>
@@ -146,7 +146,13 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { getCustomerList } from '@/api/customer'
-import { getNursingLevelList, getNursingLevelItems, getCustomerNursingItems, addCustomerNursingLevel, removeCustomerNursingLevel } from '@/api/nursing'
+import {
+  getNursingLevelList,
+  getNursingLevelItems,
+  getCustomerNursingItems,
+  addCustomerNursingLevel,
+  removeCustomerNursingLevel,
+} from '@/api/nursing'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 
@@ -166,31 +172,48 @@ const itemPage = ref(1)
 const itemPageSize = ref(10)
 const itemTotal = ref(0)
 
-function handlePreSubmitNursingSetting() { submitNursingSetting() }
+function handlePreSubmitNursingSetting() {
+  submitNursingSetting()
+}
 
+// 查询客户列表，护理级别设置入口从这里进入。
 const fetchCustomerList = async () => {
   const res = await getCustomerList({ customerName: queryName.value, pageNum: page.value, pageSize: pageSize.value })
   customerList.value = res.records || []
   total.value = res.total || 0
 }
 
-function handlePageChange(val) { page.value = val; fetchCustomerList() }
-function handleSizeChange(size) { pageSize.value = size; page.value = 1; fetchCustomerList() }
+function handlePageChange(val) {
+  page.value = val
+  fetchCustomerList()
+}
 
+function handleSizeChange(size) {
+  pageSize.value = size
+  page.value = 1
+  fetchCustomerList()
+}
+
+// 只展示启用的护理级别供客户选择。
 const fetchNursingLevels = async () => {
   const res = await getNursingLevelList({ status: '启用', pageNum: 1, pageSize: 9999 })
   nursingLevelList.value = res.records || []
 }
 
+// 选择目标护理级别后，加载该级别对应的护理项目模板。
 const fetchNursingItems = async (levelId = nursingForm.levelId) => {
   if (!levelId) return
   const res = await getNursingLevelItems({ levelId, pageNum: itemPage.value, pageSize: itemPageSize.value })
   nursingForm.items = (res.records || []).map(item => ({
-    ...item, buyDate: getToday(), buyCount: 1, expireDate: getDefaultExpireDate(),
+    ...item,
+    buyDate: getToday(),
+    buyCount: 1,
+    expireDate: getDefaultExpireDate(),
   }))
   itemTotal.value = res.total || 0
 }
 
+// 打开弹窗时保留当前级别项目，方便用户判断覆盖影响。
 const openSetNursingDialog = async (customer) => {
   currentCustomer.value = customer
   setNursingDialogVisible.value = true
@@ -205,13 +228,24 @@ const openSetNursingDialog = async (customer) => {
 }
 
 const submitNursingSetting = async () => {
-  if (!nursingForm.levelId) { ElMessage.error('请选择护理级别'); return }
-  if (!nursingForm.items.length) { ElMessage.error('该护理级别下无护理项目'); return }
+  if (!nursingForm.levelId) {
+    ElMessage.error('请选择护理级别')
+    return
+  }
+
+  if (!nursingForm.items.length) {
+    ElMessage.error('该护理级别下无护理项目')
+    return
+  }
+
   await addCustomerNursingLevel({
     customerId: currentCustomer.value.id,
     levelId: nursingForm.levelId,
     items: nursingForm.items.filter(item => item.buyCount > 0).map(item => ({
-      itemId: item.id, buyDate: item.buyDate, buyCount: item.buyCount, expireDate: item.expireDate,
+      itemId: item.id,
+      buyDate: item.buyDate,
+      buyCount: item.buyCount,
+      expireDate: item.expireDate,
     })),
   })
   ElMessage.success('设置成功')
@@ -228,13 +262,26 @@ const removeNursingLevel = (customer) => {
     })
 }
 
-function getToday() { return new Date().toISOString().slice(0, 10) }
-function getDefaultExpireDate() {
-  const date = new Date(); date.setMonth(date.getMonth() + 3); return date.toISOString().slice(0, 10)
+function getToday() {
+  return new Date().toISOString().slice(0, 10)
 }
 
-function handleItemPageChange(val) { itemPage.value = val; fetchNursingItems() }
-function handleItemSizeChange(size) { itemPageSize.value = size; itemPage.value = 1; fetchNursingItems() }
+function getDefaultExpireDate() {
+  const date = new Date()
+  date.setMonth(date.getMonth() + 3)
+  return date.toISOString().slice(0, 10)
+}
+
+function handleItemPageChange(val) {
+  itemPage.value = val
+  fetchNursingItems()
+}
+
+function handleItemSizeChange(size) {
+  itemPageSize.value = size
+  itemPage.value = 1
+  fetchNursingItems()
+}
 
 onMounted(fetchCustomerList)
 </script>

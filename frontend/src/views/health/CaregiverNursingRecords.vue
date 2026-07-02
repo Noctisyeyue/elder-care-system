@@ -114,17 +114,28 @@ const nursingTotal = ref(0)
 const customerLoading = ref(false)
 const nursingLoading = ref(false)
 
+// 护工端只查询自己负责的客户。
 async function fetchCustomerList() {
   customerLoading.value = true
   try {
     const res = await getMyCustomers({ customerName: queryName.value, pageNum: page.value, pageSize: pageSize.value })
     customerList.value = res.list || []
     total.value = res.total || 0
-  } finally { customerLoading.value = false }
+  } finally {
+    customerLoading.value = false
+  }
 }
 
-function handlePageChange(val) { page.value = val; fetchCustomerList() }
-function handleSizeChange(size) { pageSize.value = size; page.value = 1; fetchCustomerList() }
+function handlePageChange(val) {
+  page.value = val
+  fetchCustomerList()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  page.value = 1
+  fetchCustomerList()
+}
 
 async function viewNursingRecords(customer) {
   currentCustomer.value = customer
@@ -142,11 +153,21 @@ async function fetchNursingRecords() {
     })
     nursingRecords.value = res.list || []
     nursingTotal.value = res.total || 0
-  } finally { nursingLoading.value = false }
+  } finally {
+    nursingLoading.value = false
+  }
 }
 
-function handleNursingPageChange(val) { nursingPage.value = val; fetchNursingRecords() }
-function handleNursingSizeChange(size) { nursingPageSize.value = size; nursingPage.value = 1; fetchNursingRecords() }
+function handleNursingPageChange(val) {
+  nursingPage.value = val
+  fetchNursingRecords()
+}
+
+function handleNursingSizeChange(size) {
+  nursingPageSize.value = size
+  nursingPage.value = 1
+  fetchNursingRecords()
+}
 
 onMounted(fetchCustomerList)
 </script>

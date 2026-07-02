@@ -81,8 +81,16 @@ async function fetchCaregivers() {
   total.value = res.total || 0
 }
 
-function handleSizeChange(size) { pageSize.value = size; pageNum.value = 1; fetchCaregivers() }
-function handleCurrentChange(page) { pageNum.value = page; fetchCaregivers() }
+function handleSizeChange(size) {
+  pageSize.value = size
+  pageNum.value = 1
+  fetchCaregivers()
+}
+
+function handleCurrentChange(page) {
+  pageNum.value = page
+  fetchCaregivers()
+}
 
 function goToServiceConfig(row) {
   localStorage.setItem('serviceConfigCaregiverId', row.id)

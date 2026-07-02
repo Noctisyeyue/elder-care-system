@@ -116,7 +116,11 @@ function openEditDialog(row) {
 }
 
 async function saveLevel() {
-  if (!editDialog.form.level) { ElMessage.error('请输入护理级别名称'); return }
+  if (!editDialog.form.level) {
+    ElMessage.error('请输入护理级别名称')
+    return
+  }
+
   if (editDialog.form.id) {
     await updateNursingLevel({ id: editDialog.form.id, status: editDialog.form.status })
   } else {
@@ -132,8 +136,16 @@ function goToItemConfig(level) {
   router.push({ name: 'NursingItemSetting' })
 }
 
-function handlePageChange(val) { page.value = val; fetchLevelList() }
-function handleSizeChange(size) { pageSize.value = size; page.value = 1; fetchLevelList() }
+function handlePageChange(val) {
+  page.value = val
+  fetchLevelList()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  page.value = 1
+  fetchLevelList()
+}
 
 onMounted(fetchLevelList)
 </script>

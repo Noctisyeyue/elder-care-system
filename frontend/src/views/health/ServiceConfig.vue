@@ -90,7 +90,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { getCustomersNoCaregiver, setCaregiverCustomers, getCaregiverCustomers } from '@/api/health'
+import {
+  getCustomersNoCaregiver,
+  setCaregiverCustomers,
+  getCaregiverCustomers,
+} from '@/api/health'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
 
@@ -111,6 +115,7 @@ const myCustomersPageSize = ref(10)
 const myCustomersTotal = ref(0)
 const isChanged = ref(false)
 
+// 左侧列表：当前未分配管家的客户。
 async function fetchNoCaregiverCustomers() {
   const res = await getCustomersNoCaregiver({ customerName: customerSearchName.value, pageNum: 1, pageSize: 9999 })
   allNoCaregiverCustomers.value = res.list || []
@@ -118,6 +123,7 @@ async function fetchNoCaregiverCustomers() {
   updateNoCaregiverPage()
 }
 
+// 右侧列表：当前护工已经服务的客户。
 async function fetchMyCustomers() {
   const res = await getCaregiverCustomers({ caregiverId, pageNum: 1, pageSize: 9999 })
   allMyCustomers.value = res.list || []
@@ -138,25 +144,50 @@ function updateMyCustomersPage() {
 }
 
 function handleNoCaregiverQuery() {
-  if (!customerSearchName.value.trim()) { ElMessage.warning('请输入查询信息'); return }
+  if (!customerSearchName.value.trim()) {
+    ElMessage.warning('请输入查询信息')
+    return
+  }
+
   fetchNoCaregiverCustomers()
 }
 
-function handleNoCaregiverCurrentChange(page) { noCaregiverPageNum.value = page; updateNoCaregiverPage() }
-function handleMyCustomersCurrentChange(page) { myCustomersPageNum.value = page; updateMyCustomersPage() }
-function handleNoCaregiverSizeChange(size) { noCaregiverPageSize.value = size; noCaregiverPageNum.value = 1; updateNoCaregiverPage() }
-function handleMyCustomersSizeChange(size) { myCustomersPageSize.value = size; myCustomersPageNum.value = 1; updateMyCustomersPage() }
+function handleNoCaregiverCurrentChange(page) {
+  noCaregiverPageNum.value = page
+  updateNoCaregiverPage()
+}
+
+function handleMyCustomersCurrentChange(page) {
+  myCustomersPageNum.value = page
+  updateMyCustomersPage()
+}
+
+function handleNoCaregiverSizeChange(size) {
+  noCaregiverPageSize.value = size
+  noCaregiverPageNum.value = 1
+  updateNoCaregiverPage()
+}
+
+function handleMyCustomersSizeChange(size) {
+  myCustomersPageSize.value = size
+  myCustomersPageNum.value = 1
+  updateMyCustomersPage()
+}
 
 function addCustomer(customer) {
   allNoCaregiverCustomers.value = allNoCaregiverCustomers.value.filter(c => c.id !== customer.id)
   allMyCustomers.value.push(customer)
-  updateNoCaregiverPage(); updateMyCustomersPage(); isChanged.value = true
+  updateNoCaregiverPage()
+  updateMyCustomersPage()
+  isChanged.value = true
 }
 
 function removeCustomer(customer) {
   allMyCustomers.value = allMyCustomers.value.filter(c => c.id !== customer.id)
   allNoCaregiverCustomers.value.push(customer)
-  updateNoCaregiverPage(); updateMyCustomersPage(); isChanged.value = true
+  updateNoCaregiverPage()
+  updateMyCustomersPage()
+  isChanged.value = true
 }
 
 async function handleSave() {
@@ -165,14 +196,20 @@ async function handleSave() {
   ElMessage.success('保存成功！')
 }
 
-function goBack() { router.back() }
+function goBack() {
+  router.back()
+}
 
 function handleBeforeUnload(e) {
-  if (isChanged.value) { e.preventDefault(); e.returnValue = '' }
+  if (isChanged.value) {
+    e.preventDefault()
+    e.returnValue = ''
+  }
 }
 
 onMounted(() => {
-  fetchNoCaregiverCustomers(); fetchMyCustomers()
+  fetchNoCaregiverCustomers()
+  fetchMyCustomers()
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
@@ -182,7 +219,9 @@ onBeforeRouteLeave((to, from, next) => {
   if (isChanged.value) {
     ElMessageBox.confirm('有未保存的变更，确定要离开吗？', '提示', { type: 'warning' })
       .then(() => next()).catch(() => next(false))
-  } else { next() }
+  } else {
+    next()
+  }
 })
 </script>
 

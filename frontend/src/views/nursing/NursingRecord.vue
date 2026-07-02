@@ -51,7 +51,7 @@
         layout="total, prev, pager, next, sizes, jumper"
         :total="total"
         :page-sizes="[5, 10, 20, 50]"
-        @size-change="(size) => { pageSize = size; page = 1; fetchCustomerList(); }"
+        @size-change="handleSizeChange"
         @current-change="handlePageChange" />
     </el-card>
 
@@ -89,7 +89,7 @@
           layout="total, prev, pager, next, sizes, jumper"
           :total="nursingRecordTotal"
           :page-sizes="[5, 10, 20, 50]"
-          @size-change="(size) => { nursingRecordPageSize = size; nursingRecordPage = 1; fetchNursingRecords(); }"
+          @size-change="handleNursingRecordSizeChange"
           @current-change="handleNursingRecordPageChange" />
       </div>
     </el-dialog>
@@ -116,13 +116,23 @@ const nursingRecordPage = ref(1)
 const nursingRecordPageSize = ref(10)
 const nursingRecordTotal = ref(0)
 
+// 管理端可查看全部客户的护理记录。
 async function fetchCustomerList() {
   const res = await getCustomerList({ customerName: queryName.value, pageNum: page.value, pageSize: pageSize.value })
   customerList.value = res.records || []
   total.value = res.total || 0
 }
 
-function handlePageChange(val) { page.value = val; fetchCustomerList() }
+function handlePageChange(val) {
+  page.value = val
+  fetchCustomerList()
+}
+
+function handleSizeChange(size) {
+  pageSize.value = size
+  page.value = 1
+  fetchCustomerList()
+}
 
 async function fetchNursingRecords() {
   if (!currentCustomer.value) return
@@ -140,7 +150,16 @@ function viewNursingRecords(customer) {
   fetchNursingRecords()
 }
 
-function handleNursingRecordPageChange(val) { nursingRecordPage.value = val; fetchNursingRecords() }
+function handleNursingRecordPageChange(val) {
+  nursingRecordPage.value = val
+  fetchNursingRecords()
+}
+
+function handleNursingRecordSizeChange(size) {
+  nursingRecordPageSize.value = size
+  nursingRecordPage.value = 1
+  fetchNursingRecords()
+}
 
 function handleRemoveNursingRecord(record) {
   ElMessageBox.confirm('确定要移除该护理记录吗？', '警告', { type: 'warning' }).then(async () => {
